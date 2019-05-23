@@ -121,6 +121,32 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
+    delete:
+      tags:
+      - games
+      summary: "Remove a game specified by its id"
+      operationId: removeGameByID
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: gameID
+          in: "path"
+          description: "Id of game to be removed"
+          required: true
+          type: "integer"
+      responses:
+        204:
+          description: "game successfully removed"
+        404:
+          description: "No game with this id"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
   /games/{gameID}/players:
     get:
       summary: Get a list of players in the game
@@ -216,6 +242,33 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
+    delete:
+      tags:
+      - players
+      summary: "Remove a player specified by its id"
+      operationId: removePlayerByID
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: playerID
+          in: "path"
+          description: "Id of player to be removed"
+          required: true
+          type: string
+          pattern: '^g[1-9]\d*p[1-9]\d*$'
+      responses:
+        204:
+          description: "player successfully removed"
+        404:
+          description: "No player with this id"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
 parameters:
   authorization:
     name: Authorization
