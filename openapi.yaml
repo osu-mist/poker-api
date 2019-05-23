@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  title: Express API Skeleton
-  description: Skeleton for Express APIs
+  title: Poker API
+  description: Design for Poker API
   version: v1
   license:
     name: GNU Affero General Public License Version 3
@@ -16,175 +16,148 @@ host: api.oregonstate.edu
 basePath: /v1
 externalDocs:
   description: GitHub Repository
-  url: https://github.com/osu-mist/express-api-skeleton
+  url: https://github.com/osu-mist/poker-api
 produces:
   - application/json
 paths:
-  /pets:
-    get:
-      summary: List all pets
+  /games:
+    post:
+      summary: Create a poker game
       tags:
-        - pets
-      description: Get all pets
-      operationId: getPets
+        - games
+      consumes:
+        - application/json
+      operationId: postGames
       parameters:
-        - $ref: '#/parameters/authorization'
-        - $ref: '#/parameters/pageNumber'
-        - $ref: '#/parameters/pageSize'
-        - in: query
-          name: species
-          description: Search by pet species
-          required: false
-          type: string
-      responses:
-        '200':
-          description: Successful response
+        - in: body
+          name: requestBody
           schema:
-            $ref: '#/definitions/PetsResult'
+            $ref: '#/definitions/GamePostBody'
+      responses:
+        '201':
+          description: Successfully created a game
+          schema:
+            $ref: '#/definitions/GameResult'
+          headers:
+            Location:
+              type: string
+              format: url
+              description: Location of the newly created game
         '400':
-          description: Bad request
+          description: Invalid game object
           schema:
             $ref: '#/definitions/Errors'
         '500':
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-  /pets/{id}:
-    get:
-      summary: Info for a specific pet
-      tags:
-        - pets
-      description: Get pet by unique ID
-      operationId: getPetById
-      parameters:
-        - $ref: '#/parameters/authorization'
-        - name: id
-          in: path
-          description: Unique Pet ID
-          required: true
-          type: string
-      responses:
-        '200':
-          description: Successful response
-          schema:
-            $ref: '#/definitions/PetResult'
-        '404':
-          description: PetResource not found
-          schema:
-            $ref: '#/definitions/Errors'
-        '500':
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/Errors'
-parameters:
-  authorization:
-    name: Authorization
-    in: header
-    type: string
-    required: true
-    description: '"Bearer [token]" where [token] is your OAuth2 access token'
-  pageNumber:
-    name: page[number]
-    in: query
-    type: integer
-    required: false
-    description: Page number of results
-    default: 1
-    minimum: 1
-  pageSize:
-    name: page[size]
-    in: query
-    type: integer
-    required: false
-    description: Number of results to return
-    default: 25
-    maximum: 500
-    minimum: 1
 definitions:
-  Meta:
+  GameResource:
     properties:
-      totalResults:
-        type: integer
-        description: Total number of results
-        example: 10
-      totalPages:
-        type: integer
-        description: Total number of pages
-        example: 10
-      currentPageNumber:
-        type: integer
-        description: Page number of the returned results
-        example: 1
-      currentPageSize:
-        type: integer
-        description: Number of results per page
-        example: 25
+      id:
+        $ref: '#/definitions/gameId'
+      type:
+        $ref: '#/definitions/gameType'
+      attributes:
+        type: object
+        properties:
+          round:
+            $ref: '#/definitions/round'
+          players:
+            $ref: '#/definitions/playerLinks'
+          tableCards:
+            $ref: '#/definitions/cardLinks'
+      links:
+        $ref: '#/definitions/SelfLink'
+  GamePostBody:
+    properties:
+      data:
+        type: object
+        properties:
+          type:
+            $ref: '#/definitions/gameType'
+          attributes:
+            type: object
+            properties:
+              playerNum:
+                $ref: '#/definitions/playerNum'
+              minimumBet:
+                $ref: '#/definitions/minimumBet'
+              maximumBet:
+                $ref: '#/definitions/maximumBet'
+            required:
+              - playerNum
+              - minimumBet
+              - maximumBet
+            additionalProperties: false
+        required: 
+          - type
+          - attributes
+        additionalProperties: false
+    required:
+      - data
+    additionalProperties: false
+  gameType:
+    type: string
+    enum:
+      - game
+  gameId:
+    type: integer
+    minimum: 0
+    description: A unique ID of a poker game
+  playerNum:
+    type: integer
+    maximum: 5
+    minimum: 2
+    description: The number of player in the game
+    example: 2
+  minimumBet:
+    type: integer
+    minimum: 0
+    description: The minimum bet every player have to place at least each round.
+    example: 1000
+  maximumBet:
+    type: integer
+    minimum: 0
+    description: The maximum bet every player can place each round.
+    example: 2000
+  playerLinks:
+    type: array
+    items:
+      $ref: '#/definitions/playerLink'
+  playerLink:
+    type: string
+    format: url
+    description: Link to the playerResource
+  cardLinks:
+    type: array
+    items:
+      $ref: '#/definitions/cardLink'
+  cardLink:
+    type: string
+    format: url
+    description: Link to the cardResource
+  GameResult:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        $ref: '#/definitions/GameResource'
+  round:
+    type: string
+    enum:
+      - 'blind'
+      - 'flop'
+      - 'turn'
+      - 'river'
+      - 'showdown'
   SelfLink:
     properties:
       self:
         type: string
         format: url
         description: Self-link of current resource
-  PaginationLinks:
-    properties:
-      first:
-        type: string
-        format: url
-        description: The first page of data
-      last:
-        type: string
-        format: url
-        description: The last page of data
-      prev:
-        type: string
-        format: url
-        description: The previous page of data
-      next:
-        type: string
-        format: url
-        description: The next page of data
-  PetResource:
-    properties:
-      id:
-        type: string
-        description: A unique ID of pet
-      type:
-        type: string
-        enum: [pet]
-      links:
-        $ref: '#/definitions/SelfLink'
-      attributes:
-        properties:
-          name:
-            type: string
-            description: Name of pet
-            example: Hedwig
-          owner:
-            type: string
-            description: Name of owner
-            example: Harry Potter
-          species:
-            type: string
-            description: Species of pet
-            example: Owl
-  PetResult:
-    properties:
-      links:
-        $ref: '#/definitions/SelfLink'
-      data:
-        $ref: '#/definitions/PetResource'
-  PetsResult:
-    properties:
-      links:
-        allOf:
-          - $ref: '#/definitions/SelfLink'
-          - $ref: '#/definitions/PaginationLinks'
-      meta:
-        $ref: '#/definitions/Meta'
-      data:
-        type: array
-        items:
-          $ref: '#/definitions/PetResource'
+  
   Error:
     properties:
       status:
@@ -215,3 +188,4 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Error'
+              
