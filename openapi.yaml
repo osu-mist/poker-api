@@ -51,6 +51,69 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
+  /games/{gameID}:
+    get:
+      summary: Info for a specific game
+      tags:
+        - games
+      description: get game by game id
+      operationId: getGameByID
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - name: gameID
+          in: path
+          description: unique integer
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/GameResult'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /players/{playerID}:
+    get:
+      summary: Info for a specific player in a game
+      tags:
+        - players
+      description: get player by player id
+      operationId: getPlayerByID
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - name: playerID
+          in: path
+          description: g[int]p[int] where the first int is the ID of the game and the second int is the ID of the player in that game.
+          required: true
+          type: string
+          pattern: '^g[1-9]\d*p[1-9]\d*$'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/PlayerResult'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+      
+parameters:
+  authorization:
+    name: Authorization
+    in: header
+    type: string
+    required: true
+    description: '"Bearer [token]" where token is your OAuth2 access token'
 definitions:
   GameResource:
     properties:
@@ -64,11 +127,79 @@ definitions:
           round:
             $ref: '#/definitions/round'
           players:
-            $ref: '#/definitions/playerLinks'
+            $ref: '#/definitions/players'
           tableCards:
-            $ref: '#/definitions/cardLinks'
+            $ref: '#/definitions/cards'
       links:
         $ref: '#/definitions/SelfLink'
+  players:
+    type: array
+    items:
+      $ref: '#/definitions/player'
+  player:
+    type: object
+    properties:
+      cards:
+        $ref: '#/definitions/cards'
+      bet:
+        $ref: '#/definitions/playerBet'
+      status:
+        $ref: '#/definitions/playerStatus'
+  playerBet:
+    type: integer
+    minimum: 0
+    description: Each player's bet
+  playerStatus:
+    type: string
+    enum:
+      - "called"
+      - "raised"
+      - "checked"
+      - "folded"
+  playerResource:
+    properties:
+      id:
+        $ref: '#/definitions/playerID'
+      type:
+        $ref: '#/definitions/playerType'
+      attributes:
+        type: object
+        properties:
+          players:
+            $ref: '#/definitions/players'
+  card:
+    properties:
+      attributes:
+        type: object
+        properties:
+          cardNumber:
+            $ref: '#/definitions/cardNumber'
+          cardSuit:
+            $ref: '#/definitions/cardSuit'
+  cardNumber:
+    type: string
+    enum: 
+      - 'A'
+      - '2'
+      - '3'
+      - '4'
+      - '5'
+      - '6'
+      - '7'
+      - '8'
+      - '9'
+      - '10'
+      - 'J'
+      - 'Q'
+      - 'K'
+  cardSuit:
+    type: string
+    enum:
+      - 'Diamond'
+      - 'Club'
+      - 'Spade'
+      - 'Heart'
+      
   GamePostBody:
     properties:
       data:
@@ -101,6 +232,14 @@ definitions:
     type: string
     enum:
       - game
+  playerType:
+    type: string
+    enum:
+      - player
+  playerID:
+    type: string
+    example: 'g1p1'
+    pattern: '^g[1-9]\d*p[1-9]\d*$'
   gameId:
     type: integer
     minimum: 0
@@ -129,10 +268,10 @@ definitions:
     type: string
     format: url
     description: Link to the playerResource
-  cardLinks:
+  cards:
     type: array
     items:
-      $ref: '#/definitions/cardLink'
+      $ref: '#/definitions/card'
   cardLink:
     type: string
     format: url
@@ -143,6 +282,12 @@ definitions:
         $ref: '#/definitions/SelfLink'
       data:
         $ref: '#/definitions/GameResource'
+  PlayerResult:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        $ref: '#/definitions/playerResource'
   round:
     type: string
     enum:
