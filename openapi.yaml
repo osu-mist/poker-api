@@ -35,7 +35,7 @@ paths:
             $ref: '#/definitions/GamePostBody'
       responses:
         '201':
-          description: Successfully created a game
+          description: Successfully update a game
           schema:
             $ref: '#/definitions/GameResult'
           headers:
@@ -45,6 +45,10 @@ paths:
               description: Location of the newly created game
         '400':
           description: Invalid game object
+          schema:
+            $ref: '#/definitions/Errors'
+        '404':
+          description: No such a game
           schema:
             $ref: '#/definitions/Errors'
         '500':
@@ -70,6 +74,72 @@ paths:
           description: Successful response
           schema:
             $ref: '#/definitions/GameResult'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    put:
+      tags:
+        - games
+      summary: Update a game specified by its id
+      operationId: updateGameByID
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - name: gameID
+          in: path
+          description: ID of game to be updated
+          required: true
+          type: integer
+        - name: updateBody
+          in: body
+          description: Object that will overwrite the game specified by its id
+          required: true
+          schema:
+            $ref: '#/definitions/GameUpdateBody'
+      responses:
+        '200':
+          description: Successfully update a Game
+          schema:
+            $ref: '#/definitions/GameResult'
+          headers:
+            Location:
+              type: string
+              format: url
+              description: Location of the updated game
+        '400':
+          description: Invalid game object
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /games/{gameID}/players:
+    get:
+      summary: Get a list of players in the game
+      tags:
+        - players
+      description: get players by game id
+      operationId: getPlayersByGameID
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - name: gameID
+          in: path
+          description: unique integer
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/PlayerResults'
         '404':
           description: Game not found
           schema:
@@ -106,7 +176,46 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-      
+    put:
+      tags:
+        - players
+      summary: Update a player specified by its id
+      operationId: updatePlayerByID
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - name: playerID
+          in: path
+          description: ID of player to be updated
+          required: true
+          type: string
+          pattern: '^g[1-9]\d*p[1-9]\d*$'
+        - name: updateBody
+          in: body
+          description: Object that will overwrite the player specified by its id
+          required: true
+          schema:
+            $ref: '#/definitions/PlayerUpdateBody'
+      responses:
+        '200':
+          description: Successfully update a Player
+          schema:
+            $ref: '#/definitions/PlayerResult'
+          headers:
+            Location:
+              type: string
+              format: url
+              description: Location of the updated player
+        '400':
+          description: Invalid player object
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
 parameters:
   authorization:
     name: Authorization
@@ -228,6 +337,54 @@ definitions:
     required:
       - data
     additionalProperties: false
+  
+  GameUpdateBody:
+    properties:
+      data:
+        type: object
+        properties:
+          type:
+            $ref: '#/definitions/gameType'
+          attributes:
+            type: object
+            properties:
+              round:
+                $ref: '#/definitions/round'
+              players:
+                $ref: '#/definitions/players'
+              tableCards:
+                $ref: '#/definitions/cards'
+            required:
+              - round
+              - players
+              - tableCards
+            additionalProperties: false
+        required: 
+          - type
+          - attributes
+        additionalProperties: false
+  PlayerUpdateBody:
+    properties:
+      data:
+        type: object
+        properties:
+          type:
+            $ref: '#/definitions/playerType'
+          attributes:
+            type: object
+            properties:
+              player:
+                $ref: '#/definitions/player'
+            required:
+              - player
+            additionalProperties: false
+        required: 
+          - type
+          - attributes
+        additionalProperties: false
+    required: 
+      - data
+    additionalProperties: false
   gameType:
     type: string
     enum:
@@ -288,6 +445,14 @@ definitions:
         $ref: '#/definitions/SelfLink'
       data:
         $ref: '#/definitions/playerResource'
+  PlayerResults:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/playerResource'
   round:
     type: string
     enum:
