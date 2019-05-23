@@ -14,10 +14,12 @@ Returns game of a specific id number. Parameters include: id, numPlayers, round,
  ### /games/{id}/players
 Returns a list of player in a specific game, with each individual player's parameter: id, cards, bet, and status.
 
- ### /games/{id}/players/{id}
+ ### /players/{id}
 Return a specific player in a specific game, with the parameter described above.
 
  ##  POST
+
+
 
  ### /games/
 Post with a body of the game configuration, such as the total number of players, the minimum and maximum bet of each round, the status of the current round, and other settings.
@@ -35,12 +37,13 @@ Post with a body of the game configuration, such as the total number of players,
 }
 ```
 
+
  ##  PUT
 
  ### /games/{id}
 Update the game by changing its round status. Other information of the game are not supposed to be changed by this endpoint.
 
- ### /games/{id}/players/{id}
+ ### /players/{id}
 Update the player by changing its bet or status. Other information of the player are not supposed to be changed by this endpoint.
 
  ### DELETE
@@ -48,5 +51,5 @@ Update the player by changing its bet or status. Other information of the player
  ### /games/{id}
 Delete a game with its id.
 
- ### /games/{id}/player/{id}
+ ### /players/{id}
 Delete a player from a certain game(player leaving the game).
