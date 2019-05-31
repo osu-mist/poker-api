@@ -73,7 +73,7 @@ paths:
       tags:
         - games
       description: Get a game by its gameid
-      operationId: getGameById
+      operationId: getGameByGameId
       parameters: 
         - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/gameId'
@@ -94,7 +94,7 @@ paths:
       tags:
         - games
       summary: Update a game specified by its id
-      operationId: updateGameById
+      operationId: patchGameByGameId
       consumes:
         - application/json
       parameters: 
@@ -114,6 +114,10 @@ paths:
           description: Invalid game object
           schema:
             $ref: '#/definitions/Errors'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
         '500':
           description: Internal server error
           schema:
@@ -122,7 +126,7 @@ paths:
       tags:
       - games
       summary: "Remove a game specified by its id"
-      operationId: removeGameById
+      operationId: deleteGameByGameId
       parameters:
         - $ref: '#/parameters/gameId'
       responses:
@@ -204,7 +208,7 @@ paths:
         '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/PlayerResult'
+            $ref: '#/definitions/PlayerResults'
         '404':
           description: Plyaer not found
           schema:
@@ -235,6 +239,10 @@ paths:
               type: string
               format: url
               description: Location of the newly created player profile
+        '404':
+          description: Player not found
+          schema:
+            $ref: '#/definitions/Errors'
         '400':
           description: Invalid player object
           schema:
@@ -249,7 +257,7 @@ paths:
       tags:
         - players
       description: get player by player id
-      operationId: getPlayerById
+      operationId: getPlayerByPlayerId
       parameters: 
         - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/playerId'
@@ -260,18 +268,18 @@ paths:
           schema:
             $ref: '#/definitions/PlayerResult'
         '404':
-          description: Plyaer not found
+          description: Player not found
           schema:
             $ref: '#/definitions/Errors'
         '500':
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-    put:
+    patch:
       tags:
         - players
       summary: Update a player specified by its id
-      operationId: updatePlayerById
+      operationId: patchPlayerByPlayerId
       consumes:
         - application/json
       parameters: 
@@ -292,6 +300,10 @@ paths:
           description: Invalid player object
           schema:
             $ref: '#/definitions/Errors'
+        '404':
+          description: Player/Game not found
+          schema:
+            $ref: '#/definitions/Errors'
         '500':
           description: Internal server error
           schema:
@@ -300,7 +312,7 @@ paths:
       tags:
       - players
       summary: "Remove a player specified by its id"
-      operationId: removePlayerById
+      operationId: deletePlayerByPlayerId
       consumes:
         - "application/json"
       parameters:
@@ -310,7 +322,7 @@ paths:
         204:
           description: "player successfully removed"
         404:
-          description: "No player with this id"
+          description: "No player/game with this id"
           schema:
             $ref: "#/definitions/Error"
         500:
@@ -344,25 +356,23 @@ definitions:
           type: object
           properties:
             cardNumber:
-              $ref: '#/definitions/CardNumber'
+              type: string
+              enum: 
+                - 'A'
+                - '2'
+                - '3'
+                - '4'
+                - '5'
+                - '6'
+                - '7'
+                - '8'
+                - '9'
+                - '10'
+                - 'J'
+                - 'Q'
+                - 'K'
             cardSuit:
               $ref: '#/definitions/CardSuit'
-  CardNumber:
-    type: string
-    enum: 
-      - 'A'
-      - '2'
-      - '3'
-      - '4'
-      - '5'
-      - '6'
-      - '7'
-      - '8'
-      - '9'
-      - '10'
-      - 'J'
-      - 'Q'
-      - 'K'
   CardSuit:
     type: string
     enum:
@@ -586,7 +596,7 @@ definitions:
         type: object
         properties:
           players:
-            $ref: '#/definitions/Players'
+            $ref: '#/definitions/Player'
   PlayerPassword:
     type: string
     example: 'hunter2'
@@ -645,10 +655,6 @@ definitions:
             $ref: '#/definitions/PlayerPassword'
       links:
         $ref: '#/definitions/SelfLink'
-  Players:
-    type: array
-    items:
-      $ref: '#/definitions/Player'
   PlayerStatus:
     type: string
     enum:
