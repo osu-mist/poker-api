@@ -198,28 +198,6 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-    delete:
-      summary: Delete a player in game specified by playerId and gameId
-      tags:
-        - players
-      operationId: deletePlayerByGameIdAndPlayerId
-      consumes:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/authorization'
-        - $ref: '#/parameters/gameId'
-        - $ref: '#/parameters/playerId'
-      responses:
-        '204':
-          description: Player successfully removed
-        '404':
-          description: Player not found
-          schema:
-            $ref: '#/definitions/Errors'
-        '500':
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/Errors'
   /players:
     get:
       summary: Info of the list of player
