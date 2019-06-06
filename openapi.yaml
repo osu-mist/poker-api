@@ -132,15 +132,217 @@ paths:
         - $ref: '#/parameters/gameId'
       responses:
         204:
-          description: "game successfully removed"
+          description: game successfully removed
         404:
-          description: "No game with this id"
+          description: No game with this id
           schema:
             $ref: "#/definitions/Error"
         500:
-          description: "Internal server error"
+          description: Internal server error
           schema:
             $ref: "#/definitions/Error"
+  /games/{gameId}/players/{playerId}:
+    get:
+      summary: Info of the player in terms of the specific game
+      tags:
+        - players
+      operationId: getPlayerByGameIdAndPlayerId
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/playerId'
+        - $ref: '#/parameters/gameId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/PlayerInGameResult'
+        '404':
+          description: Player not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    patch:
+      tags:
+        - players
+      summary: Update a player in terms of the specific game
+      operationId: updatePlayerByGameIdAndPlayerId
+      consumes: 
+        - application/json
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/playerId'
+        - $ref: '#/parameters/gameId'
+        - name: updateBody
+          in: body
+          description: Object that will overwrite the player of interest
+          required: true
+          schema:
+            $ref: '#/definitions/PlayerInGamePatchBody'
+      responses:
+        '200':
+          description: Successfully update a player from game
+          schema:
+            $ref: '#/definitions/Errors'
+        '400':
+          description: Invalid player in game object
+          schema:
+            $ref: '#/definitions/Errors'
+        '404':
+          description: Player not found.
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    delete:
+      summary: Delete a player in game specified by playerId and gameId
+      tags:
+        - players
+      operationId: deletePlayerByGameIdAndPlayerId
+      consumes:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/gameId'
+        - $ref: '#/parameters/playerId'
+      responses:
+        '204':
+          description: Player successfully removed
+        '404':
+          description: Player not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /players:
+    get:
+      summary: Info of the list of player
+      tags:
+        - players
+      operationId: getPlayers
+      parameters: 
+        - $ref: '#/parameters/authorization'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/PlayerResults'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    post:
+      summary: Create a player profile
+      tags:
+        - players
+      operationId: postPlayer
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - in: body
+          name: requestBody
+          schema:
+            $ref: '#/definitions/PlayerPostBody'
+      responses:
+        '201':
+          description: Successfully create a player profile
+          schema:
+            $ref: '#/definitions/PlayerResult'
+          headers:
+            Location:
+              type: string
+              format: url
+              description: Location of the newly created player
+        '400':
+          description: Invalid player object
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /players/{playerId}:
+    delete:
+      summary: Delete a player specified by its playerId
+      tags:
+        - players
+      operationId: deletePlayerByPlayerId
+      consumes: 
+        - application/json
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/playerId'
+      responses:
+        '204':
+          description: Player successfully removed
+        '404':
+          description: No player with this id
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    get:
+      summary: Info for a specific player
+      tags:
+        - players
+      description: Get a player by its playerId
+      operationId: getPlayerByPlayerId
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/playerId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/PlayerResult'
+        '404':
+          description: Player not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    patch:
+      summary: Update a player specified by its playerId
+      tags:
+        - players
+      operationId: patchPlayerByPlayerId
+      consumes: 
+        - application/json
+      parameters: 
+        - $ref: '#/parameters/playerId'
+        - $ref: '#/parameters/authorization'
+        - name: updateBody
+          in: body
+          description: Object that will overwrite the player specified by its id
+          required: true
+          schema:
+            $ref: '#/definitions/PlayerPatchBody'
+      responses:
+        '200':
+          description: Successfully update a player
+          schema:
+            $ref: '#/definitions/PlayerResult'
+        '400':
+          description: Invalid player object
+          schema:
+            $ref: '#/definitions/Errors'
+        '404':
+          description: Player not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
 parameters:
   authorization:
     name: Authorization
@@ -150,6 +352,12 @@ parameters:
     description: '"Bearer [token]" where token is your OAuth2 access token'
   gameId:
     name: gameId
+    in: path
+    description: unique string
+    required: true
+    type: string
+  playerId:
+    name: playerId
     in: path
     description: unique string
     required: true
@@ -188,9 +396,11 @@ definitions:
                 - Spade
                 - Heart
   Cards:
-    type: array
-    items:
-      $ref: '#/definitions/Card'
+    properties:
+      cards:
+        type: array
+        items:
+          $ref: '#/definitions/Card'
   Error:
     properties:
       status:
@@ -224,6 +434,12 @@ definitions:
   GameId:
     type: string
     description: A unique ID of a poker game
+  GameIds:
+    properties:
+      games:
+        type: array
+        items:
+          $ref: '#/definitions/GameId'
   GamePatchBody:
     properties:
       data:
@@ -311,9 +527,11 @@ definitions:
       data:
         $ref: '#/definitions/GameResource'
   GameResults:
-    type: array
-    items:
-      $ref: "#/definitions/GameResult"
+    properties:
+      games:
+        type: array
+        items:
+          $ref: "#/definitions/GameResult"
   GameType:
     type: string
     enum:
@@ -328,13 +546,188 @@ definitions:
     minimum: 1
     description: The minimum bet every player have to place at least each round.
     example: 1000
+  PlayerBet:
+    type: integer
+    minimum: 0
+    description: The bet from a specific player.
+  PlayerEmail:
+    type: string
+    example: 'abc@efg.com'
+  PlayerExpAboveLevel:
+    type: integer
+    minimum: 0
+    description: Player's experience point above current level.
+    example: 1234
   PlayerId:
     type: string
     example: '101'
   PlayerIds:
+    properties:
+      players:
+        type: array
+        items:
+          $ref: '#/definitions/PlayerId'
+  PlayerInGamePatchBody:
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            $ref: '#/definitions/PlayerId'
+          type:
+            $ref: '#/definitions/PlayerType'
+          attributes:
+            type: object
+            properties:
+              PlayerBet:
+                $ref: '#/definitions/PlayerBet'
+              PlayerStatus:
+                $ref: '#/definitions/PlayerStatus'
+              PlayerCards:
+                $ref: '#/definitions/Cards'
+            additionalProperties: false
+            required:
+              - id
+              - type
+        additionalProperties: false
+    required:
+      - data
+    additionalProperties: false
+  PlayerInGameResource:
+    properties:
+      id:
+        $ref: '#/definitions/PlayerId'
+      type:
+        $ref: '#/definitions/PlayerType'
+      attributes:
+        type: object
+        properties:
+          PlayerName:
+            $ref: '#/definitions/PlayerName'
+          PlayerLevel:
+            $ref: '#/definitions/PlayerLevel'
+          PlayerExpAboveLevel:
+            $ref: '#/definitions/PlayerExpAboveLevel'
+          PlayerBet:
+            $ref: '#/definitions/PlayerBet'
+          PlayerStatus:
+            $ref: '#/definitions/PlayerStatus'
+          PlayerCards:
+            $ref: '#/definitions/Cards'
+  PlayerInGameResult:
+    properties:
+      data:
+        $ref: '#/definitions/PlayerInGameResource'
+  PlayerLevel:
+    type: integer
+    minimum: 1
+    description: Player's level in the system.
+    example: 20
+  PlayerName:
+    type: string
+    example: 'Jack'
+  PlayerPassword:
+    type: string
+    example:  'hunter2'
+  PlayerPatchBody:
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            $ref: '#/definitions/PlayerId'
+          type:
+            $ref: '#/definitions/PlayerType'
+          attributes:
+            type: object
+            properties:
+              PlayerName:
+                $ref: '#/definitions/PlayerName'
+              PlayerEmail:
+                $ref: '#/definitions/PlayerEmail'
+              PlayerPassword:
+                $ref: '#/definitions/PlayerPassword'
+              PlayerLevel:
+                $ref: '#/definitions/PlayerLevel'
+              PlayerExpAboveLevel:
+                $ref: '#/definitions/PlayerExpAboveLevel'
+              GameIds:
+                $ref: '#/definitions/GameIds'
+            additionalProperties: false
+        required: 
+          - id
+          - type
+        additionalProperties: false
+  PlayerPostBody:
+    properties:
+      data:
+        type: object
+        properties:
+          type:
+            $ref: '#/definitions/PlayerType'
+          attributes:
+            type: object
+            properties:
+              PlayerName:
+                $ref: '#/definitions/PlayerName'
+              PlayerEmail:
+                $ref: '#/definitions/PlayerEmail'
+              PlayerPassword:
+                $ref: '#/definitions/PlayerPassword'
+            required:
+              - PlayerName
+              - PlayerEmail
+              - PlayerPassword
+            additionalProperties: false
+        required: 
+          - type
+          - attributes
+        additionalProperties: false
+    required: 
+      - data
+    additionalProperties: false
+          
+          
+  PlayerResource:
+    properties:
+      id:
+        $ref: '#/definitions/PlayerId'
+      type:
+        $ref: '#/definitions/PlayerType'
+      attributes:
+        type: object
+        properties:
+          PlayerName:
+            $ref: '#/definitions/PlayerName'
+          PlayerEmail:
+            $ref: '#/definitions/PlayerEmail'
+          PlayerLevel:
+            $ref: '#/definitions/PlayerLevel'
+          PlayerExpAboveLevel:
+            $ref: '#/definitions/PlayerExpAboveLevel'
+          GameIds:
+            $ref: '#/definitions/GameIds'
+      links:
+        $ref: '#/definitions/SelfLink'
+  PlayerResult:
+    properties:
+      data:
+        $ref: '#/definitions/PlayerResource'
+  PlayerResults:
     type: array
     items:
-      $ref: '#/definitions/PlayerId'
+      $ref: '#/definitions/PlayerResult'
+  PlayerStatus:
+    type: string
+    enum:
+      - folded
+      - called
+      - raised
+      - checked
+  PlayerType:
+    type: string
+    enum:
+      - player
   Round:
     type: string
     enum:
