@@ -59,6 +59,14 @@ paths:
       operationId: getGames
       parameters: 
         - $ref: '#/parameters/authorization'
+        - in: query
+          name: round
+          type: string
+          description: The current round of the game
+        - in: query
+          name: playerId
+          type: string
+          description: The playerId of members that are playing this game
       responses:
         '200':
           description: Successful response
@@ -141,6 +149,28 @@ paths:
           description: Internal server error
           schema:
             $ref: "#/definitions/error"
+  /games/{gameId}/players:
+    get:
+      summary: A list of player in the game with their specific in-game information
+      tags:
+        - players
+      operationId: getPlayersByGameId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/gameId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/playerInGameResults'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors'
   /games/{gameId}/players/{playerId}:
     get:
       summary: Info of the player in terms of the specific game
@@ -198,58 +228,66 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/errors'
-  /players:
+  /members:
     get:
-      summary: Info of the list of player
+      summary: Info of the list of member
       tags:
-        - players
-      operationId: getPlayers
+        - members
+      operationId: getMembers
       parameters: 
         - $ref: '#/parameters/authorization'
+        - in: query
+          name: memberName
+          type: string
+          description: The name that matches the name of a list of members.
+        - in: query
+          name: memberEmail
+          type: string
+          description: The email address that matches the email of a list of members.
       responses:
         '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/playerResults'
+            $ref: '#/definitions/memberResults'
         '500':
           description: Internal server error
           schema:
             $ref: '#/definitions/errors'
     post:
-      summary: Create a player profile
+      summary: Create a member profile
       tags:
-        - players
-      operationId: postPlayer
+        - members
+      operationId: postMember
       parameters: 
         - $ref: '#/parameters/authorization'
         - in: body
           name: requestBody
           schema:
-            $ref: '#/definitions/playerPostBody'
+            $ref: '#/definitions/memberPostBody'
       responses:
         '201':
-          description: Successfully create a player profile
+          description: Successfully create a member profile
           schema:
-            $ref: '#/definitions/playerResult'
+            $ref: '#/definitions/memberResult'
           headers:
             Location:
               type: string
               format: url
-              description: Location of the newly created player
+              description: Location of the newly created member
         '400':
-          description: Invalid player object
+          description: Invalid member object
           schema:
             $ref: '#/definitions/errors'
         '500':
           description: Internal server error
           schema:
             $ref: '#/definitions/errors'
-  /players/{playerId}:
+  /members/{playerId}:
     delete:
-      summary: Delete a player specified by its playerId
+      summary: Delete a member specified by its playerId
       tags:
-        - players
-      operationId: deletePlayerByPlayerId
+        - members
+      operationId: deleteMemberByPlayerId
       consumes: 
         - application/json
       parameters: 
@@ -257,9 +295,9 @@ paths:
         - $ref: '#/parameters/playerId'
       responses:
         '204':
-          description: Player successfully removed
+          description: Member successfully removed
         '404':
-          description: No player with this id
+          description: No member with this id
           schema:
             $ref: '#/definitions/errors'
         '500':
@@ -267,11 +305,11 @@ paths:
           schema:
             $ref: '#/definitions/errors'
     get:
-      summary: Info for a specific player
+      summary: Info for a specific member
       tags:
-        - players
-      description: Get a player by its playerId
-      operationId: getPlayerByPlayerId
+        - members
+      description: Get a member by its playerId
+      operationId: getMemberByPlayerId
       parameters: 
         - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/playerId'
@@ -279,7 +317,7 @@ paths:
         '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/playerResult'
+            $ref: '#/definitions/memberResult'
         '404':
           description: Player not found
           schema:
@@ -289,10 +327,10 @@ paths:
           schema:
             $ref: '#/definitions/errors'
     patch:
-      summary: Update a player specified by its playerId
+      summary: Update a member specified by its playerId
       tags:
-        - players
-      operationId: patchPlayerByPlayerId
+        - members
+      operationId: patchMemberByPlayerId
       consumes: 
         - application/json
       parameters: 
@@ -300,21 +338,21 @@ paths:
         - $ref: '#/parameters/authorization'
         - name: updateBody
           in: body
-          description: Object that will overwrite the player specified by its id
+          description: Object that will overwrite the member specified by its id
           required: true
           schema:
-            $ref: '#/definitions/playerPatchBody'
+            $ref: '#/definitions/memberPatchBody'
       responses:
         '200':
-          description: Successfully update a player
+          description: Successfully update a member
           schema:
-            $ref: '#/definitions/playerResult'
+            $ref: '#/definitions/memberResult'
         '400':
-          description: Invalid player object
+          description: Invalid member object
           schema:
             $ref: '#/definitions/errors'
         '404':
-          description: Player not found
+          description: Member not found
           schema:
             $ref: '#/definitions/errors'
         '500':
@@ -346,33 +384,30 @@ definitions:
     minimum: 0
     description: Total bet from players.
   card:
-      properties:
-        attributes:
-          type: object
-          properties:
-            cardNumber:
-              type: string
-              enum: 
-                - 'A'
-                - '2'
-                - '3'
-                - '4'
-                - '5'
-                - '6'
-                - '7'
-                - '8'
-                - '9'
-                - '10'
-                - 'J'
-                - 'Q'
-                - 'K'
-            CardSuit:
-              type: string
-              enum:
-                - Diamond
-                - Club
-                - Spade
-                - Heart
+    properties:
+      cardNumber:
+        type: string
+        enum: 
+          - 'A'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          - '10'
+          - 'J'
+          - 'Q'
+          - 'K'
+      CardSuit:
+        type: string
+        enum:
+          - Diamond
+          - Club
+          - Spade
+          - Heart
   cards:
     properties:
       cards:
@@ -528,7 +563,7 @@ definitions:
     type: string
     example: abc@efg.com
     format: email
-  playerExpAboveLevel:
+  memberExpAboveLevel:
     type: integer
     minimum: 0
     description: Player's experience point above current level.
@@ -575,12 +610,12 @@ definitions:
       attributes:
         type: object
         properties:
-          playerName:
-            $ref: '#/definitions/playerName'
-          playerLevel:
-            $ref: '#/definitions/playerLevel'
-          playerExpAboveLevel:
-            $ref: '#/definitions/playerExpAboveLevel'
+          memberName:
+            $ref: '#/definitions/memberName'
+          memberLevel:
+            $ref: '#/definitions/memberLevel'
+          memberExpAboveLevel:
+            $ref: '#/definitions/memberExpAboveLevel'
           playerBet:
             $ref: '#/definitions/playerBet'
           playerStatus:
@@ -591,19 +626,23 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/playerInGameResource'
-  playerLevel:
+  playerInGameResults:
+    type: array
+    items:
+      $ref: '#/definitions/playerInGameResult'
+  memberLevel:
     type: integer
     minimum: 1
     description: Player's level in the system.
     example: 20
-  playerName:
+  memberName:
     type: string
     example: Jack
   playerPassword:
     type: string
     example:  hunter2
     format: password
-  playerPatchBody:
+  memberPatchBody:
     properties:
       data:
         type: object
@@ -615,16 +654,16 @@ definitions:
           attributes:
             type: object
             properties:
-              playerName:
-                $ref: '#/definitions/playerName'
+              memberName:
+                $ref: '#/definitions/memberName'
               playerEmail:
                 $ref: '#/definitions/playerEmail'
               playerPassword:
                 $ref: '#/definitions/playerPassword'
-              playerLevel:
-                $ref: '#/definitions/playerLevel'
-              playerExpAboveLevel:
-                $ref: '#/definitions/playerExpAboveLevel'
+              memberLevel:
+                $ref: '#/definitions/memberLevel'
+              memberExpAboveLevel:
+                $ref: '#/definitions/memberExpAboveLevel'
               gameIds:
                 $ref: '#/definitions/gameIds'
             additionalProperties: false
@@ -632,7 +671,7 @@ definitions:
           - id
           - type
         additionalProperties: false
-  playerPostBody:
+  memberPostBody:
     properties:
       data:
         type: object
@@ -642,14 +681,14 @@ definitions:
           attributes:
             type: object
             properties:
-              playerName:
-                $ref: '#/definitions/playerName'
+              memberName:
+                $ref: '#/definitions/memberName'
               playerEmail:
                 $ref: '#/definitions/playerEmail'
               playerPassword:
                 $ref: '#/definitions/playerPassword'
             required:
-              - playerName
+              - memberName
               - playerEmail
               - playerPassword
             additionalProperties: false
@@ -670,25 +709,25 @@ definitions:
         type: object
         properties:
           PlayerName:
-            $ref: '#/definitions/playerName'
+            $ref: '#/definitions/memberName'
           PlayerEmail:
             $ref: '#/definitions/playerEmail'
           PlayerLevel:
-            $ref: '#/definitions/playerLevel'
+            $ref: '#/definitions/memberLevel'
           PlayerExpAboveLevel:
-            $ref: '#/definitions/playerExpAboveLevel'
+            $ref: '#/definitions/memberExpAboveLevel'
           GameIds:
             $ref: '#/definitions/gameIds'
       links:
         $ref: '#/definitions/selfLink'
-  playerResult:
+  memberResult:
     properties:
       data:
         $ref: '#/definitions/playerResource'
-  playerResults:
+  memberResults:
     type: array
     items:
-      $ref: '#/definitions/playerResult'
+      $ref: '#/definitions/memberResult'
   playerStatus:
     type: string
     enum:
