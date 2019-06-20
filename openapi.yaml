@@ -538,9 +538,11 @@ definitions:
       data:
         $ref: '#/definitions/gameResource'
   gameResults:
-    type: array
-    items:
-      $ref: "#/definitions/gameResult"
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/gameResource"
   gameType:
     type: string
     enum:
@@ -627,9 +629,11 @@ definitions:
       data:
         $ref: '#/definitions/playerInGameResource'
   playerInGameResults:
-    type: array
-    items:
-      $ref: '#/definitions/playerInGameResult'
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/playerInGameResource'
   memberLevel:
     type: integer
     minimum: 1
@@ -725,9 +729,11 @@ definitions:
       data:
         $ref: '#/definitions/playerResource'
   memberResults:
-    type: array
-    items:
-      $ref: '#/definitions/memberResult'
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/memberResource'
   playerStatus:
     type: string
     enum:
