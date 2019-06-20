@@ -559,7 +559,7 @@ definitions:
     type: integer
     minimum: 0
     description: The bet from a specific player.
-  playerEmail:
+  memberEmail:
     type: string
     example: abc@efg.com
     format: email
@@ -656,8 +656,8 @@ definitions:
             properties:
               memberName:
                 $ref: '#/definitions/memberName'
-              playerEmail:
-                $ref: '#/definitions/playerEmail'
+              memberEmail:
+                $ref: '#/definitions/memberEmail'
               playerPassword:
                 $ref: '#/definitions/playerPassword'
               memberLevel:
@@ -683,13 +683,13 @@ definitions:
             properties:
               memberName:
                 $ref: '#/definitions/memberName'
-              playerEmail:
-                $ref: '#/definitions/playerEmail'
+              memberEmail:
+                $ref: '#/definitions/memberEmail'
               playerPassword:
                 $ref: '#/definitions/playerPassword'
             required:
               - memberName
-              - playerEmail
+              - memberEmail
               - playerPassword
             additionalProperties: false
         required: 
@@ -699,7 +699,7 @@ definitions:
     required: 
       - data
     additionalProperties: false 
-  playerResource:
+  memberResource:
     properties:
       id:
         $ref: '#/definitions/playerId'
@@ -708,22 +708,22 @@ definitions:
       attributes:
         type: object
         properties:
-          PlayerName:
+          memberName:
             $ref: '#/definitions/memberName'
-          PlayerEmail:
-            $ref: '#/definitions/playerEmail'
-          PlayerLevel:
+          memberEmail:
+            $ref: '#/definitions/memberEmail'
+          memberLevel:
             $ref: '#/definitions/memberLevel'
-          PlayerExpAboveLevel:
+          memberExpAboveLevel:
             $ref: '#/definitions/memberExpAboveLevel'
-          GameIds:
+          gameIds:
             $ref: '#/definitions/gameIds'
       links:
         $ref: '#/definitions/selfLink'
   memberResult:
     properties:
       data:
-        $ref: '#/definitions/playerResource'
+        $ref: '#/definitions/memberResource'
   memberResults:
     type: array
     items:
