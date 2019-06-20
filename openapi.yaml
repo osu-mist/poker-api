@@ -703,7 +703,7 @@ definitions:
     required: 
       - data
     additionalProperties: false 
-  playerResource:
+  memberResource:
     properties:
       id:
         $ref: '#/definitions/playerId'
@@ -727,7 +727,7 @@ definitions:
   memberResult:
     properties:
       data:
-        $ref: '#/definitions/playerResource'
+        $ref: '#/definitions/memberResource'
   memberResults:
     properties:
       data:
