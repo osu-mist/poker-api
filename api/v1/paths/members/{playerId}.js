@@ -1,6 +1,6 @@
 const appRoot = require('app-root-path');
 
-const petsDao = require('../../db/json/pets-dao-example');
+const petsDao = require('../../db/oracledb/member-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
 const { openapi: { paths } } = appRoot.require('utils/load-openapi');
@@ -22,6 +22,6 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/pets/{id}'].get;
+get.apiDoc = paths['/members/{playerId}'].get;
 
 module.exports = { get };

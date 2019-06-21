@@ -1,3 +1,4 @@
+
 const appRoot = require('app-root-path');
 const decamelize = require('decamelize');
 const JsonApiSerializer = require('jsonapi-serializer').Serializer;
@@ -8,7 +9,7 @@ const { openapi } = appRoot.require('utils/load-openapi');
 const { paginate } = appRoot.require('utils/paginator');
 const { apiBaseUrl, resourcePathLink, paramsLink } = appRoot.require('utils/uri-builder');
 
-const petResourceProp = openapi.definitions.PetResource.properties;
+const petResourceProp = openapi.definitions.MemberResource.properties;
 const petResourceType = petResourceProp.type.enum[0];
 const petResourceKeys = _.keys(petResourceProp.attributes.properties);
 const petResourcePath = 'pets';
@@ -31,28 +32,29 @@ _.forEach(petResourceKeys, (key, index) => {
  * @param {Object} query Query parameters
  * @returns {Object} Serialized petResources object
  */
-const serializePets = (rawPets, query) => {
+const serializePets = (rawPets) => {
   /**
    * Add pagination links and meta information to options if pagination is enabled
    */
-  const pageQuery = {
-    size: query['page[size]'],
-    number: query['page[number]'],
-  };
 
-  const pagination = paginate(rawPets, pageQuery);
-  pagination.totalResults = rawPets.length;
-  rawPets = pagination.paginatedRows;
+  // const pageQuery = {
+  //   size: query['page[size]'],
+  //   number: query['page[number]'],
+  // };
 
-  const topLevelSelfLink = paramsLink(petResourceUrl, query);
+  // const pagination = paginate(rawPets, pageQuery);
+  // pagination.totalResults = rawPets.length;
+  // rawPets = pagination.paginatedRows;
+
+  //const topLevelSelfLink = paramsLink(petResourceUrl, query);
   const serializerArgs = {
     identifierField: 'ID',
     resourceKeys: petResourceKeys,
-    pagination,
+    //pagination,
     resourcePath: petResourcePath,
-    topLevelSelfLink,
-    query: _.omit(query, 'page[size]', 'page[number]'),
-    enableDataLinks: true,
+    //topLevelSelfLink,
+    //query: _.omit(query, 'page[size]', 'page[number]'),
+    //enableDataLinks: true,
   };
 
   return new JsonApiSerializer(
