@@ -237,7 +237,7 @@ paths:
       parameters: 
         - $ref: '#/parameters/authorization'
         - in: query
-          name: memberNickname
+          name: memberName
           type: string
           description: The name that matches the name of a list of members.
         - in: query
@@ -564,7 +564,7 @@ definitions:
     type: string
     example: abc@efg.com
     format: email
-  MemberExpOverLevel:
+  MemberExpAboveLevel:
     type: integer
     minimum: 0
     description: Player's experience point above current level.
@@ -611,12 +611,12 @@ definitions:
       attributes:
         type: object
         properties:
-          memberNickname:
-            $ref: '#/definitions/MemberNickname'
+          memberName:
+            $ref: '#/definitions/MemberName'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
-          memberExpOverLevel:
-            $ref: '#/definitions/MemberExpOverLevel'
+          memberExpAboveLevel:
+            $ref: '#/definitions/MemberExpAboveLevel'
           playerBet:
             $ref: '#/definitions/PlayerBet'
           playerStatus:
@@ -638,7 +638,7 @@ definitions:
     minimum: 1
     description: Player's level in the system.
     example: 20
-  MemberNickname:
+  MemberName:
     type: string
     example: Jack
   MemberPassword:
@@ -657,16 +657,16 @@ definitions:
           attributes:
             type: object
             properties:
-              memberNickname:
-                $ref: '#/definitions/MemberNickname'
+              memberName:
+                $ref: '#/definitions/MemberName'
               memberEmail:
                 $ref: '#/definitions/MemberEmail'
               memberPassword:
                 $ref: '#/definitions/MemberPassword'
               memberLevel:
                 $ref: '#/definitions/MemberLevel'
-              memberExpOverLevel:
-                $ref: '#/definitions/MemberExpOverLevel'
+              memberExpAboveLevel:
+                $ref: '#/definitions/MemberExpAboveLevel'
               gameIds:
                 $ref: '#/definitions/GameIds'
             additionalProperties: false
@@ -687,14 +687,14 @@ definitions:
           attributes:
             type: object
             properties:
-              memberNickname:
-                $ref: '#/definitions/MemberNickname'
+              memberName:
+                $ref: '#/definitions/MemberName'
               memberEmail:
                 $ref: '#/definitions/MemberEmail'
               memberPassword:
                 $ref: '#/definitions/MemberPassword'
             required:
-              - memberNickname
+              - memberName
               - memberEmail
               - memberPassword
             additionalProperties: false
@@ -714,14 +714,14 @@ definitions:
       attributes:
         type: object
         properties:
-          memberNickname:
-            $ref: '#/definitions/MemberNickname'
+          memberName:
+            $ref: '#/definitions/MemberName'
           memberEmail:
             $ref: '#/definitions/MemberEmail'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
-          memberExpOverLevel:
-            $ref: '#/definitions/MemberExpOverLevel'
+          memberExpAboveLevel:
+            $ref: '#/definitions/MemberExpAboveLevel'
           gameIds:
             $ref: '#/definitions/GameIds'
       links:
