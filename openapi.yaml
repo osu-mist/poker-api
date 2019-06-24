@@ -237,7 +237,7 @@ paths:
       parameters: 
         - $ref: '#/parameters/authorization'
         - in: query
-          name: memberName
+          name: memberNickname
           type: string
           description: The name that matches the name of a list of members.
         - in: query
@@ -534,14 +534,10 @@ definitions:
         $ref: '#/definitions/SelfLink'
   GameResult:
     properties:
-      links:
-        $ref: '#/definitions/SelfLink'
       data:
         $ref: '#/definitions/GameResource'
   GameResults:
     properties:
-      links:
-        $ref: '#/definitions/SelfLink'
       data:
         type: array
         items:
@@ -568,7 +564,7 @@ definitions:
     type: string
     example: abc@efg.com
     format: email
-  MemberExpAboveLevel:
+  MemberExpOverLevel:
     type: integer
     minimum: 0
     description: Player's experience point above current level.
@@ -598,7 +594,6 @@ definitions:
                 $ref: '#/definitions/PlayerStatus'
               playerCards:
                 $ref: '#/definitions/Cards'
-            additionalProperties: false
         required:
           - id
           - type
@@ -615,12 +610,12 @@ definitions:
       attributes:
         type: object
         properties:
-          memberName:
-            $ref: '#/definitions/MemberName'
+          memberNickname:
+            $ref: '#/definitions/MemberNickname'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
-          memberExpAboveLevel:
-            $ref: '#/definitions/MemberExpAboveLevel'
+          memberExpOverLevel:
+            $ref: '#/definitions/MemberExpOverLevel'
           playerBet:
             $ref: '#/definitions/PlayerBet'
           playerStatus:
@@ -629,14 +624,10 @@ definitions:
             $ref: '#/definitions/Cards'
   PlayerInGameResult:
     properties:
-      links:
-        $ref: '#/definitions/SelfLink'
       data:
         $ref: '#/definitions/PlayerInGameResource'
   PlayerInGameResults:
     properties:
-      links:
-        $ref: '#/definitions/SelfLink'
       data:
         type: array
         items:
@@ -646,7 +637,7 @@ definitions:
     minimum: 1
     description: Player's level in the system.
     example: 20
-  MemberName:
+  MemberNickname:
     type: string
     example: Jack
   MemberPassword:
@@ -665,16 +656,16 @@ definitions:
           attributes:
             type: object
             properties:
-              memberName:
-                $ref: '#/definitions/MemberName'
+              memberNickname:
+                $ref: '#/definitions/MemberNickname'
               memberEmail:
                 $ref: '#/definitions/MemberEmail'
               memberPassword:
                 $ref: '#/definitions/MemberPassword'
               memberLevel:
                 $ref: '#/definitions/MemberLevel'
-              memberExpAboveLevel:
-                $ref: '#/definitions/MemberExpAboveLevel'
+              memberExpOverLevel:
+                $ref: '#/definitions/MemberExpOverLevel'
               gameIds:
                 $ref: '#/definitions/GameIds'
             additionalProperties: false
@@ -695,14 +686,14 @@ definitions:
           attributes:
             type: object
             properties:
-              memberName:
-                $ref: '#/definitions/MemberName'
+              memberNickname:
+                $ref: '#/definitions/MemberNickname'
               memberEmail:
                 $ref: '#/definitions/MemberEmail'
               memberPassword:
                 $ref: '#/definitions/MemberPassword'
             required:
-              - memberName
+              - memberNickname
               - memberEmail
               - memberPassword
             additionalProperties: false
@@ -722,28 +713,24 @@ definitions:
       attributes:
         type: object
         properties:
-          memberName:
-            $ref: '#/definitions/MemberName'
+          memberNickname:
+            $ref: '#/definitions/MemberNickname'
           memberEmail:
             $ref: '#/definitions/MemberEmail'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
-          memberExpAboveLevel:
-            $ref: '#/definitions/MemberExpAboveLevel'
+          memberExpOverLevel:
+            $ref: '#/definitions/MemberExpOverLevel'
           gameIds:
             $ref: '#/definitions/GameIds'
       links:
         $ref: '#/definitions/SelfLink'
   MemberResult:
     properties:
-      links:
-        $ref: '#/definitions/SelfLink'
       data:
         $ref: '#/definitions/MemberResource'
   MemberResults:
     properties:
-      links:
-        $ref: '#/definitions/SelfLink'
       data:
         type: array
         items:
