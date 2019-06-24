@@ -9,11 +9,11 @@ const { openapi } = appRoot.require('utils/load-openapi');
 const { paginate } = appRoot.require('utils/paginator');
 const { apiBaseUrl, resourcePathLink, paramsLink } = appRoot.require('utils/uri-builder');
 
-const petResourceProp = openapi.definitions.MemberResource.properties;
-const petResourceType = petResourceProp.type.enum[0];
-const petResourceKeys = _.keys(petResourceProp.attributes.properties);
-const petResourcePath = 'pets';
-const petResourceUrl = resourcePathLink(apiBaseUrl, petResourcePath);
+const memberResourceProp = openapi.definitions.MemberResource.properties;
+const memberResourceType = memberResourceProp.type.enum[0];
+const memberResourceKeys = _.keys(memberResourceProp.attributes.properties);
+const memberResourcePath = 'members';
+const memberResourceUrl = resourcePathLink(apiBaseUrl, memberResourcePath);
 
 /**
  * The column name getting from database is usually UPPER_CASE.
@@ -21,18 +21,18 @@ const petResourceUrl = resourcePathLink(apiBaseUrl, petResourcePath);
  * UPPER_CASE so that the serializer can correctly match the corresponding columns
  * from the raw data rows.
  */
-_.forEach(petResourceKeys, (key, index) => {
-  petResourceKeys[index] = decamelize(key).toUpperCase();
+_.forEach(memberResourceKeys, (key, index) => {
+  memberResourceKeys[index] = decamelize(key).toUpperCase();
 });
 
 /**
- * @summary Serialize petResources to JSON API
+ * @summary Serialize memberResources to JSON API
  * @function
- * @param {[Object]} rawPets Raw data rows from data source
+ * @param {[Object]} rawMembers Raw data rows from data source
  * @param {Object} query Query parameters
- * @returns {Object} Serialized petResources object
+ * @returns {Object} Serialized memberResources object
  */
-const serializePets = (rawPets) => {
+const serializeMembers = (rawMembers) => {
   /**
    * Add pagination links and meta information to options if pagination is enabled
    */
@@ -42,46 +42,46 @@ const serializePets = (rawPets) => {
   //   number: query['page[number]'],
   // };
 
-  // const pagination = paginate(rawPets, pageQuery);
-  // pagination.totalResults = rawPets.length;
-  // rawPets = pagination.paginatedRows;
+  // const pagination = paginate(rawMembers, pageQuery);
+  // pagination.totalResults = rawMembers.length;
+  // rawMembers = pagination.paginatedRows;
 
-  //const topLevelSelfLink = paramsLink(petResourceUrl, query);
+  //const topLevelSelfLink = paramsLink(memberResourceUrl, query);
   const serializerArgs = {
     identifierField: 'ID',
-    resourceKeys: petResourceKeys,
+    resourceKeys: memberResourceKeys,
     //pagination,
-    resourcePath: petResourcePath,
+    resourcePath: memberResourcePath,
     //topLevelSelfLink,
     //query: _.omit(query, 'page[size]', 'page[number]'),
     //enableDataLinks: true,
   };
 
   return new JsonApiSerializer(
-    petResourceType,
+    memberResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawPets);
+  ).serialize(rawMembers);
 };
 
 /**
- * @summary Serialize petResource to JSON API
+ * @summary Serialize memberResource to JSON API
  * @function
- * @param {Object} rawPet Raw data row from data source
- * @returns {Object} Serialized petResource object
+ * @param {Object} rawMember Raw data row from data source
+ * @returns {Object} Serialized memberResource object
  */
-const serializePet = (rawPet) => {
-  const topLevelSelfLink = resourcePathLink(petResourceUrl, rawPet.ID);
+const serializeMember = (rawMember) => {
+  const topLevelSelfLink = resourcePathLink(memberResourceUrl, rawMember.ID);
   const serializerArgs = {
     identifierField: 'ID',
-    resourceKeys: petResourceKeys,
-    resourcePath: petResourcePath,
+    resourceKeys: memberResourceKeys,
+    resourcePath: memberResourcePath,
     topLevelSelfLink,
     enableDataLinks: true,
   };
 
   return new JsonApiSerializer(
-    petResourceType,
+    memberResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawPet);
+  ).serialize(rawMember);
 };
-module.exports = { serializePets, serializePet };
+module.exports = { serializeMembers, serializeMember };
