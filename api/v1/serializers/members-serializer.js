@@ -71,9 +71,9 @@ const serializeMembers = (rawMembers, query) => {
  * @returns {Object} Serialized memberResource object
  */
 const serializeMember = (rawMember) => {
-  const topLevelSelfLink = resourcePathLink(memberResourceUrl, rawMember.ID);
+  const topLevelSelfLink = resourcePathLink(memberResourceUrl, rawMember.MEMBER_ID);
   const serializerArgs = {
-    identifierField: 'ID',
+    identifierField: 'MEMBER_ID',
     resourceKeys: memberResourceKeys,
     resourcePath: memberResourcePath,
     topLevelSelfLink,

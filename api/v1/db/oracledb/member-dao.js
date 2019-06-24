@@ -37,16 +37,15 @@ const getMembers = async (query) => {
 const getMemberById = async (id) => {
   const connection = await conn.getConnection();
   try {
-    const { rawMembers } = await connection.execute();
+    const rawMembers = await connection.execute("SELECT * FROM MEMBERS WHERE MEMBER_ID = :id", [id]);
 
-    if (_.isEmpty(rawMembers)) {
+    if (_.isEmpty(rawMembers.rows)) {
       return undefined;
     }
-    if (rawMembers.length > 1) {
+    if (rawMembers.rows.length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const [rawMember] = rawMembers;
-      const serializedMember = serializeMember(rawMember);
+      const serializedMember = serializeMember(rawMembers.rows[0]);
       return serializedMember;
     }
   } finally {
