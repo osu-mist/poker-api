@@ -14,13 +14,13 @@ const { endpointUri } = config.get('server');
  * @function
  * @returns {Promise<Object[]>} Promise object represents a list of members
  */
-const getMembers = async () => {
+const getMembers = async (query) => {
   const connection = await conn.getConnection();
   try {
     const rawMembers = await connection.execute("SELECT * FROM MEMBERS");
     const rawMembersRow = rawMembers.rows;
     console.log(rawMembers);
-    const serializedMembers = serializeMembers(rawMembersRow, endpointUri);
+    const serializedMembers = serializeMembers(rawMembersRow, query);
     return serializedMembers;
   } finally {
     connection.close();

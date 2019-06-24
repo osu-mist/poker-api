@@ -32,7 +32,7 @@ _.forEach(memberResourceKeys, (key, index) => {
  * @param {Object} query Query parameters
  * @returns {Object} Serialized memberResources object
  */
-const serializeMembers = (rawMembers) => {
+const serializeMembers = (rawMembers, query) => {
   /**
    * Add pagination links and meta information to options if pagination is enabled
    */
@@ -46,15 +46,16 @@ const serializeMembers = (rawMembers) => {
   // pagination.totalResults = rawMembers.length;
   // rawMembers = pagination.paginatedRows;
 
-  //const topLevelSelfLink = paramsLink(memberResourceUrl, query);
+  const topLevelSelfLink = paramsLink(memberResourceUrl, query);
   const serializerArgs = {
-    identifierField: 'ID',
+    identifierField: 'MEMBER_ID',
     resourceKeys: memberResourceKeys,
     //pagination,
     resourcePath: memberResourcePath,
-    //topLevelSelfLink,
-    //query: _.omit(query, 'page[size]', 'page[number]'),
-    //enableDataLinks: true,
+    topLevelSelfLink,
+    // query: _.omit(query, 'page[size]', 'page[number]'),
+    query,
+    enableDataLinks: true,
   };
 
   return new JsonApiSerializer(
