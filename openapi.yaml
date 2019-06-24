@@ -594,6 +594,7 @@ definitions:
                 $ref: '#/definitions/PlayerStatus'
               playerCards:
                 $ref: '#/definitions/Cards'
+          additionalProperties: false
         required:
           - id
           - type
