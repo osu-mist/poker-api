@@ -534,10 +534,14 @@ definitions:
         $ref: '#/definitions/SelfLink'
   GameResult:
     properties:
+      links:
+        $ref: '#/definitions/SelfLink'
       data:
         $ref: '#/definitions/GameResource'
   GameResults:
     properties:
+      links:
+        $ref: '#/definitions/SelfLink'
       data:
         type: array
         items:
@@ -594,6 +598,7 @@ definitions:
                 $ref: '#/definitions/PlayerStatus'
               playerCards:
                 $ref: '#/definitions/Cards'
+            additionalProperties: false
         required:
           - id
           - type
@@ -624,10 +629,14 @@ definitions:
             $ref: '#/definitions/Cards'
   PlayerInGameResult:
     properties:
+      links:
+        $ref: '#/definitions/SelfLink'
       data:
         $ref: '#/definitions/PlayerInGameResource'
   PlayerInGameResults:
     properties:
+      links:
+        $ref: '#/definitions/SelfLink'
       data:
         type: array
         items:
@@ -727,10 +736,14 @@ definitions:
         $ref: '#/definitions/SelfLink'
   MemberResult:
     properties:
+      links:
+        $ref: '#/definitions/SelfLink'
       data:
         $ref: '#/definitions/MemberResource'
   MemberResults:
     properties:
+      links:
+        $ref: '#/definitions/SelfLink'
       data:
         type: array
         items:
