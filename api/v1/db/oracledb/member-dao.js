@@ -19,6 +19,7 @@ const getMembers = async () => {
   try {
     const rawMembers = await connection.execute("SELECT * FROM MEMBERS");
     const rawMembersRow = rawMembers.rows;
+    console.log(rawMembers);
     const serializedMembers = serializeMembers(rawMembersRow, endpointUri);
     return serializedMembers;
   } finally {
