@@ -10,8 +10,8 @@ const { openapi: { paths } } = appRoot.require('utils/load-openapi');
  */
 const get = async (req, res) => {
   try {
-    const { playerId } = req.params;
-    const result = await membersDao.getMemberById(playerId);
+    const { memberId } = req.params;
+    const result = await membersDao.getMemberById(memberId);
     if (!result) {
       errorBuilder(res, 404, 'A member with the specified ID was not found.');
     } else {
@@ -22,6 +22,6 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/members/{playerId}'].get;
+get.apiDoc = paths['/members/{memberId}'].get;
 
 module.exports = { get };
