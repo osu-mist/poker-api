@@ -171,6 +171,42 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
+    post:
+      summary: Add a player to the game by including the member id in the body
+      tags:
+        - players
+      consumes:
+        - application/json
+      operationId: postPlayerByGameId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/gameId'
+        - in: body
+          name: requestBody
+          schema:
+            $ref: '#/definitions/PlayerPostBody'
+      responses:
+        '201':
+          description: Successfully create a player
+          schema:
+            $ref: '#/definitions/PlayerResult'
+          headers:
+            Location:
+              type: string
+              format: url
+              description: Location of the newly created player
+        '400':
+          description: Invalid player post object
+          schema:
+            $ref: '#/definitions/Errors'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
   /games/{gameId}/players/{playerId}:
     get:
       summary: Info of the player in terms of the specific game
@@ -228,6 +264,26 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
+    delete:
+      tags:
+        - players
+      summary: "Remove the player in the game."
+      operationId: deletePlayerByGameIdAndPlayerId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/playerId'
+        - $ref: '#/parameters/gameId'
+      responses:
+        '204':
+          description: Player successfully removed
+        '404':
+          description: No game with this id / No player with this id
+          schema:
+            $ref: "#/definitions/Error"
+        '500':
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/Error"
   /members:
     get:
       summary: Info of the list of member
@@ -469,8 +525,6 @@ definitions:
             properties:
               round:
                 $ref: '#/definitions/Round'
-              playerIds:
-                $ref: '#/definitions/PlayerIds'
               minimumBet:
                 $ref: '#/definitions/MinimumBet'
               maximumBet:
@@ -497,8 +551,8 @@ definitions:
           attributes:
             type: object
             properties:
-              playerIds:
-                $ref: '#/definitions/PlayerIds'
+              memberIds:
+                $ref: '#/definitions/MemberIds'
               minimumBet:
                 $ref: '#/definitions/MinimumBet'
               maximumBet:
@@ -582,6 +636,10 @@ definitions:
   MemberId:
     type: string
     example: '101'
+  MemberIds:
+    type: array
+    items:
+      $ref: '#/definitions/MemberId'
   PlayerId:
     type: string
     example: 'g1m1'
@@ -624,6 +682,8 @@ definitions:
       attributes:
         type: object
         properties:
+          memberId:
+            $ref: '#/definitions/MemberId'
           memberName:
             $ref: '#/definitions/MemberName'
           memberLevel:
@@ -650,6 +710,34 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/PlayerInGameResource'
+  PlayerPostBody:
+    properties:
+      data:
+        type: object
+        properties:
+          type:
+            $ref: '#/definitions/PlayerType'
+          attributes:
+            type: object
+            properties:
+              memberId:
+                $ref: '#/definitions/MemberId'
+            required:
+              - playerId
+            additionalProperties: false
+        required: 
+          - type
+          - attributes
+        additionalProperties: false
+    required:
+      - data
+    additionalProperties: false
+  PlayerResult:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        $ref: '#/definitions/PlayerInGameResource'
   MemberLevel:
     type: integer
     minimum: 1
@@ -668,9 +756,9 @@ definitions:
         type: object
         properties:
           id:
-            $ref: '#/definitions/PlayerId'
+            $ref: '#/definitions/MemberId'
           type:
-            $ref: '#/definitions/PlayerType'
+            $ref: '#/definitions/MemberType'
           attributes:
             type: object
             properties:
@@ -684,8 +772,6 @@ definitions:
                 $ref: '#/definitions/MemberLevel'
               memberExpAboveLevel:
                 $ref: '#/definitions/MemberExpAboveLevel'
-              gameIds:
-                $ref: '#/definitions/GameIds'
             additionalProperties: false
         required: 
           - id
