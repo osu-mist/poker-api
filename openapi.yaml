@@ -63,10 +63,6 @@ paths:
           name: round
           type: string
           description: The current round of the game
-        - in: query
-          name: memberId
-          type: string
-          description: The memberId of members that are playing this game
       responses:
         '200':
           description: Successful response
@@ -558,7 +554,7 @@ definitions:
               maximumBet:
                 $ref: '#/definitions/MaximumBet'
             required:
-              - playerIds
+              - memberIds
               - minimumBet
               - maximumBet
             additionalProperties: false
