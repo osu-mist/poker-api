@@ -162,7 +162,7 @@ paths:
         '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/PlayerInGameResults'
+            $ref: '#/definitions/PlayerResults'
         '404':
           description: Game not found
           schema:
@@ -221,7 +221,7 @@ paths:
         '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/PlayerInGameResult'
+            $ref: '#/definitions/PlayerResult'
         '404':
           description: Player not found / Game not found
           schema:
@@ -673,7 +673,7 @@ definitions:
     required:
       - data
     additionalProperties: false
-  PlayerInGameResource:
+  PlayerResource:
     properties:
       id:
         $ref: '#/definitions/PlayerId'
@@ -696,20 +696,20 @@ definitions:
             $ref: '#/definitions/PlayerStatus'
           playerCards:
             $ref: '#/definitions/Cards'
-  PlayerInGameResult:
+  PlayerResult:
     properties:
       links:
         $ref: '#/definitions/SelfLink'
       data:
-        $ref: '#/definitions/PlayerInGameResource'
-  PlayerInGameResults:
+        $ref: '#/definitions/PlayerResource'
+  PlayerResults:
     properties:
       links:
         $ref: '#/definitions/SelfLink'
       data:
         type: array
         items:
-          $ref: '#/definitions/PlayerInGameResource'
+          $ref: '#/definitions/PlayerResource'
   PlayerPostBody:
     properties:
       data:
@@ -722,8 +722,14 @@ definitions:
             properties:
               memberId:
                 $ref: '#/definitions/MemberId'
+              playerBet:
+                $ref: '#/definitions/PlayerBet'
+              playerStatus:
+                $ref: '#/definitions/PlayerStatus'
+              playerCards:
+                $ref: '#/definitions/Cards'
             required:
-              - playerId
+              - memberId
             additionalProperties: false
         required: 
           - type
@@ -732,12 +738,6 @@ definitions:
     required:
       - data
     additionalProperties: false
-  PlayerResult:
-    properties:
-      links:
-        $ref: '#/definitions/SelfLink'
-      data:
-        $ref: '#/definitions/PlayerInGameResource'
   MemberLevel:
     type: integer
     minimum: 1
