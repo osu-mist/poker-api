@@ -20,8 +20,10 @@ const getMembers = async (query) => {
     const SQLquery = `SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS`;
     const rawMembersResponse = await connection.execute(SQLquery);
     const rawMembers = rawMembersResponse.rows;
+    
     console.log(rawMembers);
     const serializedMembers = serializeMembers(rawMembers, query);
+
     return serializedMembers;
   } finally {
     connection.close();
