@@ -580,8 +580,6 @@ definitions:
         properties:
           round:
             $ref: '#/definitions/Round'
-          playerIds:
-            $ref: '#/definitions/PlayerIds'
           minimumBet:
             $ref: '#/definitions/MinimumBet'
           maximumBet:
@@ -643,10 +641,6 @@ definitions:
   PlayerId:
     type: string
     example: 'g1m1'
-  PlayerIds:
-    type: array
-    items:
-      $ref: '#/definitions/PlayerId'
   PlayerInGamePatchBody:
     properties:
       data:
