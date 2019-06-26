@@ -150,7 +150,7 @@ COMMENT ON COLUMN MEMBERS.MEMBER_NICKNAME IS 'The user name of the member';
 COMMENT ON COLUMN MEMBERS.MEMBER_EMAIL IS 'The email address of the member';
 COMMENT ON COLUMN MEMBERS.MEMBER_LEVEL IS 'The level of member in the system';
 COMMENT ON COLUMN MEMBERS.MEMBER_EXP_OVER_LEVEL IS 'The experience of member that is above the current level';
-COMMENT ON COLUMN MEMBERS.PASSWORD IS 'The password of member, which should be stored in hashed form';
+COMMENT ON COLUMN MEMBERS.MEMBER_PASSWORD IS 'The password of member, which should be stored in hashed form';
 
 INSERT INTO MEMBERS (MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL, MEMBER_PASSWORD) VALUES (1, 'guz', 'guz@oregonstate.edu', 123, 10492, 'hunter3');
 INSERT INTO MEMBERS (MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL, MEMBER_PASSWORD) VALUES (2, 'John Wick', 'wickj@oregonstate.edu', 200, 114514, 'hunter10');
