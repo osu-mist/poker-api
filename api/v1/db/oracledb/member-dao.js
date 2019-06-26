@@ -17,7 +17,8 @@ const { endpointUri } = config.get('server');
 const getMembers = async (query) => {
   const connection = await conn.getConnection();
   try {
-    const rawMembers = await connection.execute("SELECT * FROM MEMBERS");
+    const SQLquery = `SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS`;
+    const rawMembers = await connection.execute(SQLquery);
     const rawMembersRow = rawMembers.rows;
     console.log(rawMembers);
     const serializedMembers = serializeMembers(rawMembersRow, query);
