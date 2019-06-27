@@ -334,29 +334,6 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-  /members/{memberId}/games:
-    get:
-      summary: Info for games that the member is current playing
-      tags:
-        - members
-      description: Get a list of games by memberId
-      operationId: getGamesByMemberId
-      parameters:
-        - $ref: '#/parameters/authorization'
-        - $ref: '#/parameters/memberId'
-      responses:
-        '200':
-          description: Successful response
-          schema:
-            $ref: '#/definitions/GameResults'
-        '404':
-          description: Member not found
-          schema:
-            $ref: '#/definitions/Errors'
-        '500':
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/Errors'
   /members/{memberId}:
     delete:
       summary: Delete a member specified by its memberId
@@ -426,6 +403,29 @@ paths:
           description: Invalid member object
           schema:
             $ref: '#/definitions/Errors'
+        '404':
+          description: Member not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /members/{memberId}/games:
+    get:
+      summary: Info for games that the member is current playing
+      tags:
+        - games
+      description: Get a list of games by memberId
+      operationId: getGamesByMemberId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/memberId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/GameResults'
         '404':
           description: Member not found
           schema:
