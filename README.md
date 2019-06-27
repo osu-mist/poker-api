@@ -1,6 +1,10 @@
-# Express API Skeleton ![version](https://img.shields.io/badge/version-v1-blue.svg) [![openapi](https://img.shields.io/badge/openapi-2.0-green.svg)](./openapi.yaml) ![node](https://img.shields.io/badge/node-10.13-brightgreen.svg)
+#   Poker API
 
-Skeleton for Express APIs. API definition is contained in the [OpenAPI specification](./openapi.yaml).
+ ##  Purpose
+The purpose of this project is to learn about RESTful APIs by creating one using Express.
+
+ ##  Description
+[Poker](https://en.wikipedia.org/wiki/Poker) is a family of card games that combines gambling, strategy, and skill. All poker variants involve betting as an instrinsic part of play, and determine the winner of each hand according to the combinations of players' cards, at least some of which remain hidden until the end of the hand. In this API project, I will be creating the API for Texas Hold'em variant.
 
 ## Getting Started
 

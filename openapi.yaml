@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  title: Express API Skeleton
-  description: Skeleton for Express APIs
+  title: Poker API
+  description: Design for Poker API
   version: v1
   license:
     name: GNU Affero General Public License Version 3
@@ -16,60 +16,395 @@ host: api.oregonstate.edu
 basePath: /v1
 externalDocs:
   description: GitHub Repository
-  url: https://github.com/osu-mist/express-api-skeleton
+  url: https://github.com/osu-mist/poker-api
 produces:
   - application/json
 paths:
-  /pets:
-    get:
-      summary: List all pets
+  /games:
+    post:
+      summary: Create a poker game
       tags:
-        - pets
-      description: Get all pets
-      operationId: getPets
+        - games
+      consumes:
+        - application/json
+      operationId: postGame
       parameters:
         - $ref: '#/parameters/authorization'
-        - $ref: '#/parameters/pageNumber'
-        - $ref: '#/parameters/pageSize'
-        - in: query
-          name: species
-          description: Search by pet species
-          required: false
-          type: string
-      responses:
-        '200':
-          description: Successful response
+        - in: body
+          name: requestBody
           schema:
-            $ref: '#/definitions/PetsResult'
+            $ref: '#/definitions/GamePostBody'
+      responses:
+        '201':
+          description: Successfully create a game
+          schema:
+            $ref: '#/definitions/GameResult'
+          headers:
+            Location:
+              type: string
+              format: url
+              description: Location of the newly created game
         '400':
-          description: Bad request
+          description: Invalid game object
           schema:
             $ref: '#/definitions/Errors'
         '500':
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-  /pets/{id}:
     get:
-      summary: Info for a specific pet
+      summary: Info of a list of game
       tags:
-        - pets
-      description: Get pet by unique ID
-      operationId: getPetById
-      parameters:
+        - games
+      operationId: getGames
+      parameters: 
         - $ref: '#/parameters/authorization'
-        - name: id
-          in: path
-          description: Unique Pet ID
-          required: true
+        - in: query
+          name: round
           type: string
+          description: The current round of the game
       responses:
         '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/PetResult'
+            $ref: '#/definitions/GameResults'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /games/{gameId}:
+    get:
+      summary: Info for a specific game
+      tags:
+        - games
+      description: Get a game by its gameid
+      operationId: getGameByGameId
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/gameId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/GameResult'
         '404':
-          description: PetResource not found
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    patch:
+      tags:
+        - games
+      summary: Update a game specified by its id
+      operationId: patchGameByGameId
+      consumes:
+        - application/json
+      parameters: 
+        - $ref: '#/parameters/gameId'
+        - name: updateBody
+          in: body
+          description: Object that will overwrite the game specified by its id
+          required: true
+          schema:
+            $ref: '#/definitions/GamePatchBody'
+      responses:
+        '200':
+          description: Successfully update a game
+          schema:
+            $ref: '#/definitions/GameResult'
+        '400':
+          description: Invalid game object
+          schema:
+            $ref: '#/definitions/Errors'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    delete:
+      tags:
+        - games
+      summary: "Remove a game specified by its id, also the participation of member in the game would be removed."
+      operationId: deleteGameByGameId
+      parameters:
+        - $ref: '#/parameters/gameId'
+      responses:
+        '204':
+          description: game successfully removed
+        '404':
+          description: No game with this id
+          schema:
+            $ref: "#/definitions/Error"
+        '500':
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/Error"
+  /games/{gameId}/players:
+    get:
+      summary: A list of player in the game with their specific in-game information
+      tags:
+        - players
+      operationId: getPlayersByGameId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/gameId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/PlayerResults'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    post:
+      summary: Add a player to the game by including the member id in the body
+      tags:
+        - players
+      consumes:
+        - application/json
+      operationId: postPlayerByGameId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/gameId'
+        - in: body
+          name: requestBody
+          schema:
+            $ref: '#/definitions/PlayerPostBody'
+      responses:
+        '201':
+          description: Successfully create a player
+          schema:
+            $ref: '#/definitions/PlayerResult'
+          headers:
+            Location:
+              type: string
+              format: url
+              description: Location of the newly created player
+        '400':
+          description: Invalid player post object
+          schema:
+            $ref: '#/definitions/Errors'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /games/{gameId}/players/{playerId}:
+    get:
+      summary: Info of the player in terms of the specific game
+      tags:
+        - players
+      operationId: getPlayerByGameIdAndPlayerId
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/playerId'
+        - $ref: '#/parameters/gameId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/PlayerResult'
+        '404':
+          description: Player not found / Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    patch:
+      tags:
+        - players
+      summary: Update a player in terms of the specific game
+      operationId: updatePlayerByGameIdAndPlayerId
+      consumes: 
+        - application/json
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/playerId'
+        - $ref: '#/parameters/gameId'
+        - name: updateBody
+          in: body
+          description: Object that will overwrite the player of interest
+          required: true
+          schema:
+            $ref: '#/definitions/PlayerInGamePatchBody'
+      responses:
+        '200':
+          description: Successfully update a player from game
+          schema:
+            $ref: '#/definitions/Errors'
+        '400':
+          description: Invalid player in game object
+          schema:
+            $ref: '#/definitions/Errors'
+        '404':
+          description: Player not found / Game not found.
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    delete:
+      tags:
+        - players
+      summary: "Remove the player in the game."
+      operationId: deletePlayerByGameIdAndPlayerId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/playerId'
+        - $ref: '#/parameters/gameId'
+      responses:
+        '204':
+          description: Player successfully removed
+        '404':
+          description: No game with this id / No player with this id
+          schema:
+            $ref: "#/definitions/Error"
+        '500':
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/Error"
+  /members:
+    get:
+      summary: Info of the list of member
+      tags:
+        - members
+      operationId: getMembers
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - in: query
+          name: memberName
+          type: string
+          description: The name that matches the name of a list of members.
+        - in: query
+          name: memberEmail
+          type: string
+          description: The email address that matches the email of a list of members.
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/MemberResults'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    post:
+      summary: Create a member profile
+      tags:
+        - members
+      operationId: postMember
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - in: body
+          name: requestBody
+          schema:
+            $ref: '#/definitions/MemberPostBody'
+      responses:
+        '201':
+          description: Successfully create a member profile
+          schema:
+            $ref: '#/definitions/MemberResult'
+          headers:
+            Location:
+              type: string
+              format: url
+              description: Location of the newly created member
+        '400':
+          description: Invalid member object
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /members/{memberId}:
+    delete:
+      summary: Delete a member specified by its memberId
+      tags:
+        - members
+      operationId: deleteMemberByMemberId
+      consumes: 
+        - application/json
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/memberId'
+      responses:
+        '204':
+          description: Member successfully removed
+        '404':
+          description: No member with this id
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    get:
+      summary: Info for a specific member
+      tags:
+        - members
+      description: Get a member by its memberId
+      operationId: getMemberByMemberId
+      parameters: 
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/memberId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/MemberResult'
+        '404':
+          description: Player not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    patch:
+      summary: Update a member specified by its memberId
+      tags:
+        - members
+      operationId: patchMemberByMemberId
+      consumes: 
+        - application/json
+      parameters: 
+        - $ref: '#/parameters/memberId'
+        - $ref: '#/parameters/authorization'
+        - name: updateBody
+          in: body
+          description: Object that will overwrite the member specified by its id
+          required: true
+          schema:
+            $ref: '#/definitions/MemberPatchBody'
+      responses:
+        '200':
+          description: Successfully update a member
+          schema:
+            $ref: '#/definitions/MemberResult'
+        '400':
+          description: Invalid member object
+          schema:
+            $ref: '#/definitions/Errors'
+        '404':
+          description: Member not found
           schema:
             $ref: '#/definitions/Errors'
         '500':
@@ -82,109 +417,59 @@ parameters:
     in: header
     type: string
     required: true
-    description: '"Bearer [token]" where [token] is your OAuth2 access token'
-  pageNumber:
-    name: page[number]
-    in: query
-    type: integer
-    required: false
-    description: Page number of results
-    default: 1
-    minimum: 1
-  pageSize:
-    name: page[size]
-    in: query
-    type: integer
-    required: false
-    description: Number of results to return
-    default: 25
-    maximum: 500
-    minimum: 1
+    description: '"Bearer [token]" where token is your OAuth2 access token'
+  gameId:
+    name: gameId
+    in: path
+    description: unique string
+    required: true
+    type: string
+  memberId:
+    name: memberId
+    in: path
+    description: unique string
+    required: true
+    type: string
+  playerId:
+    name: playerId
+    in: path
+    description: unique string
+    required: true
+    type: string
 definitions:
-  Meta:
+  BetPool:
+    type: integer
+    minimum: 0
+    description: Total bet from players.
+  Card:
     properties:
-      totalResults:
-        type: integer
-        description: Total number of results
-        example: 10
-      totalPages:
-        type: integer
-        description: Total number of pages
-        example: 10
-      currentPageNumber:
-        type: integer
-        description: Page number of the returned results
-        example: 1
-      currentPageSize:
-        type: integer
-        description: Number of results per page
-        example: 25
-  SelfLink:
-    properties:
-      self:
+      cardNumber:
         type: string
-        format: url
-        description: Self-link of current resource
-  PaginationLinks:
-    properties:
-      first:
+        enum: 
+          - 'A'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          - '10'
+          - 'J'
+          - 'Q'
+          - 'K'
+      cardSuit:
         type: string
-        format: url
-        description: The first page of data
-      last:
-        type: string
-        format: url
-        description: The last page of data
-      prev:
-        type: string
-        format: url
-        description: The previous page of data
-      next:
-        type: string
-        format: url
-        description: The next page of data
-  PetResource:
-    properties:
-      id:
-        type: string
-        description: A unique ID of pet
-      type:
-        type: string
-        enum: [pet]
-      links:
-        $ref: '#/definitions/SelfLink'
-      attributes:
-        properties:
-          name:
-            type: string
-            description: Name of pet
-            example: Hedwig
-          owner:
-            type: string
-            description: Name of owner
-            example: Harry Potter
-          species:
-            type: string
-            description: Species of pet
-            example: Owl
-  PetResult:
-    properties:
-      links:
-        $ref: '#/definitions/SelfLink'
-      data:
-        $ref: '#/definitions/PetResource'
-  PetsResult:
-    properties:
-      links:
-        allOf:
-          - $ref: '#/definitions/SelfLink'
-          - $ref: '#/definitions/PaginationLinks'
-      meta:
-        $ref: '#/definitions/Meta'
-      data:
-        type: array
-        items:
-          $ref: '#/definitions/PetResource'
+        enum:
+          - Diamond
+          - Club
+          - Spade
+          - Heart
+  Cards:
+    type: array
+    items:
+      $ref: '#/definitions/Card'
   Error:
     properties:
       status:
@@ -208,10 +493,372 @@ definitions:
             type: string
             format: url
             description: A link to further information about the error
-            example: https://developer.oregonstate.edu/documentation/error-reference#1234
+            example: https://developer.oregonstate.edu/documentation/Error-reference#1234
   Errors:
     properties:
       errors:
         type: array
         items:
           $ref: '#/definitions/Error'
+  GameId:
+    type: string
+    description: A unique ID of a poker game
+  GameIds:
+    type: array
+    items:
+      $ref: '#/definitions/GameId'
+  GamePatchBody:
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            $ref: '#/definitions/GameId'
+          type:
+            $ref: '#/definitions/GameType'
+          attributes:
+            type: object
+            properties:
+              round:
+                $ref: '#/definitions/Round'
+              minimumBet:
+                $ref: '#/definitions/MinimumBet'
+              maximumBet:
+                $ref: '#/definitions/MaximumBet'
+              betPool:
+                $ref: '#/definitions/BetPool'
+              tableCards:
+                $ref: '#/definitions/Cards'
+            additionalProperties: false
+        required: 
+          - type
+          - id
+        additionalProperties: false
+    required:
+      - data
+    additionalProperties: false
+  GamePostBody:
+    properties:
+      data:
+        type: object
+        properties:
+          type:
+            $ref: '#/definitions/GameType'
+          attributes:
+            type: object
+            properties:
+              memberIds:
+                $ref: '#/definitions/MemberIds'
+              minimumBet:
+                $ref: '#/definitions/MinimumBet'
+              maximumBet:
+                $ref: '#/definitions/MaximumBet'
+            required:
+              - memberIds
+              - minimumBet
+              - maximumBet
+            additionalProperties: false
+        required: 
+          - type
+          - attributes
+        additionalProperties: false
+    required:
+      - data
+    additionalProperties: false
+  GameResource:
+    properties:
+      id:
+        $ref: '#/definitions/GameId'
+      type:
+        $ref: '#/definitions/GameType'
+      attributes:
+        type: object
+        properties:
+          round:
+            $ref: '#/definitions/Round'
+          minimumBet:
+            $ref: '#/definitions/MinimumBet'
+          maximumBet:
+            $ref: '#/definitions/MaximumBet'
+          betPool:
+            $ref: '#/definitions/BetPool'
+          tableCards:
+            $ref: '#/definitions/Cards'
+      links:
+        $ref: '#/definitions/SelfLink'
+  GameResult:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        $ref: '#/definitions/GameResource'
+  GameResults:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/GameResource"
+  GameType:
+    type: string
+    enum:
+      - game
+  MaximumBet:
+    type: integer
+    minimum: 1
+    description: The maximum bet every player can place each round.
+    example: 2000
+  MinimumBet:
+    type: integer
+    minimum: 1
+    description: The minimum bet every player have to place at least each round.
+    example: 1000
+  PlayerBet:
+    type: integer
+    minimum: 0
+    description: The bet from a specific player.
+  MemberEmail:
+    type: string
+    example: abc@efg.com
+    format: email
+  MemberExpAboveLevel:
+    type: integer
+    minimum: 0
+    description: Player's experience point above current level.
+    example: 1234
+  MemberId:
+    type: string
+    example: '101'
+  MemberIds:
+    type: array
+    items:
+      $ref: '#/definitions/MemberId'
+  PlayerId:
+    type: string
+    example: 'g1m1'
+  PlayerInGamePatchBody:
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            $ref: '#/definitions/PlayerId'
+          type:
+            $ref: '#/definitions/PlayerType'
+          attributes:
+            type: object
+            properties:
+              playerBet:
+                $ref: '#/definitions/PlayerBet'
+              playerStatus:
+                $ref: '#/definitions/PlayerStatus'
+              playerCards:
+                $ref: '#/definitions/Cards'
+            additionalProperties: false
+        required:
+          - id
+          - type
+        additionalProperties: false
+    required:
+      - data
+    additionalProperties: false
+  PlayerResource:
+    properties:
+      id:
+        $ref: '#/definitions/PlayerId'
+      type:
+        $ref: '#/definitions/PlayerType'
+      attributes:
+        type: object
+        properties:
+          memberId:
+            $ref: '#/definitions/MemberId'
+          memberName:
+            $ref: '#/definitions/MemberName'
+          memberLevel:
+            $ref: '#/definitions/MemberLevel'
+          memberExpAboveLevel:
+            $ref: '#/definitions/MemberExpAboveLevel'
+          playerBet:
+            $ref: '#/definitions/PlayerBet'
+          playerStatus:
+            $ref: '#/definitions/PlayerStatus'
+          playerCards:
+            $ref: '#/definitions/Cards'
+  PlayerResult:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        $ref: '#/definitions/PlayerResource'
+  PlayerResults:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/PlayerResource'
+  PlayerPostBody:
+    properties:
+      data:
+        type: object
+        properties:
+          type:
+            $ref: '#/definitions/PlayerType'
+          attributes:
+            type: object
+            properties:
+              memberId:
+                $ref: '#/definitions/MemberId'
+              playerBet:
+                $ref: '#/definitions/PlayerBet'
+              playerStatus:
+                $ref: '#/definitions/PlayerStatus'
+              playerCards:
+                $ref: '#/definitions/Cards'
+            required:
+              - memberId
+            additionalProperties: false
+        required: 
+          - type
+          - attributes
+        additionalProperties: false
+    required:
+      - data
+    additionalProperties: false
+  MemberLevel:
+    type: integer
+    minimum: 1
+    description: Player's level in the system.
+    example: 20
+  MemberName:
+    type: string
+    example: Jack
+  MemberPassword:
+    type: string
+    example:  hunter2
+    format: password
+  MemberPatchBody:
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            $ref: '#/definitions/MemberId'
+          type:
+            $ref: '#/definitions/MemberType'
+          attributes:
+            type: object
+            properties:
+              memberName:
+                $ref: '#/definitions/MemberName'
+              memberEmail:
+                $ref: '#/definitions/MemberEmail'
+              memberPassword:
+                $ref: '#/definitions/MemberPassword'
+              memberLevel:
+                $ref: '#/definitions/MemberLevel'
+              memberExpAboveLevel:
+                $ref: '#/definitions/MemberExpAboveLevel'
+            additionalProperties: false
+        required: 
+          - id
+          - type
+        additionalProperties: false
+    required:
+      - data
+    additionalProperties: false
+  MemberPostBody:
+    properties:
+      data:
+        type: object
+        properties:
+          type:
+            $ref: '#/definitions/PlayerType'
+          attributes:
+            type: object
+            properties:
+              memberName:
+                $ref: '#/definitions/MemberName'
+              memberEmail:
+                $ref: '#/definitions/MemberEmail'
+              memberPassword:
+                $ref: '#/definitions/MemberPassword'
+            required:
+              - memberName
+              - memberEmail
+              - memberPassword
+            additionalProperties: false
+        required: 
+          - type
+          - attributes
+        additionalProperties: false
+    required: 
+      - data
+    additionalProperties: false 
+  MemberResource:
+    properties:
+      id:
+        $ref: '#/definitions/PlayerId'
+      type:
+        $ref: '#/definitions/MemberType'
+      attributes:
+        type: object
+        properties:
+          memberName:
+            $ref: '#/definitions/MemberName'
+          memberEmail:
+            $ref: '#/definitions/MemberEmail'
+          memberLevel:
+            $ref: '#/definitions/MemberLevel'
+          memberExpAboveLevel:
+            $ref: '#/definitions/MemberExpAboveLevel'
+          gameIds:
+            $ref: '#/definitions/GameIds'
+      links:
+        $ref: '#/definitions/SelfLink'
+  MemberResult:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        $ref: '#/definitions/MemberResource'
+  MemberResults:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/MemberResource'
+  MemberType:
+    type: string
+    enum:
+      - member
+  PlayerStatus:
+    type: string
+    enum:
+      - folded
+      - called
+      - raised
+      - checked
+  PlayerType:
+    type: string
+    enum:
+      - player
+  Round:
+    type: string
+    enum:
+      - blind
+      - flop
+      - turn
+      - river
+      - showdown
+  SelfLink:
+    properties:
+      self:
+        type: string
+        format: url
+        description: Self-link of current resource
