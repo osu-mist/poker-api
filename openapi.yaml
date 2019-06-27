@@ -371,7 +371,7 @@ paths:
           schema:
             $ref: '#/definitions/MemberResult'
         '404':
-          description: Player not found
+          description: Member not found
           schema:
             $ref: '#/definitions/Errors'
         '500':
@@ -403,6 +403,29 @@ paths:
           description: Invalid member object
           schema:
             $ref: '#/definitions/Errors'
+        '404':
+          description: Member not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /members/{memberId}/games:
+    get:
+      summary: Info for games that the member is current playing
+      tags:
+        - games
+      description: Get a list of games by memberId
+      operationId: getGamesByMemberId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/memberId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/GameResults'
         '404':
           description: Member not found
           schema:
@@ -503,10 +526,6 @@ definitions:
   GameId:
     type: string
     description: A unique ID of a poker game
-  GameIds:
-    type: array
-    items:
-      $ref: '#/definitions/GameId'
   GamePatchBody:
     properties:
       data:
@@ -815,8 +834,6 @@ definitions:
             $ref: '#/definitions/MemberLevel'
           memberExpOverLevel:
             $ref: '#/definitions/MemberExpOverLevel'
-          gameIds:
-            $ref: '#/definitions/GameIds'
       links:
         $ref: '#/definitions/SelfLink'
   MemberResult:
