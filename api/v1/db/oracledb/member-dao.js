@@ -13,12 +13,12 @@ const conn = appRoot.require('api/v1/db/oracledb/connection');
  */
 const getMembers = async (query) => {
   const connection = await conn.getConnection();
-  const memberName = query ? query.memberName : null;
+  const memberNickname = query ? query.memberNickname : null;
   const memberEmail = query ? query.memberEmail : null;
   try {
     const sqlParams = {};
-    if (memberName) {
-      sqlParams.memberName = memberName;
+    if (memberNickname) {
+      sqlParams.memberNickname = memberNickname;
     }
     if (memberEmail) {
       sqlParams.memberEmail = memberEmail;
@@ -26,7 +26,7 @@ const getMembers = async (query) => {
     const sqlQuery = `
     SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS 
     WHERE 1 = 1 
-    ${memberName ? 'AND MEMBER_NICKNAME = :memberName ' : ''} 
+    ${memberNickname ? 'AND MEMBER_NICKNAME = :memberNickname ' : ''} 
     ${memberEmail ? 'AND MEMBER_EMAIL = :memberEmail' : ''}
     `;
     const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
