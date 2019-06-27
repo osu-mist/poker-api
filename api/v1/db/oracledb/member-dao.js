@@ -43,8 +43,8 @@ const getMembers = async (query) => {
  * @summary Return a specific member by unique ID
  * @function
  * @param {string} id Unique member ID
- * @returns {Promise<Object>} Promise object represents a specific member or return undefined if term
- *                            is not found
+ * @returns {Promise<Object>} Promise object represents a specific member or return undefined if
+ *  term is not found
  */
 const getMemberById = async () => {
   const connection = await conn.getConnection();
