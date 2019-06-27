@@ -39,7 +39,7 @@ const getMemberById = async (id) => {
     FROM MEMBERS WHERE MEMBER_ID = :id
     `;
     const sqlParams = [id];
-    console.log(sqlQuery,sqlParams);
+    console.log(sqlQuery, sqlParams);
     const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
     const rawMembers = rawMembersResponse.rows;
     if (_.isEmpty(rawMembers)) {
