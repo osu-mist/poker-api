@@ -63,10 +63,6 @@ paths:
           name: round
           type: string
           description: The current round of the game
-        - in: query
-          name: memberId
-          type: string
-          description: The memberId of members that are playing this game
       responses:
         '200':
           description: Successful response
@@ -293,7 +289,7 @@ paths:
       parameters: 
         - $ref: '#/parameters/authorization'
         - in: query
-          name: memberName
+          name: memberNickname
           type: string
           description: The name that matches the name of a list of members.
         - in: query
@@ -338,6 +334,29 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
+  /members/{memberId}/games:
+    get:
+      summary: Info for games that the member is current playing
+      tags:
+        - members
+      description: Get a list of games by memberId
+      operationId: getGamesByMemberId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/memberId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/GameResults'
+        '404':
+          description: Member not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
   /members/{memberId}:
     delete:
       summary: Delete a member specified by its memberId
@@ -375,7 +394,7 @@ paths:
           schema:
             $ref: '#/definitions/MemberResult'
         '404':
-          description: Player not found
+          description: Member not found
           schema:
             $ref: '#/definitions/Errors'
         '500':
@@ -507,10 +526,6 @@ definitions:
   GameId:
     type: string
     description: A unique ID of a poker game
-  GameIds:
-    type: array
-    items:
-      $ref: '#/definitions/GameId'
   GamePatchBody:
     properties:
       data:
@@ -558,7 +573,7 @@ definitions:
               maximumBet:
                 $ref: '#/definitions/MaximumBet'
             required:
-              - playerIds
+              - memberIds
               - minimumBet
               - maximumBet
             additionalProperties: false
@@ -580,8 +595,6 @@ definitions:
         properties:
           round:
             $ref: '#/definitions/Round'
-          playerIds:
-            $ref: '#/definitions/PlayerIds'
           minimumBet:
             $ref: '#/definitions/MinimumBet'
           maximumBet:
@@ -628,7 +641,7 @@ definitions:
     type: string
     example: abc@efg.com
     format: email
-  MemberExpAboveLevel:
+  MemberExpOverLevel:
     type: integer
     minimum: 0
     description: Player's experience point above current level.
@@ -643,10 +656,6 @@ definitions:
   PlayerId:
     type: string
     example: 'g1m1'
-  PlayerIds:
-    type: array
-    items:
-      $ref: '#/definitions/PlayerId'
   PlayerInGamePatchBody:
     properties:
       data:
@@ -682,14 +691,14 @@ definitions:
       attributes:
         type: object
         properties:
+          memberNickname:
+            $ref: '#/definitions/MemberNickname'
           memberId:
             $ref: '#/definitions/MemberId'
-          memberName:
-            $ref: '#/definitions/MemberName'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
-          memberExpAboveLevel:
-            $ref: '#/definitions/MemberExpAboveLevel'
+          memberExpOverLevel:
+            $ref: '#/definitions/MemberExpOverLevel'
           playerBet:
             $ref: '#/definitions/PlayerBet'
           playerStatus:
@@ -743,7 +752,7 @@ definitions:
     minimum: 1
     description: Player's level in the system.
     example: 20
-  MemberName:
+  MemberNickname:
     type: string
     example: Jack
   MemberPassword:
@@ -762,16 +771,16 @@ definitions:
           attributes:
             type: object
             properties:
-              memberName:
-                $ref: '#/definitions/MemberName'
+              memberNickname:
+                $ref: '#/definitions/MemberNickname'
               memberEmail:
                 $ref: '#/definitions/MemberEmail'
               memberPassword:
                 $ref: '#/definitions/MemberPassword'
               memberLevel:
                 $ref: '#/definitions/MemberLevel'
-              memberExpAboveLevel:
-                $ref: '#/definitions/MemberExpAboveLevel'
+              memberExpOverLevel:
+                $ref: '#/definitions/MemberExpOverLevel'
             additionalProperties: false
         required: 
           - id
@@ -790,14 +799,14 @@ definitions:
           attributes:
             type: object
             properties:
-              memberName:
-                $ref: '#/definitions/MemberName'
+              memberNickname:
+                $ref: '#/definitions/MemberNickname'
               memberEmail:
                 $ref: '#/definitions/MemberEmail'
               memberPassword:
                 $ref: '#/definitions/MemberPassword'
             required:
-              - memberName
+              - memberNickname
               - memberEmail
               - memberPassword
             additionalProperties: false
@@ -811,22 +820,20 @@ definitions:
   MemberResource:
     properties:
       id:
-        $ref: '#/definitions/PlayerId'
+        $ref: '#/definitions/MemberId'
       type:
         $ref: '#/definitions/MemberType'
       attributes:
         type: object
         properties:
-          memberName:
-            $ref: '#/definitions/MemberName'
+          memberNickname:
+            $ref: '#/definitions/MemberNickname'
           memberEmail:
             $ref: '#/definitions/MemberEmail'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
-          memberExpAboveLevel:
-            $ref: '#/definitions/MemberExpAboveLevel'
-          gameIds:
-            $ref: '#/definitions/GameIds'
+          memberExpOverLevel:
+            $ref: '#/definitions/MemberExpOverLevel'
       links:
         $ref: '#/definitions/SelfLink'
   MemberResult:
