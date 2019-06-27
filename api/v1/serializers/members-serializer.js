@@ -6,7 +6,6 @@ const _ = require('lodash');
 
 const { serializerOptions } = appRoot.require('utils/jsonapi');
 const { openapi } = appRoot.require('utils/load-openapi');
-const { paginate } = appRoot.require('utils/paginator');
 const { apiBaseUrl, resourcePathLink, paramsLink } = appRoot.require('utils/uri-builder');
 
 const memberResourceProp = openapi.definitions.MemberResource.properties;
@@ -38,8 +37,8 @@ const serializeMembers = (rawMembers, query) => {
    */
 
   _.forEach(rawMembers, (member) => {
-    member.MEMBER_LEVEL = parseInt(member.MEMBER_LEVEL);
-    member.MEMBER_EXP_OVER_LEVEL = parseInt(member.MEMBER_EXP_OVER_LEVEL);
+    member.MEMBER_LEVEL = parseInt(member.MEMBER_LEVEL, 10);
+    member.MEMBER_EXP_OVER_LEVEL = parseInt(member.MEMBER_EXP_OVER_LEVEL, 10);
   });
 
   const topLevelSelfLink = paramsLink(memberResourceUrl, query);

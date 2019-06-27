@@ -1,13 +1,10 @@
 const appRoot = require('app-root-path');
-const config = require('config');
 const _ = require('lodash');
 
 const { serializeMembers, serializeMember } = require('../../serializers/members-serializer');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
-//const { contrib } = appRoot.require('api/v1/db/oracledb/contrib/contrib');
 
-const { endpointUri } = config.get('server');
 
 /**
  * @summary Return a list of members
@@ -16,12 +13,24 @@ const { endpointUri } = config.get('server');
  */
 const getMembers = async (query) => {
   const connection = await conn.getConnection();
+  const memberName = query ? query.memberName : null;
+  const memberEmail = query ? query.memberEmail : null;
   try {
-    const SQLquery = `SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS`;
-    const rawMembersResponse = await connection.execute(SQLquery);
+    const sqlParams = {};
+    if (memberName) {
+      sqlParams.memberName = memberName;
+    }
+    if (memberEmail) {
+      sqlParams.memberEmail = memberEmail;
+    }
+    const sqlQuery = `
+    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS 
+    WHERE 1 = 1 
+    ${memberName ? 'AND MEMBER_NICKNAME = :memberName ' : ''} 
+    ${memberEmail ? 'AND MEMBER_EMAIL = :memberEmail' : ''}
+    `;
+    const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
     const rawMembers = rawMembersResponse.rows;
-    
-    console.log(rawMembers);
     const serializedMembers = serializeMembers(rawMembers, query);
 
     return serializedMembers;
@@ -37,7 +46,7 @@ const getMembers = async (query) => {
  * @returns {Promise<Object>} Promise object represents a specific member or return undefined if term
  *                            is not found
  */
-const getMemberById = async (id) => {
+const getMemberById = async () => {
   const connection = await conn.getConnection();
   try {
     const { rawMembers } = await connection.execute();
