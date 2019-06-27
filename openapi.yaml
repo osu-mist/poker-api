@@ -622,7 +622,7 @@ definitions:
     type: string
     example: abc@efg.com
     format: email
-  MemberExpAboveLevel:
+  MemberExpOverLevel:
     type: integer
     minimum: 0
     description: Player's experience point above current level.
@@ -678,8 +678,8 @@ definitions:
             $ref: '#/definitions/MemberName'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
-          memberExpAboveLevel:
-            $ref: '#/definitions/MemberExpAboveLevel'
+          memberExpOverLevel:
+            $ref: '#/definitions/MemberExpOverLevel'
           playerBet:
             $ref: '#/definitions/PlayerBet'
           playerStatus:
@@ -760,8 +760,8 @@ definitions:
                 $ref: '#/definitions/MemberPassword'
               memberLevel:
                 $ref: '#/definitions/MemberLevel'
-              memberExpAboveLevel:
-                $ref: '#/definitions/MemberExpAboveLevel'
+              memberExpOverLevel:
+                $ref: '#/definitions/MemberExpOverLevel'
             additionalProperties: false
         required: 
           - id
@@ -813,8 +813,8 @@ definitions:
             $ref: '#/definitions/MemberEmail'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
-          memberExpAboveLevel:
-            $ref: '#/definitions/MemberExpAboveLevel'
+          memberExpOverLevel:
+            $ref: '#/definitions/MemberExpOverLevel'
           gameIds:
             $ref: '#/definitions/GameIds'
       links:
