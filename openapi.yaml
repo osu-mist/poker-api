@@ -801,7 +801,7 @@ definitions:
   MemberResource:
     properties:
       id:
-        $ref: '#/definitions/PlayerId'
+        $ref: '#/definitions/MemberId'
       type:
         $ref: '#/definitions/MemberType'
       attributes:
