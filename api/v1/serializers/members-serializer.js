@@ -36,14 +36,6 @@ const serializeMembers = (rawMembers, query) => {
    * Add pagination links and meta information to options if pagination is enabled
    */
 
-  // const pageQuery = {
-  //   size: query['page[size]'],
-  //   number: query['page[number]'],
-  // };
-
-  // const pagination = paginate(rawMembers, pageQuery);
-  // pagination.totalResults = rawMembers.length;
-  // rawMembers = pagination.paginatedRows;
 
   const topLevelSelfLink = paramsLink(memberResourceUrl, query);
   const serializerArgs = {
@@ -51,7 +43,6 @@ const serializeMembers = (rawMembers, query) => {
     resourceKeys: memberResourceKeys,
     resourcePath: memberResourcePath,
     topLevelSelfLink,
-    // query: _.omit(query, 'page[size]', 'page[number]'),
     query,
     enableDataLinks: true,
   };

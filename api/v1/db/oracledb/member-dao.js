@@ -34,15 +34,21 @@ const getMembers = async (query) => {
 const getMemberById = async (id) => {
   const connection = await conn.getConnection();
   try {
-    const rawMembers = await connection.execute('SELECT * FROM MEMBERS WHERE MEMBER_ID = :id', [id]);
-
-    if (_.isEmpty(rawMembers.rows)) {
+    const sqlQuery = `
+    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL 
+    FROM MEMBERS WHERE MEMBER_ID = :id
+    `;
+    const sqlParams = [id];
+    console.log(sqlQuery,sqlParams);
+    const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
+    const rawMembers = rawMembersResponse.rows;
+    if (_.isEmpty(rawMembers)) {
       return undefined;
     }
-    if (rawMembers.rows.length > 1) {
+    if (rawMembers.length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const serializedMember = serializeMember(rawMembers.rows[0]);
+      const serializedMember = serializeMember(rawMembers);
       return serializedMember;
     }
   } finally {
