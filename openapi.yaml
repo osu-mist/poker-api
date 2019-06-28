@@ -63,10 +63,6 @@ paths:
           name: round
           type: string
           description: The current round of the game
-        - in: query
-          name: memberId
-          type: string
-          description: The memberId of members that are playing this game
       responses:
         '200':
           description: Successful response
@@ -162,7 +158,43 @@ paths:
         '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/PlayerInGameResults'
+            $ref: '#/definitions/PlayerResults'
+        '404':
+          description: Game not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+    post:
+      summary: Add a player to the game by including the member id in the body
+      tags:
+        - players
+      consumes:
+        - application/json
+      operationId: postPlayerByGameId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/gameId'
+        - in: body
+          name: requestBody
+          schema:
+            $ref: '#/definitions/PlayerPostBody'
+      responses:
+        '201':
+          description: Successfully create a player
+          schema:
+            $ref: '#/definitions/PlayerResult'
+          headers:
+            Location:
+              type: string
+              format: url
+              description: Location of the newly created player
+        '400':
+          description: Invalid player post object
+          schema:
+            $ref: '#/definitions/Errors'
         '404':
           description: Game not found
           schema:
@@ -185,7 +217,7 @@ paths:
         '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/PlayerInGameResult'
+            $ref: '#/definitions/PlayerResult'
         '404':
           description: Player not found / Game not found
           schema:
@@ -228,6 +260,26 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
+    delete:
+      tags:
+        - players
+      summary: "Remove the player in the game."
+      operationId: deletePlayerByGameIdAndPlayerId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/playerId'
+        - $ref: '#/parameters/gameId'
+      responses:
+        '204':
+          description: Player successfully removed
+        '404':
+          description: No game with this id / No player with this id
+          schema:
+            $ref: "#/definitions/Error"
+        '500':
+          description: Internal server error
+          schema:
+            $ref: "#/definitions/Error"
   /members:
     get:
       summary: Info of the list of member
@@ -282,6 +334,29 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
+  /members/{memberId}/games:
+    get:
+      summary: Info for games that the member is current playing
+      tags:
+        - members
+      description: Get a list of games by memberId
+      operationId: getGamesByMemberId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/memberId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/GameResults'
+        '404':
+          description: Member not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
   /members/{memberId}:
     delete:
       summary: Delete a member specified by its memberId
@@ -319,7 +394,7 @@ paths:
           schema:
             $ref: '#/definitions/MemberResult'
         '404':
-          description: Player not found
+          description: Member not found
           schema:
             $ref: '#/definitions/Errors'
         '500':
@@ -451,10 +526,6 @@ definitions:
   GameId:
     type: string
     description: A unique ID of a poker game
-  GameIds:
-    type: array
-    items:
-      $ref: '#/definitions/GameId'
   GamePatchBody:
     properties:
       data:
@@ -469,8 +540,6 @@ definitions:
             properties:
               round:
                 $ref: '#/definitions/Round'
-              playerIds:
-                $ref: '#/definitions/PlayerIds'
               minimumBet:
                 $ref: '#/definitions/MinimumBet'
               maximumBet:
@@ -497,14 +566,14 @@ definitions:
           attributes:
             type: object
             properties:
-              playerIds:
-                $ref: '#/definitions/PlayerIds'
+              memberIds:
+                $ref: '#/definitions/MemberIds'
               minimumBet:
                 $ref: '#/definitions/MinimumBet'
               maximumBet:
                 $ref: '#/definitions/MaximumBet'
             required:
-              - playerIds
+              - memberIds
               - minimumBet
               - maximumBet
             additionalProperties: false
@@ -526,8 +595,6 @@ definitions:
         properties:
           round:
             $ref: '#/definitions/Round'
-          playerIds:
-            $ref: '#/definitions/PlayerIds'
           minimumBet:
             $ref: '#/definitions/MinimumBet'
           maximumBet:
@@ -582,13 +649,13 @@ definitions:
   MemberId:
     type: string
     example: '101'
+  MemberIds:
+    type: array
+    items:
+      $ref: '#/definitions/MemberId'
   PlayerId:
     type: string
     example: 'g1m1'
-  PlayerIds:
-    type: array
-    items:
-      $ref: '#/definitions/PlayerId'
   PlayerInGamePatchBody:
     properties:
       data:
@@ -615,7 +682,7 @@ definitions:
     required:
       - data
     additionalProperties: false
-  PlayerInGameResource:
+  PlayerResource:
     properties:
       id:
         $ref: '#/definitions/PlayerId'
@@ -626,6 +693,8 @@ definitions:
         properties:
           memberNickname:
             $ref: '#/definitions/MemberNickname'
+          memberId:
+            $ref: '#/definitions/MemberId'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
           memberExpOverLevel:
@@ -636,20 +705,48 @@ definitions:
             $ref: '#/definitions/PlayerStatus'
           playerCards:
             $ref: '#/definitions/Cards'
-  PlayerInGameResult:
+  PlayerResult:
     properties:
       links:
         $ref: '#/definitions/SelfLink'
       data:
-        $ref: '#/definitions/PlayerInGameResource'
-  PlayerInGameResults:
+        $ref: '#/definitions/PlayerResource'
+  PlayerResults:
     properties:
       links:
         $ref: '#/definitions/SelfLink'
       data:
         type: array
         items:
-          $ref: '#/definitions/PlayerInGameResource'
+          $ref: '#/definitions/PlayerResource'
+  PlayerPostBody:
+    properties:
+      data:
+        type: object
+        properties:
+          type:
+            $ref: '#/definitions/PlayerType'
+          attributes:
+            type: object
+            properties:
+              memberId:
+                $ref: '#/definitions/MemberId'
+              playerBet:
+                $ref: '#/definitions/PlayerBet'
+              playerStatus:
+                $ref: '#/definitions/PlayerStatus'
+              playerCards:
+                $ref: '#/definitions/Cards'
+            required:
+              - memberId
+            additionalProperties: false
+        required: 
+          - type
+          - attributes
+        additionalProperties: false
+    required:
+      - data
+    additionalProperties: false
   MemberLevel:
     type: integer
     minimum: 1
@@ -668,9 +765,9 @@ definitions:
         type: object
         properties:
           id:
-            $ref: '#/definitions/PlayerId'
+            $ref: '#/definitions/MemberId'
           type:
-            $ref: '#/definitions/PlayerType'
+            $ref: '#/definitions/MemberType'
           attributes:
             type: object
             properties:
@@ -684,8 +781,6 @@ definitions:
                 $ref: '#/definitions/MemberLevel'
               memberExpOverLevel:
                 $ref: '#/definitions/MemberExpOverLevel'
-              gameIds:
-                $ref: '#/definitions/GameIds'
             additionalProperties: false
         required: 
           - id
@@ -725,7 +820,7 @@ definitions:
   MemberResource:
     properties:
       id:
-        $ref: '#/definitions/PlayerId'
+        $ref: '#/definitions/MemberId'
       type:
         $ref: '#/definitions/MemberType'
       attributes:
@@ -739,8 +834,6 @@ definitions:
             $ref: '#/definitions/MemberLevel'
           memberExpOverLevel:
             $ref: '#/definitions/MemberExpOverLevel'
-          gameIds:
-            $ref: '#/definitions/GameIds'
       links:
         $ref: '#/definitions/SelfLink'
   MemberResult:

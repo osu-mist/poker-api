@@ -36,6 +36,10 @@ const serializeMembers = (rawMembers, query) => {
    * Add pagination links and meta information to options if pagination is enabled
    */
 
+  _.forEach(rawMembers, (member) => {
+    member.MEMBER_LEVEL = parseInt(member.MEMBER_LEVEL, 10);
+    member.MEMBER_EXP_OVER_LEVEL = parseInt(member.MEMBER_EXP_OVER_LEVEL, 10);
+  });
 
   const topLevelSelfLink = paramsLink(memberResourceUrl, query);
   const serializerArgs = {
