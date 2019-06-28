@@ -1,6 +1,6 @@
 const appRoot = require('app-root-path');
 
-const membersDao = require('../../../db/oracledb/member-dao');
+const membersDao = require('../../../db/oracledb/game-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
 const { openapi: { paths } } = appRoot.require('utils/load-openapi');
