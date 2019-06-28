@@ -1,9 +1,33 @@
 const appRoot = require('app-root-path');
 const _ = require('lodash');
 
-const { serializeMembers, serializeMember } = require('../../serializers/members-serializer');
+const { serializeGames } = require('../../serializers/games-serializer');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
+
+const getGames = async (query) => {
+    const connection = await conn.getConnection();
+    const roundId = query ? query.roundId : null;
+
+    try {
+      const sqlParams = {};
+      if (roundId) {
+          sqlParams.roundId = roundId;
+      }
+      const sqlQuery = `
+      SELECT * FROM GAMES 
+      ${roundId ? 'WHERE ROUND_ID = :roundId' : ''}
+      `;
+      const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
+      const rawGames = rawGamesResponse.rows;
+      console.log(rawGames);
+      const serializedGames = serializeGames(rawGames, query);
+  
+      return serializedGames;
+    } finally {
+      connection.close();
+    }
+  };
 
 /**
  * @summary Return a list of members
@@ -31,4 +55,6 @@ const getGamesByMemberId = async (query) => {
     }
   };
 
-  module.exports = { getGamesByMemberId };
+  module.exports = { getGamesByMemberId, getGames };
+
+  
