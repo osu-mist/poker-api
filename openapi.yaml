@@ -450,9 +450,9 @@ parameters:
   memberId:
     name: memberId
     in: path
-    description: unique string
+    description: unique integer
     required: true
-    type: string
+    type: integer
   playerId:
     name: playerId
     in: path

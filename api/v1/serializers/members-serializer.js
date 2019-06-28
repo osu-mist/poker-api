@@ -24,6 +24,13 @@ _.forEach(memberResourceKeys, (key, index) => {
   memberResourceKeys[index] = decamelize(key).toUpperCase();
 });
 
+const memberConverter = (rawMembers) => {
+  _.forEach(rawMembers, (member) => {
+    member.MEMBER_LEVEL = parseInt(member.MEMBER_LEVEL, 10);
+    member.MEMBER_EXP_OVER_LEVEL = parseInt(member.MEMBER_EXP_OVER_LEVEL, 10);
+  });
+};
+
 /**
  * @summary Serialize memberResources to JSON API
  * @function
@@ -36,10 +43,8 @@ const serializeMembers = (rawMembers, query) => {
    * Add pagination links and meta information to options if pagination is enabled
    */
 
-  _.forEach(rawMembers, (member) => {
-    member.MEMBER_LEVEL = parseInt(member.MEMBER_LEVEL, 10);
-    member.MEMBER_EXP_OVER_LEVEL = parseInt(member.MEMBER_EXP_OVER_LEVEL, 10);
-  });
+
+  memberConverter(rawMembers);
 
   const topLevelSelfLink = paramsLink(memberResourceUrl, query);
   const serializerArgs = {
@@ -64,6 +69,8 @@ const serializeMembers = (rawMembers, query) => {
  * @returns {Object} Serialized memberResource object
  */
 const serializeMember = (rawMember) => {
+  memberConverter(rawMember);
+
   const topLevelSelfLink = resourcePathLink(memberResourceUrl, rawMember.MEMBER_ID);
   const serializerArgs = {
     identifierField: 'MEMBER_ID',
@@ -78,4 +85,6 @@ const serializeMember = (rawMember) => {
     serializerOptions(serializerArgs),
   ).serialize(rawMember);
 };
+
+
 module.exports = { serializeMembers, serializeMember };

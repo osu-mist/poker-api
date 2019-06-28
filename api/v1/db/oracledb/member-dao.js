@@ -47,7 +47,7 @@ const getMembers = async (query) => {
  *                            or return undefined if term
  *                            is not found
  */
-const getMemberById = async () => {
+const getMemberById = async (id) => {
   const connection = await conn.getConnection();
   try {
     const sqlQuery = `
@@ -55,7 +55,6 @@ const getMemberById = async () => {
     FROM MEMBERS WHERE MEMBER_ID = :id
     `;
     const sqlParams = [id];
-    console.log(sqlQuery, sqlParams);
     const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
     const rawMembers = rawMembersResponse.rows;
     if (_.isEmpty(rawMembers)) {
