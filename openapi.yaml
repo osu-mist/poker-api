@@ -289,7 +289,7 @@ paths:
       parameters: 
         - $ref: '#/parameters/authorization'
         - in: query
-          name: memberName
+          name: memberNickname
           type: string
           description: The name that matches the name of a list of members.
         - in: query
@@ -691,10 +691,10 @@ definitions:
       attributes:
         type: object
         properties:
+          memberNickname:
+            $ref: '#/definitions/MemberNickname'
           memberId:
             $ref: '#/definitions/MemberId'
-          memberName:
-            $ref: '#/definitions/MemberName'
           memberLevel:
             $ref: '#/definitions/MemberLevel'
           memberExpOverLevel:
@@ -752,7 +752,7 @@ definitions:
     minimum: 1
     description: Player's level in the system.
     example: 20
-  MemberName:
+  MemberNickname:
     type: string
     example: Jack
   MemberPassword:
@@ -771,8 +771,8 @@ definitions:
           attributes:
             type: object
             properties:
-              memberName:
-                $ref: '#/definitions/MemberName'
+              memberNickname:
+                $ref: '#/definitions/MemberNickname'
               memberEmail:
                 $ref: '#/definitions/MemberEmail'
               memberPassword:
@@ -799,14 +799,14 @@ definitions:
           attributes:
             type: object
             properties:
-              memberName:
-                $ref: '#/definitions/MemberName'
+              memberNickname:
+                $ref: '#/definitions/MemberNickname'
               memberEmail:
                 $ref: '#/definitions/MemberEmail'
               memberPassword:
                 $ref: '#/definitions/MemberPassword'
             required:
-              - memberName
+              - memberNickname
               - memberEmail
               - memberPassword
             additionalProperties: false
@@ -820,14 +820,14 @@ definitions:
   MemberResource:
     properties:
       id:
-        $ref: '#/definitions/PlayerId'
+        $ref: '#/definitions/MemberId'
       type:
         $ref: '#/definitions/MemberType'
       attributes:
         type: object
         properties:
-          memberName:
-            $ref: '#/definitions/MemberName'
+          memberNickname:
+            $ref: '#/definitions/MemberNickname'
           memberEmail:
             $ref: '#/definitions/MemberEmail'
           memberLevel:
