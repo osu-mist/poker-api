@@ -22,6 +22,7 @@ const gameResourceUrl = resourcePathLink(apiBaseUrl, gameResourcePath);
 _.forEach(gameResourceKeys, (key, index) => {
   gameResourceKeys[index] = decamelize(key).toUpperCase();
 });
+gameResourceKeys.push('tableCards');
 
 const gameConverter = (rawGames) => {
     _.forEach(rawGames, (game) => {
