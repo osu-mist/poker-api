@@ -21,11 +21,7 @@ const gameResourceUrl = resourcePathLink(apiBaseUrl, gameResourcePath);
  */
 _.forEach(gameResourceKeys, (key, index) => {
   gameResourceKeys[index] = decamelize(key).toUpperCase();
-  if(key == 'ROUND'){
-    gameResourceKeys[index] = 'ROUND_ID';
-  }
 });
-console.log(gameResourceKeys);
 
 const gameConverter = (rawGames) => {
     _.forEach(rawGames, (game) => {

@@ -15,8 +15,9 @@ const getGames = async (query) => {
           sqlParams.roundId = roundId;
       }
       const sqlQuery = `
-      SELECT * FROM GAMES 
-      ${roundId ? 'WHERE ROUND_ID = :roundId' : ''}
+      SELECT * FROM GAMES, ROUNDS 
+      WHERE GAMES.ROUND_ID = ROUNDS.ROUND_ID 
+      ${roundId ? 'AND ROUND_ID = :roundId' : ''}
       `;
       const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
       const rawGames = rawGamesResponse.rows;
