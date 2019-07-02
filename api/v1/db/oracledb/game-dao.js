@@ -56,6 +56,34 @@ const getGames = async (query) => {
   }
 };
 
+const getGamesByMemberId = async (id) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const sqlQuery = `
+    SELECT CARD_NUMBERS.CARD_NUMBER, CARD_SUITS.SUIT, GAMES.GAME_ID, ROUNDS.ROUND, GAMES.MAXIMUM_BET, 
+    GAMES.MINIMUM_BET, GAMES.BET_POOL 
+    FROM TABLE_CARDS, GAMES, CARDS, CARD_SUITS, CARD_NUMBERS, ROUNDS, PLAYERS
+    WHERE GAMES.GAME_ID = TABLE_CARDS.GAME_ID AND 
+    TABLE_CARDS.GAME_ID = GAMES.GAME_ID AND 
+    TABLE_CARDS.CARD_ID = CARDS.CARD_ID AND
+    CARDS.CARD_NUMBER_ID = CARD_NUMBERS.CARD_NUMBER_ID AND 
+    CARDS.CARD_SUIT_ID = CARD_SUITS.SUIT_ID AND 
+    GAMES.ROUND_ID = ROUNDS.ROUND_ID AND 
+    PLAYERS.MEMBER_ID = :id AND 
+    PLAYERS.GAME_ID = GAMES.GAME_ID
+    `;
+    const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
+    let rawGames = rawGamesResponse.rows;
+    rawGames = mergeRawGames(rawGames);
+    console.log(rawGames);
+    const serializedGames = serializeGames(rawGames);
+    return serializedGames;
+  } finally {
+    connection.close();
+  }
+};
+
 const getGameById = async (id) => {
   const connection = await conn.getConnection();
   try {
@@ -89,4 +117,4 @@ const getGameById = async (id) => {
   }
 };
 
-module.exports = { getGames, getGameById };
+module.exports = { getGames, getGameById, getGamesByMemberId };
