@@ -25,33 +25,32 @@ _.forEach(gameResourceKeys, (key, index) => {
 gameResourceKeys.push('tableCards');
 
 const gameConverter = (rawGames) => {
-    _.forEach(rawGames, (game) => {
-      game.MINIMUM_BET = parseInt(game.MINIMUM_BET, 10);
-      game.MAXIMUM_BET = parseInt(game.MAXIMUM_BET, 10);
-      game.BET_POOL = parseInt(game.BET_POOL, 10);
-    });
+  _.forEach(rawGames, (game) => {
+    game.MINIMUM_BET = parseInt(game.MINIMUM_BET, 10);
+    game.MAXIMUM_BET = parseInt(game.MAXIMUM_BET, 10);
+    game.BET_POOL = parseInt(game.BET_POOL, 10);
+  });
 };
 
 const serializeGames = (rawGames, query) => {
-    /**
-     * Add pagination links and meta information to options if pagination is enabled
-     */
-    gameConverter(rawGames);
-  
-    const topLevelSelfLink = paramsLink(gameResourceUrl, query);
-    const serializerArgs = {
-      identifierField: 'GAME_ID',
-      resourceKeys: gameResourceKeys,
-      resourcePath: gameResourcePath,
-      topLevelSelfLink,
-      query,
-      enableDataLinks: true,
-    };
-  
-    return new JsonApiSerializer(
-      gameResourceType,
-      serializerOptions(serializerArgs),
-    ).serialize(rawGames);
-  };
+  /**
+   * Add pagination links and meta information to options if pagination is enabled
+   */
+  gameConverter(rawGames);
 
-  module.exports = { serializeGames };
+  const topLevelSelfLink = paramsLink(gameResourceUrl, query);
+  const serializerArgs = {
+    identifierField: 'GAME_ID',
+    resourceKeys: gameResourceKeys,
+    resourcePath: gameResourcePath,
+    topLevelSelfLink,
+    query,
+    enableDataLinks: true,
+  };
+  return new JsonApiSerializer(
+    gameResourceType,
+    serializerOptions(serializerArgs),
+  ).serialize(rawGames);
+};
+
+module.exports = { serializeGames };
