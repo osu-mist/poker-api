@@ -1,6 +1,7 @@
 const appRoot = require('app-root-path');
+const _ = require('lodash');
 
-const { serializeGames } = require('../../serializers/games-serializer');
+const { serializeGames, serializeGame } = require('../../serializers/games-serializer');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 const mergeRawGames = (rawGames) => {
@@ -55,4 +56,37 @@ const getGames = async (query) => {
   }
 };
 
-module.exports = { getGames };
+const getGameById = async (id) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlQuery = `
+    SELECT CARD_NUMBERS.CARD_NUMBER, CARD_SUITS.SUIT, GAMES.GAME_ID, ROUNDS.ROUND, GAMES.MAXIMUM_BET, 
+    GAMES.MINIMUM_BET, GAMES.BET_POOL 
+    FROM TABLE_CARDS, GAMES, CARDS, CARD_SUITS, CARD_NUMBERS, ROUNDS 
+    WHERE GAMES.GAME_ID = TABLE_CARDS.GAME_ID AND 
+    TABLE_CARDS.GAME_ID = GAMES.GAME_ID AND 
+    TABLE_CARDS.CARD_ID = CARDS.CARD_ID AND
+    CARDS.CARD_NUMBER_ID = CARD_NUMBERS.CARD_NUMBER_ID AND 
+    CARDS.CARD_SUIT_ID = CARD_SUITS.SUIT_ID AND 
+    GAMES.ROUND_ID = ROUNDS.ROUND_ID AND 
+    GAMES.GAME_ID = :id
+    `;
+    const sqlParams = [id];
+    const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
+    let rawGames = rawGamesResponse.rows;
+    [rawGames] = mergeRawGames(rawGames);
+    if (_.isEmpty(rawGames)) {
+      return undefined;
+    }
+    if (rawGames.length > 1) {
+      throw new Error('Expect a single object but got multiple results.');
+    } else {
+      const serializedGame = serializeGame(rawGames);
+      return serializedGame;
+    }
+  } finally {
+    connection.close();
+  }
+};
+
+module.exports = { getGames, getGameById };

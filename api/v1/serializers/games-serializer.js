@@ -53,4 +53,24 @@ const serializeGames = (rawGames, query) => {
   ).serialize(rawGames);
 };
 
-module.exports = { serializeGames };
+const serializeGame = (rawGames, query) => {
+  /**
+   * Add pagination links and meta information to options if pagination is enabled
+   */
+  gameConverter(rawGames);
+
+  const topLevelSelfLink = resourcePathLink(gameResourceUrl, query);
+  const serializerArgs = {
+    identifierField: 'GAME_ID',
+    resourceKeys: gameResourceKeys,
+    resourcePath: gameResourcePath,
+    topLevelSelfLink,
+    query,
+    enableDataLinks: true,
+  };
+  return new JsonApiSerializer(
+    gameResourceType,
+    serializerOptions(serializerArgs),
+  ).serialize(rawGames);
+};
+module.exports = { serializeGames, serializeGame };
