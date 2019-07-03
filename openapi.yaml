@@ -647,8 +647,8 @@ definitions:
     description: Player's experience point above current level.
     example: 1234
   MemberId:
-    type: string
-    example: '101'
+    type: integer
+    example: 123
   MemberIds:
     type: array
     items:
