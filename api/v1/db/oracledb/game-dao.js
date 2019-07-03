@@ -1,49 +1,52 @@
 const appRoot = require('app-root-path');
+const _ = require('lodash');
+
 
 const { serializeGames } = require('../../serializers/games-serializer');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 const mergeRawGames = (rawGames) => {
-  const mergedRawGames = [];
-  let currentId = 'dummy';
-  for (let i = 0; i < rawGames.length; i += 1) {
-    if (rawGames[i].GAME_ID !== currentId) {
-      currentId = rawGames[i].GAME_ID;
-      rawGames[i].tableCards = [{
-        cardNumber: rawGames[i].CARD_NUMBER,
-        cardSuit: rawGames[i].SUIT,
-      }];
-      mergedRawGames.push(rawGames[i]);
+  const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
+  const mergedRawGames = _.map(groupedRawGames, (gameMetaDataArray) => {
+    if (gameMetaDataArray[0].CARD_NUMBER == null) {
+      gameMetaDataArray[0].tableCards = [];
     } else {
-      mergedRawGames[mergedRawGames.length - 1].tableCards.push({
-        cardNumber: rawGames[i].CARD_NUMBER,
-        cardSuit: rawGames[i].SUIT,
+      gameMetaDataArray[0].tableCards = _.map(gameMetaDataArray, (data) => {
+        return {
+          cardNumber: data.CARD_NUMBER,
+          cardSuit: data.SUIT,
+        };
       });
     }
-  }
+    return (gameMetaDataArray[0]);
+  });
   return mergedRawGames;
 };
 
+/**
+ * @summary Return a list of games
+ * @function
+ * @returns {Promise<Object[]>} Promise object represents a list of games
+ */
 const getGames = async (query) => {
   const connection = await conn.getConnection();
-  const roundId = query ? query.roundId : null;
+  const round = query ? query.round : null;
 
   try {
     const sqlParams = {};
-    if (roundId) {
-      sqlParams.roundId = roundId;
+    if (round) {
+      sqlParams.round = round;
     }
     const sqlQuery = `
-    SELECT CARD_NUMBERS.CARD_NUMBER, CARD_SUITS.SUIT, GAMES.GAME_ID, ROUNDS.ROUND, GAMES.MAXIMUM_BET, 
-    GAMES.MINIMUM_BET, GAMES.BET_POOL 
-    FROM TABLE_CARDS, GAMES, CARDS, CARD_SUITS, CARD_NUMBERS, ROUNDS 
-    WHERE GAMES.GAME_ID = TABLE_CARDS.GAME_ID AND 
-    TABLE_CARDS.GAME_ID = GAMES.GAME_ID AND 
-    TABLE_CARDS.CARD_ID = CARDS.CARD_ID AND
-    CARDS.CARD_NUMBER_ID = CARD_NUMBERS.CARD_NUMBER_ID AND 
-    CARDS.CARD_SUIT_ID = CARD_SUITS.SUIT_ID AND 
-    GAMES.ROUND_ID = ROUNDS.ROUND_ID
-    ${roundId ? 'AND ROUND_ID = :roundId' : ''}
+    SELECT CN.CARD_NUMBER, CS.SUIT, G.GAME_ID, R.ROUND, G.MAXIMUM_BET, 
+    G.MINIMUM_BET, G.BET_POOL 
+    FROM GAMES G
+    INNER JOIN ROUNDS R ON G.ROUND_ID = R.ROUND_ID 
+    LEFT OUTER JOIN TABLE_CARDS TC ON TC.GAME_ID = G.GAME_ID 
+    LEFT OUTER JOIN CARDS C ON TC.CARD_ID = C.CARD_ID 
+    LEFT OUTER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID 
+    LEFT OUTER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID 
+    ${round ? 'AND ROUNDS.ROUND = :round' : ''}
     `;
     const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
     let rawGames = rawGamesResponse.rows;
