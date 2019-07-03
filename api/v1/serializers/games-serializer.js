@@ -32,6 +32,12 @@ const gameConverter = (rawGames) => {
   });
 };
 
+const individualGameConverter = (rawGame) => {
+  rawGame.MINIMUM_BET = parseInt(rawGame.MINIMUM_BET, 10);
+  rawGame.MAXIMUM_BET = parseInt(rawGame.MAXIMUM_BET, 10);
+  rawGame.BET_POOL = parseInt(rawGame.BET_POOL, 10); 
+};
+
 const serializeGames = (rawGames, query) => {
   /**
    * Add pagination links and meta information to options if pagination is enabled
@@ -57,7 +63,7 @@ const serializeGame = (rawGames, query) => {
   /**
    * Add pagination links and meta information to options if pagination is enabled
    */
-  gameConverter(rawGames);
+  individualGameConverter(rawGames);
 
   const topLevelSelfLink = resourcePathLink(gameResourceUrl, query);
   const serializerArgs = {
