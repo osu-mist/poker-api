@@ -64,7 +64,6 @@ const getMemberById = async (id) => {
       throw new Error('Expect a single object but got multiple results.');
     } else {
       const serializedMember = serializeMember(rawMembers);
-      console.log(serializedMember);
       return serializedMember;
     }
   } finally {
