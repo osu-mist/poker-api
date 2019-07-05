@@ -18,10 +18,10 @@ const mergeRawPlayers = (rawPlayers) => {
   return mergedRawPlayers;
 };
 
-const getPlayersByGameId = async (id) => {
+const getPlayersByGameId = async (id, pid) => {
   const connection = await conn.getConnection();
   try {
-    const sqlParams = [id];
+    const sqlParams = pid ? [id, pid] : [id];
     const sqlQuery = `
     SELECT P.PLAYER_ID, P.MEMBER_ID, M.MEMBER_NICKNAME, M.MEMBER_LEVEL, M.MEMBER_EXP_OVER_LEVEL, P.PLAYER_BET, S.STATUS AS PLAYER_STATUS, CN.CARD_NUMBER, CS.SUIT
     FROM PLAYERS P 
@@ -32,7 +32,8 @@ const getPlayersByGameId = async (id) => {
     LEFT OUTER JOIN CARDS C ON PC.CARD_ID = C.CARD_ID 
     LEFT OUTER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID 
     LEFT OUTER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID  
-    WHERE G.GAME_ID = :id
+    WHERE G.GAME_ID = :id 
+    ${pid ? 'AND P.PLAYER_ID = :pid' : ''}
     `;
     const rawPlayersResponse = await connection.execute(sqlQuery, sqlParams);
     let rawPlayers = rawPlayersResponse.rows;
