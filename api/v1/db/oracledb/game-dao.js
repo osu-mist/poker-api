@@ -4,20 +4,23 @@ const _ = require('lodash');
 const { serializeGames, serializeGame } = require('../../serializers/games-serializer');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
+
+/**
+ * @summary Merge the raw response from database. Extract card information from every row,
+ * and put them into a field called 'tableCard' in the individual merged game object, while other
+ * properties in the object remained in the first layer.
+ * @function
+ * @returns {Promise<Object[]>} Promise object represents a list of games
+ */
 const mergeRawGames = (rawGames) => {
   const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
   const mergedRawGames = _.map(groupedRawGames, (gameMetaDataArray) => {
-    if (gameMetaDataArray[0].CARD_NUMBER == null) {
-      gameMetaDataArray[0].tableCards = [];
-    } else {
-      gameMetaDataArray[0].tableCards = _.map(gameMetaDataArray, (data) => {
-        return {
-          cardNumber: data.CARD_NUMBER,
-          cardSuit: data.SUIT,
-        };
-      });
-    }
-    return (gameMetaDataArray[0]);
+    gameMetaDataArray[0].tableCards = gameMetaDataArray[0].CARD_NUMBER === null ? []
+      : _.map(gameMetaDataArray, data => ({
+        cardNumber: data.CARD_NUMBER,
+        cardSuit: data.SUIT,
+      }));
+    return gameMetaDataArray[0];
   });
   return mergedRawGames;
 };
@@ -45,7 +48,7 @@ const getGames = async (query) => {
     LEFT OUTER JOIN CARDS C ON TC.CARD_ID = C.CARD_ID 
     LEFT OUTER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID 
     LEFT OUTER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID 
-    ${round ? 'AND ROUNDS.ROUND = :round' : ''}
+    ${round ? 'WHERE R.ROUND = :round' : ''}
     `;
     const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
     let rawGames = rawGamesResponse.rows;
