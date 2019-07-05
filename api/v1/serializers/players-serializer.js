@@ -20,36 +20,37 @@ const playerResourceUrl = resourcePathLink(apiBaseUrl, playerResourcePath);
  * from the raw data rows.
  */
 _.forEach(playerResourceKeys, (key, index) => {
-    playerResourceKeys[index] = decamelize(key).toUpperCase();
+  playerResourceKeys[index] = decamelize(key).toUpperCase();
 });
+playerResourceKeys.push('playerCards');
 
 const playerConverter = (rawPlayers) => {
-    _.forEach(rawPlayers, (player) => {
-      player.MEMBER_LEVEL = parseInt(player.MEMBER_LEVEL, 10);
-      player.MEMBER_EXP_OVER_LEVEL = parseInt(player.MEMBER_EXP_OVER_LEVEL, 10);
-      player.PLAYER_BET = parseInt(player.PLAYER_BET, 10);
-    });
-  };
+  _.forEach(rawPlayers, (player) => {
+    player.MEMBER_LEVEL = parseInt(player.MEMBER_LEVEL, 10);
+    player.MEMBER_EXP_OVER_LEVEL = parseInt(player.MEMBER_EXP_OVER_LEVEL, 10);
+    player.PLAYER_BET = parseInt(player.PLAYER_BET, 10);
+  });
+};
 
 const serializePlayers = (rawPlayers, query) => {
-    /**
-     * Add pagination links and meta information to options if pagination is enabled
-     */
-    playerConverter(rawPlayers);
-  
-    const topLevelSelfLink = paramsLink(playerResourceUrl, query);
-    const serializerArgs = {
-      identifierField: 'PLAYER_ID',
-      resourceKeys: playerResourceKeys,
-      resourcePath: playerResourcePath,
-      topLevelSelfLink,
-      query,
-      enableDataLinks: true,
-    };
-    return new JsonApiSerializer(
-      playerResourceType,
-      serializerOptions(serializerArgs),
-    ).serialize(rawPlayers);
-  };
+  /**
+   * Add pagination links and meta information to options if pagination is enabled
+   */
+  playerConverter(rawPlayers);
 
-  module.exports = { serializePlayers };
+  const topLevelSelfLink = paramsLink(playerResourceUrl, query);
+  const serializerArgs = {
+    identifierField: 'PLAYER_ID',
+    resourceKeys: playerResourceKeys,
+    resourcePath: playerResourcePath,
+    topLevelSelfLink,
+    query,
+    enableDataLinks: true,
+  };
+  return new JsonApiSerializer(
+    playerResourceType,
+    serializerOptions(serializerArgs),
+  ).serialize(rawPlayers);
+};
+
+module.exports = { serializePlayers };
