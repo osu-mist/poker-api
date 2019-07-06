@@ -23,13 +23,6 @@ _.forEach(memberResourceKeys, (key, index) => {
   memberResourceKeys[index] = decamelize(key).toUpperCase();
 });
 
-const memberConverter = (rawMembers) => {
-  _.forEach(rawMembers, (member) => {
-    member.MEMBER_LEVEL = parseInt(member.MEMBER_LEVEL, 10);
-    member.MEMBER_EXP_OVER_LEVEL = parseInt(member.MEMBER_EXP_OVER_LEVEL, 10);
-  });
-};
-
 const singleMemberConverter = (rawMember) => {
   rawMember.MEMBER_LEVEL = parseInt(rawMember.MEMBER_LEVEL, 10);
   rawMember.MEMBER_EXP_OVER_LEVEL = parseInt(rawMember.MEMBER_EXP_OVER_LEVEL, 10);
@@ -43,7 +36,9 @@ const singleMemberConverter = (rawMember) => {
  * @returns {Object} Serialized memberResources object
  */
 const serializeMembers = (rawMembers, query) => {
-  memberConverter(rawMembers);
+  _.forEach(rawMembers, (member) => {
+    singleMemberConverter(member);
+  });
 
   const topLevelSelfLink = paramsLink(memberResourceUrl, query);
   const serializerArgs = {

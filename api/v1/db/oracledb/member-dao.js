@@ -24,9 +24,9 @@ const getMembers = async (query) => {
       sqlParams.memberEmail = memberEmail;
     }
     const sqlQuery = `
-    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS 
-    WHERE 1 = 1 
-    ${memberNickname ? 'AND MEMBER_NICKNAME = :memberNickname ' : ''} 
+    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS
+    WHERE 1 = 1
+    ${memberNickname ? 'AND MEMBER_NICKNAME = :memberNickname ' : ''}
     ${memberEmail ? 'AND MEMBER_EMAIL = :memberEmail' : ''}
     `;
     const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
@@ -51,19 +51,19 @@ const getMemberById = async (id) => {
   const connection = await conn.getConnection();
   try {
     const sqlQuery = `
-    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL 
+    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL
     FROM MEMBERS WHERE MEMBER_ID = :id
     `;
     const sqlParams = [id];
     const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
-    const [rawMembers] = rawMembersResponse.rows;
+    const rawMembers = rawMembersResponse.rows;
     if (_.isEmpty(rawMembers)) {
       return undefined;
     }
     if (rawMembers.length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const serializedMember = serializeMember(rawMembers);
+      const serializedMember = serializeMember(rawMembers[0]);
       return serializedMember;
     }
   } finally {
