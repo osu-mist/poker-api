@@ -12,9 +12,9 @@ const get = async (req, res) => {
   try {
     const { gameId } = req.params;
     const { playerId } = req.params;
-    const result = await playerDao.getPlayersByGameId(gameId, playerId);
+    const result = await playerDao.getPlayersByGameIdAndPlayerId(gameId, playerId);
     if (!result) {
-      errorBuilder(res, 404, 'A game with the specified ID was not found.');
+      errorBuilder(res, 404, 'A game / player with the specified ID was not found.');
     } else {
       res.send(result);
     }

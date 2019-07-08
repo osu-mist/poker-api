@@ -25,16 +25,16 @@ _.forEach(playerResourceKeys, (key, index) => {
 });
 playerResourceKeys.push('playerCards');
 
-const playerConverter = (rawPlayers) => {
-  _.forEach(rawPlayers, (player) => {
-    player.MEMBER_LEVEL = parseInt(player.MEMBER_LEVEL, 10);
-    player.MEMBER_EXP_OVER_LEVEL = parseInt(player.MEMBER_EXP_OVER_LEVEL, 10);
-    player.PLAYER_BET = parseInt(player.PLAYER_BET, 10);
-  });
+const playerConverter = (player) => {
+  player.MEMBER_LEVEL = parseInt(player.MEMBER_LEVEL, 10);
+  player.MEMBER_EXP_OVER_LEVEL = parseInt(player.MEMBER_EXP_OVER_LEVEL, 10);
+  player.PLAYER_BET = parseInt(player.PLAYER_BET, 10);
 };
 
 const serializePlayers = (rawPlayers, query, gameId) => {
-  playerConverter(rawPlayers);
+  _.forEach(rawPlayers, (player) => {
+    playerConverter(player);
+  });
 
   const topLevelSelfLink = resourcePathLink(playerResourceUrl, `${gameId}/${playerResourcePath}`);
   const serializerArgs = {
@@ -51,4 +51,22 @@ const serializePlayers = (rawPlayers, query, gameId) => {
   ).serialize(rawPlayers);
 };
 
-module.exports = { serializePlayers };
+const serializePlayer = (rawPlayer, gameId, playerId) => {
+  playerConverter(rawPlayer);
+
+  const topLevelSelfLink = resourcePathLink(playerResourceUrl, `${gameId}/${playerResourcePath}/${playerId}`);
+  const serializerArgs = {
+    identifierField: 'PLAYER_ID',
+    resourceKeys: playerResourceKeys,
+    resourcePath: `${gameResourcePath}/${gameId}/${playerResourcePath}`,
+    topLevelSelfLink,
+    enableDataLinks: true,
+  };
+
+  return new JsonApiSerializer(
+    playerResourceType,
+    serializerOptions(serializerArgs),
+  ).serialize(rawPlayer);
+};
+
+module.exports = { serializePlayers, serializePlayer };
