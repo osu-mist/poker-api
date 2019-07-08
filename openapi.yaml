@@ -444,9 +444,9 @@ parameters:
   gameId:
     name: gameId
     in: path
-    description: unique string
+    description: unique number
     required: true
-    type: string
+    type: integer
   memberId:
     name: memberId
     in: path
