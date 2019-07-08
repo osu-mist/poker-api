@@ -11,7 +11,9 @@ const gameResourceProp = openapi.definitions.GameResource.properties;
 const gameResourceType = gameResourceProp.type.enum[0];
 const gameResourceKeys = _.keys(gameResourceProp.attributes.properties);
 const gameResourcePath = 'games';
+const memberResourcePath = 'members';
 const gameResourceUrl = resourcePathLink(apiBaseUrl, gameResourcePath);
+const memberResourceUrl = resourcePathLink(apiBaseUrl, memberResourcePath);
 
 /**
  * The column name getting from database is usually UPPER_CASE.
@@ -30,13 +32,13 @@ const individualGameConverter = (rawGame) => {
   rawGame.BET_POOL = parseInt(rawGame.BET_POOL, 10);
 };
 
-const serializeGames = (rawGames, query) => {
-  console.log(query);
+const serializeGames = (rawGames, query, memberId) => {
   _.forEach(rawGames, (game) => {
     individualGameConverter(game);
   });
 
-  const topLevelSelfLink = paramsLink(gameResourceUrl, query);
+  const topLevelSelfLink = !memberId ? paramsLink(gameResourceUrl, query)
+    : `${resourcePathLink(memberResourceUrl, memberId)}/games`;
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
