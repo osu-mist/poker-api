@@ -31,6 +31,7 @@ const individualGameConverter = (rawGame) => {
 };
 
 const serializeGames = (rawGames, query) => {
+  console.log(query);
   _.forEach(rawGames, (game) => {
     individualGameConverter(game);
   });
