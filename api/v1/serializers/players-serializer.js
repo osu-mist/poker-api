@@ -36,9 +36,7 @@ const playerConverter = (rawPlayers) => {
 const serializePlayers = (rawPlayers, query, gameId) => {
   playerConverter(rawPlayers);
 
-  let topLevelSelfLink = resourcePathLink(playerResourceUrl, gameId);
-  console.log(topLevelSelfLink);
-  topLevelSelfLink = `${topLevelSelfLink}/players`;
+  const topLevelSelfLink = resourcePathLink(playerResourceUrl, `${gameId}/${playerResourcePath}`);
   const serializerArgs = {
     identifierField: 'PLAYER_ID',
     resourceKeys: playerResourceKeys,
