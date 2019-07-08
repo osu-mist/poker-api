@@ -6,11 +6,9 @@ const { serializeGames } = require('../../serializers/games-serializer');
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 
 /**
- * @summary Merge the raw response from database. Extract card information from every row,
- * and put them into a field called 'tableCard' in the individual merged game object, while other
- * properties in the object remained in the first layer.
- * @function
- * @returns {Promise<Object[]>} Promise object represents a list of games
+ * @summary Return a list of games merged by GAME_ID property.
+ * @param {[Object]} rawGames An array of raw game data returned from SQL database.
+ * @returns {[Object]} Game objects merged.
  */
 const mergeRawGames = (rawGames) => {
   const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
@@ -27,7 +25,7 @@ const mergeRawGames = (rawGames) => {
 
 /**
  * @summary Return a list of games
- * @function
+ * @param {Object} query query object that contains useful information to process.
  * @returns {Promise<Object[]>} Promise object represents a list of games
  */
 const getGames = async (query) => {
@@ -40,14 +38,14 @@ const getGames = async (query) => {
       sqlParams.round = round;
     }
     const sqlQuery = `
-    SELECT CN.CARD_NUMBER, CS.SUIT, G.GAME_ID, R.ROUND, G.MAXIMUM_BET, 
-    G.MINIMUM_BET, G.BET_POOL 
+    SELECT CN.CARD_NUMBER, CS.SUIT, G.GAME_ID, R.ROUND, G.MAXIMUM_BET,
+    G.MINIMUM_BET, G.BET_POOL
     FROM GAMES G
-    INNER JOIN ROUNDS R ON G.ROUND_ID = R.ROUND_ID 
-    LEFT OUTER JOIN TABLE_CARDS TC ON TC.GAME_ID = G.GAME_ID 
-    LEFT OUTER JOIN CARDS C ON TC.CARD_ID = C.CARD_ID 
-    LEFT OUTER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID 
-    LEFT OUTER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID 
+    INNER JOIN ROUNDS R ON G.ROUND_ID = R.ROUND_ID
+    LEFT OUTER JOIN TABLE_CARDS TC ON TC.GAME_ID = G.GAME_ID
+    LEFT OUTER JOIN CARDS C ON TC.CARD_ID = C.CARD_ID
+    LEFT OUTER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
+    LEFT OUTER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
     ${round ? 'WHERE R.ROUND = :round' : ''}
     `;
     const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
