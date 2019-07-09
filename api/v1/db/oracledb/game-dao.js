@@ -85,17 +85,18 @@ const getGameById = async (id) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [id];
-    const getGameByIdSqlQuery = `${sqlQuery} ${id ? 'WHERE G.GAME_ID = :id' : ''}`;
+    const getGameByIdSqlQuery = `${sqlQuery} WHERE G.GAME_ID = :id`;
+    console.log(getGameByIdSqlQuery);
     const rawGamesResponse = await connection.execute(getGameByIdSqlQuery, sqlParams);
     const rawGames = rawGamesResponse.rows;
-    let firstRawGame = [rawGames];
-    firstRawGame = mergeRawGames(rawGames);
-    if (_.isEmpty(firstRawGame)) {
+    const mergedRawGames = mergeRawGames(rawGames);
+    if (_.isEmpty(mergedRawGames)) {
       return undefined;
     }
-    if (firstRawGame.length > 1) {
+    if (mergedRawGames.length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
+      const [firstRawGame] = mergedRawGames;
       const serializedGame = serializeGame(firstRawGame);
       return serializedGame;
     }

@@ -58,8 +58,7 @@ const serializeGame = (rawGames, query) => {
    * Add pagination links and meta information to options if pagination is enabled
    */
   individualGameConverter(rawGames);
-
-  const topLevelSelfLink = resourcePathLink(gameResourceUrl, query);
+  const topLevelSelfLink = resourcePathLink(gameResourceUrl, rawGames.GAME_ID);
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
