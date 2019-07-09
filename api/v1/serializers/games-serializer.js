@@ -32,10 +32,32 @@ const gameConverter = (rawGames) => {
   });
 };
 
+/**
+ * @summary Merge the raw response from database. Extract card information from every row,
+ * and put them into a field called 'tableCards' in the individual merged game object, while other
+ * properties in the object remained in the first layer.
+ * @function
+ * @param {Array[Object]} rawGames An array of raw game data returned from SQL database.
+ * @returns {Array[Object]} Game objects merged.
+ */
+const mergeRawGames = (rawGames) => {
+  const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
+  const mergedRawGames = _.map(groupedRawGames, (gameMetaDataArray) => {
+    gameMetaDataArray[0].tableCards = gameMetaDataArray[0].CARD_NUMBER === null ? []
+      : _.map(gameMetaDataArray, data => ({
+        cardNumber: data.CARD_NUMBER,
+        cardSuit: data.SUIT,
+      }));
+    return gameMetaDataArray[0];
+  });
+  return mergedRawGames;
+};
+
 const serializeGames = (rawGames, query) => {
   /**
    * Add pagination links and meta information to options if pagination is enabled
    */
+  rawGames = mergeRawGames(rawGames);
   gameConverter(rawGames);
 
   const topLevelSelfLink = paramsLink(gameResourceUrl, query);

@@ -6,25 +6,8 @@ const { serializeGames } = require('../../serializers/games-serializer');
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 
 /**
- * @summary Return a list of games merged by GAME_ID property.
- * @param {[Object]} rawGames An array of raw game data returned from SQL database.
- * @returns {[Object]} Game objects merged.
- */
-const mergeRawGames = (rawGames) => {
-  const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
-  const mergedRawGames = _.map(groupedRawGames, (gameMetaDataArray) => {
-    gameMetaDataArray[0].tableCards = gameMetaDataArray[0].CARD_NUMBER === null ? []
-      : _.map(gameMetaDataArray, data => ({
-        cardNumber: data.CARD_NUMBER,
-        cardSuit: data.SUIT,
-      }));
-    return gameMetaDataArray[0];
-  });
-  return mergedRawGames;
-};
-
-/**
  * @summary Return a list of games
+ * @function
  * @param {Object} query query object that contains useful information to process.
  * @returns {Promise<Object[]>} Promise object represents a list of games
  */
@@ -50,7 +33,7 @@ const getGames = async (query) => {
     `;
     const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
     let rawGames = rawGamesResponse.rows;
-    rawGames = mergeRawGames(rawGames);
+    //rawGames = mergeRawGames(rawGames);
     const serializedGames = serializeGames(rawGames, query);
     return serializedGames;
   } finally {
@@ -58,4 +41,10 @@ const getGames = async (query) => {
   }
 };
 
-module.exports = { getGames };
+const postGame = async (body) => {
+  const { attributes } = body.data;
+  const { memberIds, minimumBet, maximumBet } = attributes;
+
+};
+
+module.exports = { getGames, postGame };
