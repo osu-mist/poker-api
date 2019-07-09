@@ -62,7 +62,7 @@ paths:
         - in: query
           name: round
           type: string
-          enum:
+          enum: &RoundEnum
             - blind
             - flop
             - turn
@@ -873,12 +873,7 @@ definitions:
       - player
   Round:
     type: string
-    enum:
-      - blind
-      - flop
-      - turn
-      - river
-      - showdown
+    enum: *RoundEnum
   SelfLink:
     properties:
       self:

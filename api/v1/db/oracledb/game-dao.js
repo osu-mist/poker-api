@@ -20,8 +20,13 @@ const getGames = async (query) => {
       sqlParams.round = round;
     }
     const sqlQuery = `
-    SELECT CN.CARD_NUMBER, CS.SUIT, G.GAME_ID, R.ROUND, G.MAXIMUM_BET,
-    G.MINIMUM_BET, G.BET_POOL
+    SELECT CN.CARD_NUMBER,
+           CS.SUIT,
+           G.GAME_ID,
+           R.ROUND,
+           G.MAXIMUM_BET,
+           G.MINIMUM_BET,
+           G.BET_POOL
     FROM GAMES G
     INNER JOIN ROUNDS R ON G.ROUND_ID = R.ROUND_ID
     LEFT OUTER JOIN TABLE_CARDS TC ON TC.GAME_ID = G.GAME_ID
