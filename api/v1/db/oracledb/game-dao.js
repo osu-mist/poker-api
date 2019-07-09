@@ -1,5 +1,4 @@
 const appRoot = require('app-root-path');
-const _ = require('lodash');
 
 const { serializeGames } = require('../../serializers/games-serializer');
 
@@ -32,8 +31,7 @@ const getGames = async (query) => {
     ${round ? 'WHERE R.ROUND = :round' : ''}
     `;
     const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
-    let rawGames = rawGamesResponse.rows;
-    //rawGames = mergeRawGames(rawGames);
+    const rawGames = rawGamesResponse.rows;
     const serializedGames = serializeGames(rawGames, query);
     return serializedGames;
   } finally {
@@ -41,10 +39,5 @@ const getGames = async (query) => {
   }
 };
 
-const postGame = async (body) => {
-  const { attributes } = body.data;
-  const { memberIds, minimumBet, maximumBet } = attributes;
 
-};
-
-module.exports = { getGames, postGame };
+module.exports = { getGames };
