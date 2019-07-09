@@ -60,7 +60,6 @@ const getGameById = async (id) => {
   try {
     const sqlParams = [id];
     const getGameByIdSqlQuery = `${sqlQuery} WHERE G.GAME_ID = :id`;
-    console.log(getGameByIdSqlQuery);
     const rawGamesResponse = await connection.execute(getGameByIdSqlQuery, sqlParams);
     const rawGames = rawGamesResponse.rows;
     const mergedRawGames = mergeRawGames(rawGames);
