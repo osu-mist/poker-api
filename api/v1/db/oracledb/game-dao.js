@@ -44,7 +44,9 @@ const getGames = async (query) => {
 const postGame = async (body) => {
   const { attributes } = body.data;
   const { memberIds, minimumBet, maximumBet } = attributes;
+  const newGame = {
 
+  }
 };
 
 module.exports = { getGames, postGame };
