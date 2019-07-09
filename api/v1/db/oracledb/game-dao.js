@@ -19,9 +19,6 @@ const getGames = async (query) => {
   try {
     const sqlParams = {};
     if (round) {
-      if(!_.includes(openapi.definitions.Round.enum, round)){
-        throw new Error('Invalid query parameter');
-      }
       sqlParams.round = round;
     }
     const sqlQuery = `
