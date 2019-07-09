@@ -57,11 +57,17 @@ paths:
       tags:
         - games
       operationId: getGames
-      parameters: 
+      parameters:
         - $ref: '#/parameters/authorization'
         - in: query
           name: round
           type: string
+          enum: &RoundEnum
+            - blind
+            - flop
+            - turn
+            - river
+            - showdown
           description: The current round of the game
       responses:
         '200':
@@ -79,7 +85,7 @@ paths:
         - games
       description: Get a game by its gameid
       operationId: getGameByGameId
-      parameters: 
+      parameters:
         - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/gameId'
       responses:
@@ -102,7 +108,7 @@ paths:
       operationId: patchGameByGameId
       consumes:
         - application/json
-      parameters: 
+      parameters:
         - $ref: '#/parameters/gameId'
         - name: updateBody
           in: body
@@ -209,7 +215,7 @@ paths:
       tags:
         - players
       operationId: getPlayerByGameIdAndPlayerId
-      parameters: 
+      parameters:
         - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/playerId'
         - $ref: '#/parameters/gameId'
@@ -231,9 +237,9 @@ paths:
         - players
       summary: Update a player in terms of the specific game
       operationId: updatePlayerByGameIdAndPlayerId
-      consumes: 
+      consumes:
         - application/json
-      parameters: 
+      parameters:
         - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/playerId'
         - $ref: '#/parameters/gameId'
@@ -286,7 +292,7 @@ paths:
       tags:
         - members
       operationId: getMembers
-      parameters: 
+      parameters:
         - $ref: '#/parameters/authorization'
         - in: query
           name: memberNickname
@@ -310,7 +316,7 @@ paths:
       tags:
         - members
       operationId: postMember
-      parameters: 
+      parameters:
         - $ref: '#/parameters/authorization'
         - in: body
           name: requestBody
@@ -340,9 +346,9 @@ paths:
       tags:
         - members
       operationId: deleteMemberByMemberId
-      consumes: 
+      consumes:
         - application/json
-      parameters: 
+      parameters:
         - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/memberId'
       responses:
@@ -362,7 +368,7 @@ paths:
         - members
       description: Get a member by its memberId
       operationId: getMemberByMemberId
-      parameters: 
+      parameters:
         - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/memberId'
       responses:
@@ -383,9 +389,9 @@ paths:
       tags:
         - members
       operationId: patchMemberByMemberId
-      consumes: 
+      consumes:
         - application/json
-      parameters: 
+      parameters:
         - $ref: '#/parameters/memberId'
         - $ref: '#/parameters/authorization'
         - name: updateBody
@@ -468,7 +474,7 @@ definitions:
     properties:
       cardNumber:
         type: string
-        enum: 
+        enum:
           - 'A'
           - '2'
           - '3'
@@ -549,7 +555,7 @@ definitions:
               tableCards:
                 $ref: '#/definitions/Cards'
             additionalProperties: false
-        required: 
+        required:
           - type
           - id
         additionalProperties: false
@@ -577,7 +583,7 @@ definitions:
               - minimumBet
               - maximumBet
             additionalProperties: false
-        required: 
+        required:
           - type
           - attributes
         additionalProperties: false
@@ -740,7 +746,7 @@ definitions:
             required:
               - memberId
             additionalProperties: false
-        required: 
+        required:
           - type
           - attributes
         additionalProperties: false
@@ -782,7 +788,7 @@ definitions:
               memberExpOverLevel:
                 $ref: '#/definitions/MemberExpOverLevel'
             additionalProperties: false
-        required: 
+        required:
           - id
           - type
         additionalProperties: false
@@ -810,13 +816,13 @@ definitions:
               - memberEmail
               - memberPassword
             additionalProperties: false
-        required: 
+        required:
           - type
           - attributes
         additionalProperties: false
-    required: 
+    required:
       - data
-    additionalProperties: false 
+    additionalProperties: false
   MemberResource:
     properties:
       id:
@@ -867,12 +873,7 @@ definitions:
       - player
   Round:
     type: string
-    enum:
-      - blind
-      - flop
-      - turn
-      - river
-      - showdown
+    enum: *RoundEnum
   SelfLink:
     properties:
       self:
