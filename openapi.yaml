@@ -23,6 +23,7 @@ paths:
   /games:
     post:
       summary: Create a poker game
+      description: The player created with memberId will have initialized value in terms of status(checked) and playerBet(0).
       tags:
         - games
       consumes:
@@ -572,10 +573,15 @@ definitions:
                 $ref: '#/definitions/MinimumBet'
               maximumBet:
                 $ref: '#/definitions/MaximumBet'
+              round:
+                $ref: '#/definitions/Round'
+              betPool:
+                $ref: '#/definitions/BetPool'
             required:
               - memberIds
               - minimumBet
               - maximumBet
+              - round
             additionalProperties: false
         required:
           - type

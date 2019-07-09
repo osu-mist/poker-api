@@ -24,9 +24,9 @@ const getMembers = async (query) => {
       sqlParams.memberEmail = memberEmail;
     }
     const sqlQuery = `
-    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS 
-    WHERE 1 = 1 
-    ${memberNickname ? 'AND MEMBER_NICKNAME = :memberNickname ' : ''} 
+    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS
+    WHERE 1 = 1
+    ${memberNickname ? 'AND MEMBER_NICKNAME = :memberNickname ' : ''}
     ${memberEmail ? 'AND MEMBER_EMAIL = :memberEmail' : ''}
     `;
     const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
@@ -66,4 +66,18 @@ const getMemberById = async () => {
   }
 };
 
-module.exports = { getMembers, getMemberById };
+const validateMembers = async (body) => {
+  const { memberIds } = body.data.attributes;
+  const connection = await conn.getConnection();
+  try {
+    const sqlQuery = `SELECT COUNT(1) FROM MEMBERS WHERE MEMBER_ID IN (${memberIds.map((name, index) => `:${index}`).join(', ')})`;
+    const rawMemberResponse = await connection.execute(sqlQuery, memberIds);
+    console.log(rawMemberResponse);
+    const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
+    return memberCount === memberIds.length;
+  } finally {
+    connection.close();
+  }
+};
+
+module.exports = { getMembers, getMemberById, validateMembers };

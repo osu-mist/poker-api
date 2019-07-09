@@ -1,8 +1,9 @@
 const appRoot = require('app-root-path');
 
 const gamesDao = require('../db/oracledb/game-dao');
+const memberDao = require('../db/oracledb/member-dao');
 
-const { errorHandler } = appRoot.require('errors/errors');
+const { errorHandler, errorBuilder } = appRoot.require('errors/errors');
 const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
@@ -22,10 +23,14 @@ const get = async (req, res) => {
  */
 const post = async (req, res) => {
   try {
-    const result = await gamesDao.postGame(req.body);
-    return res.status(201).send(result);
+    if (!(await memberDao.validateMembers(req.body))) {
+      errorBuilder(res, 400, ['Invalid member Id.']);
+    } else {
+      const result = await gamesDao.postGame(req.body);
+      res.status(201).send(result);
+    }
   } catch (err) {
-    return errorHandler(res, err);
+    errorHandler(res, err);
   }
 };
 
