@@ -24,12 +24,31 @@ _.forEach(gameResourceKeys, (key, index) => {
 });
 gameResourceKeys.push('tableCards');
 
-const gameConverter = (rawGames) => {
+const individualGameConverter = (rawGame) => {
+  rawGame.MINIMUM_BET = parseInt(rawGame.MINIMUM_BET, 10);
+  rawGame.MAXIMUM_BET = parseInt(rawGame.MAXIMUM_BET, 10);
+  rawGame.BET_POOL = parseInt(rawGame.BET_POOL, 10);
+};
+
+const serializeGames = (rawGames, query) => {
+  rawGames = mergeRawGames(rawGames);
   _.forEach(rawGames, (game) => {
-    game.MINIMUM_BET = parseInt(game.MINIMUM_BET, 10);
-    game.MAXIMUM_BET = parseInt(game.MAXIMUM_BET, 10);
-    game.BET_POOL = parseInt(game.BET_POOL, 10);
+    individualGameConverter(game);
   });
+
+  const topLevelSelfLink = paramsLink(gameResourceUrl, query);
+  const serializerArgs = {
+    identifierField: 'GAME_ID',
+    resourceKeys: gameResourceKeys,
+    resourcePath: gameResourcePath,
+    topLevelSelfLink,
+    query,
+    enableDataLinks: true,
+  };
+  return new JsonApiSerializer(
+    gameResourceType,
+    serializerOptions(serializerArgs),
+  ).serialize(rawGames);
 };
 
 /**
@@ -53,14 +72,11 @@ const mergeRawGames = (rawGames) => {
   return mergedRawGames;
 };
 
-const serializeGames = (rawGames, query) => {
-  /**
-   * Add pagination links and meta information to options if pagination is enabled
-   */
-  rawGames = mergeRawGames(rawGames);
-  gameConverter(rawGames);
-
-  const topLevelSelfLink = paramsLink(gameResourceUrl, query);
+const serializeGame = (rawGames, query) => {
+  mergeRawGames(rawGames);
+  const [rawGame] = rawGames;
+  individualGameConverter(rawGame);
+  const topLevelSelfLink = resourcePathLink(gameResourceUrl, rawGame.GAME_ID);
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
@@ -72,7 +88,6 @@ const serializeGames = (rawGames, query) => {
   return new JsonApiSerializer(
     gameResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawGames);
+  ).serialize(rawGame);
 };
-
-module.exports = { serializeGames };
+module.exports = { serializeGames, serializeGame };
