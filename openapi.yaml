@@ -62,6 +62,12 @@ paths:
         - in: query
           name: round
           type: string
+          enum: &RoundEnum
+            - blind
+            - flop
+            - turn
+            - river
+            - showdown
           description: The current round of the game
       responses:
         '200':
@@ -867,12 +873,7 @@ definitions:
       - player
   Round:
     type: string
-    enum:
-      - blind
-      - flop
-      - turn
-      - river
-      - showdown
+    enum: *RoundEnum
   SelfLink:
     properties:
       self:

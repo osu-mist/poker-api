@@ -32,7 +32,29 @@ const individualGameConverter = (rawGame) => {
   rawGame.BET_POOL = parseInt(rawGame.BET_POOL, 10);
 };
 
+/**
+ * @summary Merge the raw response from database. Extract card information from every row,
+ * and put them into a field called 'tableCards' in the individual merged game object, while other
+ * properties in the object remained in the first layer.
+ * @function
+ * @param {Object[]} rawGames An array of raw game data returned from SQL database.
+ * @returns {Object[]} Game objects merged.
+ */
+const mergeRawGames = (rawGames) => {
+  const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
+  const mergedRawGames = _.map(groupedRawGames, (gameMetaDataArray) => {
+    gameMetaDataArray[0].tableCards = gameMetaDataArray[0].CARD_NUMBER === null ? []
+      : _.map(gameMetaDataArray, data => ({
+        cardNumber: data.CARD_NUMBER,
+        cardSuit: data.SUIT,
+      }));
+    return gameMetaDataArray[0];
+  });
+  return mergedRawGames;
+};
+
 const serializeGames = (rawGames, query, memberId) => {
+  rawGames = mergeRawGames(rawGames);
   _.forEach(rawGames, (game) => {
     individualGameConverter(game);
   });
@@ -57,8 +79,10 @@ const serializeGame = (rawGames, query) => {
   /**
    * Add pagination links and meta information to options if pagination is enabled
    */
-  individualGameConverter(rawGames);
+  const [rawGame] = mergeRawGames(rawGames);
+  individualGameConverter(rawGame);
   const topLevelSelfLink = resourcePathLink(gameResourceUrl, rawGames.GAME_ID);
+
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
@@ -70,6 +94,6 @@ const serializeGame = (rawGames, query) => {
   return new JsonApiSerializer(
     gameResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawGames);
+  ).serialize(rawGame);
 };
 module.exports = { serializeGames, serializeGame };
