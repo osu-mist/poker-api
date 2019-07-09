@@ -1,6 +1,8 @@
 const appRoot = require('app-root-path');
+const _ = require('lodash');
 
 const { serializeGames } = require('../../serializers/games-serializer');
+const { openapi } = appRoot.require('utils/load-openapi');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 
@@ -17,6 +19,9 @@ const getGames = async (query) => {
   try {
     const sqlParams = {};
     if (round) {
+      if(!_.includes(openapi.definitions.Round.enum, round)){
+        throw new Error('Invalid query parameter');
+      }
       sqlParams.round = round;
     }
     const sqlQuery = `
