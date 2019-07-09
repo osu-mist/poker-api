@@ -54,9 +54,6 @@ const mergeRawGames = (rawGames) => {
 };
 
 const serializeGames = (rawGames, query) => {
-  /**
-   * Add pagination links and meta information to options if pagination is enabled
-   */
   rawGames = mergeRawGames(rawGames);
   gameConverter(rawGames);
 
