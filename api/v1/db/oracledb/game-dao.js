@@ -4,21 +4,6 @@ const _ = require('lodash');
 const { serializeGames, serializeGame } = require('../../serializers/games-serializer');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
-const mergeRawGames = (rawGames) => {
-  const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
-  const mergedRawGames = _.map(groupedRawGames, (gameMetaDataArray) => {
-    if (gameMetaDataArray[0].CARD_NUMBER == null) {
-      gameMetaDataArray[0].tableCards = [];
-    } else {
-      gameMetaDataArray[0].tableCards = _.map(gameMetaDataArray, data => ({
-        cardNumber: data.CARD_NUMBER,
-        cardSuit: data.SUIT,
-      }));
-    }
-    return (gameMetaDataArray[0]);
-  });
-  return mergedRawGames;
-};
 
 const sqlQuery = `
     SELECT CN.CARD_NUMBER, CS.SUIT, G.GAME_ID, R.ROUND, G.MAXIMUM_BET,
@@ -33,6 +18,7 @@ const sqlQuery = `
 /**
  * @summary Return a list of games
  * @function
+ * @param {Object} query query object that contains useful information to process.
  * @returns {Promise<Object[]>} Promise object represents a list of games
  */
 const getGames = async (query) => {
@@ -46,8 +32,7 @@ const getGames = async (query) => {
     }
     const getGamesSqlQuery = `${sqlQuery} ${round ? 'WHERE R.ROUND = :round' : ''}`;
     const rawGamesResponse = await connection.execute(getGamesSqlQuery, sqlParams);
-    let rawGames = rawGamesResponse.rows;
-    rawGames = mergeRawGames(rawGames);
+    const rawGames = rawGamesResponse.rows;
     const serializedGames = serializeGames(rawGames, query);
     return serializedGames;
   } finally {
@@ -62,15 +47,14 @@ const getGameById = async (id) => {
     const getGameByIdSqlQuery = `${sqlQuery} WHERE G.GAME_ID = :id`;
     const rawGamesResponse = await connection.execute(getGameByIdSqlQuery, sqlParams);
     const rawGames = rawGamesResponse.rows;
-    const mergedRawGames = mergeRawGames(rawGames);
-    if (_.isEmpty(mergedRawGames)) {
+    const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
+    if (_.isEmpty(groupedRawGames)) {
       return undefined;
     }
-    if (mergedRawGames.length > 1) {
+    if (groupedRawGames.length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const [firstRawGame] = mergedRawGames;
-      const serializedGame = serializeGame(firstRawGame);
+      const serializedGame = serializeGame(rawGames);
       return serializedGame;
     }
   } finally {

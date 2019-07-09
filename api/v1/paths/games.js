@@ -17,6 +17,19 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/games'].get;
+/**
+ * @summary Post game
+ */
+const post = async (req, res) => {
+  try {
+    const result = await gamesDao.postGame(req.body);
+    return res.status(201).send(result);
+  } catch (err) {
+    return errorHandler(res, err);
+  }
+};
 
-module.exports = { get };
+get.apiDoc = paths['/games'].get;
+post.apiDoc = paths['/games'].post;
+
+module.exports = { get, post };
