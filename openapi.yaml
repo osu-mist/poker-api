@@ -450,9 +450,9 @@ parameters:
   gameId:
     name: gameId
     in: path
-    description: unique string
+    description: unique integer
     required: true
-    type: string
+    type: integer
   memberId:
     name: memberId
     in: path
@@ -491,10 +491,10 @@ definitions:
       cardSuit:
         type: string
         enum:
-          - Diamond
-          - Club
-          - Spade
-          - Heart
+          - diamonds
+          - clubs
+          - spades
+          - hearts
   Cards:
     type: array
     items:
