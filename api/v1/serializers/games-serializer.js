@@ -33,9 +33,6 @@ const gameConverter = (rawGames) => {
 };
 
 const serializeGames = (rawGames, query) => {
-  /**
-   * Add pagination links and meta information to options if pagination is enabled
-   */
   gameConverter(rawGames);
 
   const topLevelSelfLink = paramsLink(gameResourceUrl, query);
@@ -54,9 +51,6 @@ const serializeGames = (rawGames, query) => {
 };
 
 const serializeGame = (rawGames, query) => {
-  /**
-   * Add pagination links and meta information to options if pagination is enabled
-   */
   gameConverter(rawGames);
 
   const topLevelSelfLink = resourcePathLink(gameResourceUrl, query);
