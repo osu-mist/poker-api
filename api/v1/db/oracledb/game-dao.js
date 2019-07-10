@@ -44,12 +44,12 @@ const getGamesByMemberId = async (id, query) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [id];
-    const getMemberSqlQuery = `SELECT * FROM MEMBERS M
+    const getMemberSqlQuery = `SELECT COUNT(1) FROM MEMBERS M
     WHERE M.MEMBER_ID = :id
     `;
     const rawMemberResponse = await connection.execute(getMemberSqlQuery, sqlParams);
-    const rawMembers = rawMemberResponse.rows;
-    if (_.isEmpty(rawMembers)) {
+    const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
+    if (memberCount < 1) {
       return undefined;
     }
     const getSqlQuery = `${sqlQuery}
