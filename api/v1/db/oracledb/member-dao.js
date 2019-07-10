@@ -80,4 +80,26 @@ const validateMembers = async (body) => {
   }
 };
 
-module.exports = { getMembers, getMemberById, validateMembers };
+const postMember = async (body) => {
+  const connection = await conn.getConnection();
+  try{
+    body = body.data.attributes;
+    body.outId = {
+      type: oracledb.NUMBER,
+      dir: oracledb.BIND_OUT,
+    };
+
+    const postSqlQuery = `INSERT INTO MEMBERS (MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_PASSWORD) VALUES
+    (:memberNickname, :memberEmail, :memberPassword) RETURNING GAME_ID INTO :outId`;
+    const rawMembers = await connection.execute(postSqlQuery, body, { autoCommit: true });
+
+    const memberId = rawMembers.outBinds.outId[0];
+
+    const result = await getMemberById(memberId);
+    return result;
+  } finally {
+    connection.close();
+  }
+};
+
+module.exports = { getMembers, getMemberById, validateMembers, postMember };

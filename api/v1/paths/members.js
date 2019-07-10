@@ -17,6 +17,19 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/members'].get;
+/**
+ * @summary Post member
+ */
+const post = async (req, res) => {
+  try {
+    const result = await membersDao.postMember(req.body);
+    res.status(201).send(result);
+  } catch (err) {
+    errorHandler(res, err);
+  }
+};
 
-module.exports = { get };
+get.apiDoc = paths['/members'].get;
+post.apiDoc = paths['/members'].post;
+
+module.exports = { get, post };
