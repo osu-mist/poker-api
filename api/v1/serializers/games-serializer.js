@@ -73,9 +73,6 @@ const serializeGames = (rawGames, query) => {
 };
 
 const serializeGame = (rawGames, query) => {
-  /**
-   * Add pagination links and meta information to options if pagination is enabled
-   */
   const [rawGame] = mergeRawGames(rawGames);
   individualGameConverter(rawGame);
   const topLevelSelfLink = resourcePathLink(gameResourceUrl, rawGames.GAME_ID);
