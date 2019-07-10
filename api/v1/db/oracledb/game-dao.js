@@ -40,6 +40,7 @@ const getGames = async (query) => {
   }
 };
 
+
 const getGamesByMemberId = async (id, query) => {
   const connection = await conn.getConnection();
   try {
