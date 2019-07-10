@@ -40,14 +40,14 @@ const getGames = async (query) => {
       sqlParams.round = round;
     }
     const sqlQuery = `
-    SELECT CN.CARD_NUMBER, CS.SUIT, G.GAME_ID, R.ROUND, G.MAXIMUM_BET, 
-    G.MINIMUM_BET, G.BET_POOL 
+    SELECT CN.CARD_NUMBER, CS.SUIT, G.GAME_ID, R.ROUND, G.MAXIMUM_BET,
+    G.MINIMUM_BET, G.BET_POOL
     FROM GAMES G
-    INNER JOIN ROUNDS R ON G.ROUND_ID = R.ROUND_ID 
-    LEFT OUTER JOIN TABLE_CARDS TC ON TC.GAME_ID = G.GAME_ID 
-    LEFT OUTER JOIN CARDS C ON TC.CARD_ID = C.CARD_ID 
-    LEFT OUTER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID 
-    LEFT OUTER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID 
+    INNER JOIN ROUNDS R ON G.ROUND_ID = R.ROUND_ID
+    LEFT OUTER JOIN TABLE_CARDS TC ON TC.GAME_ID = G.GAME_ID
+    LEFT OUTER JOIN CARDS C ON TC.CARD_ID = C.CARD_ID
+    LEFT OUTER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
+    LEFT OUTER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
     ${round ? 'WHERE R.ROUND = :round' : ''}
     `;
     const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
@@ -65,16 +65,16 @@ const getGamesByMemberId = async (id) => {
   try {
     const sqlParams = [id];
     const sqlQuery = `
-    SELECT CARD_NUMBERS.CARD_NUMBER, CARD_SUITS.SUIT, GAMES.GAME_ID, ROUNDS.ROUND, GAMES.MAXIMUM_BET, 
-    GAMES.MINIMUM_BET, GAMES.BET_POOL 
+    SELECT CARD_NUMBERS.CARD_NUMBER, CARD_SUITS.SUIT, GAMES.GAME_ID, ROUNDS.ROUND, GAMES.MAXIMUM_BET,
+    GAMES.MINIMUM_BET, GAMES.BET_POOL
     FROM TABLE_CARDS, GAMES, CARDS, CARD_SUITS, CARD_NUMBERS, ROUNDS, PLAYERS
-    WHERE GAMES.GAME_ID = TABLE_CARDS.GAME_ID AND 
-    TABLE_CARDS.GAME_ID = GAMES.GAME_ID AND 
+    WHERE GAMES.GAME_ID = TABLE_CARDS.GAME_ID AND
+    TABLE_CARDS.GAME_ID = GAMES.GAME_ID AND
     TABLE_CARDS.CARD_ID = CARDS.CARD_ID AND
-    CARDS.CARD_NUMBER_ID = CARD_NUMBERS.CARD_NUMBER_ID AND 
-    CARDS.CARD_SUIT_ID = CARD_SUITS.SUIT_ID AND 
-    GAMES.ROUND_ID = ROUNDS.ROUND_ID AND 
-    PLAYERS.MEMBER_ID = :id AND 
+    CARDS.CARD_NUMBER_ID = CARD_NUMBERS.CARD_NUMBER_ID AND
+    CARDS.CARD_SUIT_ID = CARD_SUITS.SUIT_ID AND
+    GAMES.ROUND_ID = ROUNDS.ROUND_ID AND
+    PLAYERS.MEMBER_ID = :id AND
     PLAYERS.GAME_ID = GAMES.GAME_ID
     `;
     const rawGamesResponse = await connection.execute(sqlQuery, sqlParams);
@@ -92,15 +92,15 @@ const getGameById = async (id) => {
   const connection = await conn.getConnection();
   try {
     const sqlQuery = `
-    SELECT CARD_NUMBERS.CARD_NUMBER, CARD_SUITS.SUIT, GAMES.GAME_ID, ROUNDS.ROUND, GAMES.MAXIMUM_BET, 
-    GAMES.MINIMUM_BET, GAMES.BET_POOL 
-    FROM TABLE_CARDS, GAMES, CARDS, CARD_SUITS, CARD_NUMBERS, ROUNDS 
-    WHERE GAMES.GAME_ID = TABLE_CARDS.GAME_ID AND 
-    TABLE_CARDS.GAME_ID = GAMES.GAME_ID AND 
+    SELECT CARD_NUMBERS.CARD_NUMBER, CARD_SUITS.SUIT, GAMES.GAME_ID, ROUNDS.ROUND, GAMES.MAXIMUM_BET,
+    GAMES.MINIMUM_BET, GAMES.BET_POOL
+    FROM TABLE_CARDS, GAMES, CARDS, CARD_SUITS, CARD_NUMBERS, ROUNDS
+    WHERE GAMES.GAME_ID = TABLE_CARDS.GAME_ID AND
+    TABLE_CARDS.GAME_ID = GAMES.GAME_ID AND
     TABLE_CARDS.CARD_ID = CARDS.CARD_ID AND
-    CARDS.CARD_NUMBER_ID = CARD_NUMBERS.CARD_NUMBER_ID AND 
-    CARDS.CARD_SUIT_ID = CARD_SUITS.SUIT_ID AND 
-    GAMES.ROUND_ID = ROUNDS.ROUND_ID AND 
+    CARDS.CARD_NUMBER_ID = CARD_NUMBERS.CARD_NUMBER_ID AND
+    CARDS.CARD_SUIT_ID = CARD_SUITS.SUIT_ID AND
+    GAMES.ROUND_ID = ROUNDS.ROUND_ID AND
     GAMES.GAME_ID = :id
     `;
     const sqlParams = [id];
@@ -121,4 +121,28 @@ const getGameById = async (id) => {
   }
 };
 
-module.exports = { getGames, getGameById, getGamesByMemberId };
+/**
+ * @summary Check the if the game with the id exists.
+ * @function
+ * @param {Int} id The id of the game
+ * @returns {Bool} If the game exists or not.
+ */
+const validateGame = async (id) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const validateSqlQuery = `
+    SELECT COUNT(1) FROM GAMES G
+    WHERE G.GAME_ID = :id
+    `;
+    const rawGamesResponse = await connection.execute(validateSqlQuery, sqlParams);
+    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
+    return !(gameCount < 1);
+  } finally {
+    connection.close();
+  }
+};
+
+module.exports = {
+  getGames, getGameById, getGamesByMemberId, validateGame,
+};

@@ -1,6 +1,7 @@
 const appRoot = require('app-root-path');
 
 const playerDao = require('../../../../db/oracledb/player-dao');
+const gameDao = require('../../../../db/oracledb/game-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
 const { openapi: { paths } } = appRoot.require('utils/load-openapi');
@@ -10,13 +11,12 @@ const { openapi: { paths } } = appRoot.require('utils/load-openapi');
  */
 const get = async (req, res) => {
   try {
-    const { gameId } = req.params;
-    const { playerId } = req.params;
-    const isGameValid = await playerDao.validateGame(gameId);
+    const { gameId, playerId } = req.params;
+    const isGameValid = await gameDao.validateGame(gameId);
     if (!isGameValid) {
       errorBuilder(res, 404, 'The game with the specified game ID is not found.');
     } else {
-      const result = await playerDao.getPlayersByGameIdAndPlayerId(gameId, playerId);
+      const result = await playerDao.getPlayerByGameIdAndPlayerId(gameId, playerId);
       if (!result) {
         errorBuilder(res, 404, 'The player with the specified ID was not found.');
       } else {

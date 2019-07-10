@@ -54,33 +54,11 @@ const getPlayersByGameId = async (id, query) => {
   }
 };
 
-const validateGame = async (id) => {
+
+const getPlayerByGameIdAndPlayerId = async (id, pid) => {
   const connection = await conn.getConnection();
   try {
-    const sqlParams = [id];
-    const validateSqlQuery = `
-    SELECT COUNT(1) FROM GAMES G
-    WHERE G.GAME_ID = :id
-    `;
-    const rawGamesResponse = await connection.execute(validateSqlQuery, sqlParams);
-    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
-    return !(gameCount < 1);
-  } finally {
-    connection.close();
-  }
-};
-
-const getPlayersByGameIdAndPlayerId = async (id, pid) => {
-  const connection = await conn.getConnection();
-  try {
-    let sqlParams = [id];
-    const rawGamesResponse = await connection.execute(gameSqlQuery, sqlParams);
-    const rawGames = rawGamesResponse.rows;
-    if (_.isEmpty(rawGames)) {
-      return undefined;
-    }
-
-    sqlParams = [id, pid];
+    const sqlParams = [id, pid];
     const getSqlQuery = `${sqlQuery}
     WHERE G.GAME_ID = :id
     AND P.PLAYER_ID = :pid
@@ -102,4 +80,4 @@ const getPlayersByGameIdAndPlayerId = async (id, pid) => {
   }
 };
 
-module.exports = { getPlayersByGameId, getPlayersByGameIdAndPlayerId, validateGame };
+module.exports = { getPlayersByGameId, getPlayerByGameIdAndPlayerId };
