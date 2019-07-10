@@ -62,6 +62,12 @@ paths:
         - in: query
           name: round
           type: string
+          enum: &RoundEnum
+            - blind
+            - flop
+            - turn
+            - river
+            - showdown
           description: The current round of the game
       responses:
         '200':
@@ -334,29 +340,6 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-  /members/{memberId}/games:
-    get:
-      summary: Info for games that the member is current playing
-      tags:
-        - members
-      description: Get a list of games by memberId
-      operationId: getGamesByMemberId
-      parameters:
-        - $ref: '#/parameters/authorization'
-        - $ref: '#/parameters/memberId'
-      responses:
-        '200':
-          description: Successful response
-          schema:
-            $ref: '#/definitions/GameResults'
-        '404':
-          description: Member not found
-          schema:
-            $ref: '#/definitions/Errors'
-        '500':
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/Errors'
   /members/{memberId}:
     delete:
       summary: Delete a member specified by its memberId
@@ -434,6 +417,29 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
+  /members/{memberId}/games:
+    get:
+      summary: Info for games that the member is current playing
+      tags:
+        - games
+      description: Get a list of games by memberId
+      operationId: getGamesByMemberId
+      parameters:
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/memberId'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/GameResults'
+        '404':
+          description: Member not found
+          schema:
+            $ref: '#/definitions/Errors'
+        '500':
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
 parameters:
   authorization:
     name: Authorization
@@ -444,15 +450,15 @@ parameters:
   gameId:
     name: gameId
     in: path
-    description: unique number
+    description: unique integer
     required: true
     type: integer
   memberId:
     name: memberId
     in: path
-    description: unique string
+    description: unique integer
     required: true
-    type: string
+    type: integer
   playerId:
     name: playerId
     in: path
@@ -485,10 +491,10 @@ definitions:
       cardSuit:
         type: string
         enum:
-          - Diamond
-          - Club
-          - Spade
-          - Heart
+          - diamonds
+          - clubs
+          - spades
+          - hearts
   Cards:
     type: array
     items:
@@ -647,8 +653,8 @@ definitions:
     description: Player's experience point above current level.
     example: 1234
   MemberId:
-    type: string
-    example: '101'
+    type: integer
+    example: 123
   MemberIds:
     type: array
     items:
@@ -867,12 +873,7 @@ definitions:
       - player
   Round:
     type: string
-    enum:
-      - blind
-      - flop
-      - turn
-      - river
-      - showdown
+    enum: *RoundEnum
   SelfLink:
     properties:
       self:

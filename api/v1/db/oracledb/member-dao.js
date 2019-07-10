@@ -24,9 +24,9 @@ const getMembers = async (query) => {
       sqlParams.memberEmail = memberEmail;
     }
     const sqlQuery = `
-    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS 
-    WHERE 1 = 1 
-    ${memberNickname ? 'AND MEMBER_NICKNAME = :memberNickname ' : ''} 
+    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS
+    WHERE 1 = 1
+    ${memberNickname ? 'AND MEMBER_NICKNAME = :memberNickname ' : ''}
     ${memberEmail ? 'AND MEMBER_EMAIL = :memberEmail' : ''}
     `;
     const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
@@ -43,22 +43,27 @@ const getMembers = async (query) => {
  * @summary Return a specific member by unique ID
  * @function
  * @param {string} id Unique member ID
- * @returns {Promise<Object>} Promise object represents a specific member or return undefined if
- *  term is not found
+ * @returns {Promise<Object>} Promise object represents a specific member
+ *                            or return undefined if term
+ *                            is not found
  */
-const getMemberById = async () => {
+const getMemberById = async (id) => {
   const connection = await conn.getConnection();
   try {
-    const { rawMembers } = await connection.execute();
-
+    const sqlQuery = `
+    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL
+    FROM MEMBERS WHERE MEMBER_ID = :id
+    `;
+    const sqlParams = [id];
+    const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
+    const rawMembers = rawMembersResponse.rows;
     if (_.isEmpty(rawMembers)) {
       return undefined;
     }
     if (rawMembers.length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const [rawMember] = rawMembers;
-      const serializedMember = serializeMember(rawMember);
+      const serializedMember = serializeMember(rawMembers[0]);
       return serializedMember;
     }
   } finally {
