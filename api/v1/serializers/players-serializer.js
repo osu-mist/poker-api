@@ -31,7 +31,21 @@ const playerConverter = (player) => {
   player.PLAYER_BET = parseInt(player.PLAYER_BET, 10);
 };
 
+const mergeRawPlayers = (rawPlayers) => {
+  const groupedRawPlayers = _.groupBy(rawPlayers, 'PLAYER_ID');
+  const mergedRawPlayers = _.map(groupedRawPlayers, (playerMetaDataArray) => {
+    playerMetaDataArray[0].playerCards = playerMetaDataArray[0].CARD_NUMBER === null ? []
+      : _.map(playerMetaDataArray, data => ({
+        cardNumber: data.CARD_NUMBER,
+        cardSuit: data.SUIT,
+      }));
+    return playerMetaDataArray[0];
+  });
+  return mergedRawPlayers;
+};
+
 const serializePlayers = (rawPlayers, query, gameId) => {
+  rawPlayers = mergeRawPlayers(rawPlayers);
   _.forEach(rawPlayers, (player) => {
     playerConverter(player);
   });
@@ -51,7 +65,8 @@ const serializePlayers = (rawPlayers, query, gameId) => {
   ).serialize(rawPlayers);
 };
 
-const serializePlayer = (rawPlayer, gameId, playerId) => {
+const serializePlayer = (rawPlayers, gameId, playerId) => {
+  const [rawPlayer] = mergeRawPlayers(rawPlayers);
   playerConverter(rawPlayer);
 
   const topLevelSelfLink = resourcePathLink(playerResourceUrl, `${gameId}/${playerResourcePath}/${playerId}`);

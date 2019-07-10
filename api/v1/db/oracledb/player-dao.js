@@ -5,18 +5,6 @@ const { serializePlayers, serializePlayer } = require('../../serializers/players
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 
-const mergeRawPlayers = (rawPlayers) => {
-  const groupedRawPlayers = _.groupBy(rawPlayers, 'PLAYER_ID');
-  const mergedRawPlayers = _.map(groupedRawPlayers, (playerMetaDataArray) => {
-    playerMetaDataArray[0].playerCards = playerMetaDataArray[0].CARD_NUMBER === null ? []
-      : _.map(playerMetaDataArray, data => ({
-        cardNumber: data.CARD_NUMBER,
-        cardSuit: data.SUIT,
-      }));
-    return playerMetaDataArray[0];
-  });
-  return mergedRawPlayers;
-};
 
 const gameSqlQuery = `
   SELECT * FROM GAMES G
@@ -24,7 +12,15 @@ const gameSqlQuery = `
   `;
 
 const sqlQuery = `
-  SELECT P.PLAYER_ID, P.MEMBER_ID, M.MEMBER_NICKNAME, M.MEMBER_LEVEL, M.MEMBER_EXP_OVER_LEVEL, P.PLAYER_BET, S.STATUS AS PLAYER_STATUS, CN.CARD_NUMBER, CS.SUIT
+  SELECT P.PLAYER_ID,
+         P.MEMBER_ID,
+         M.MEMBER_NICKNAME,
+         M.MEMBER_LEVEL,
+         M.MEMBER_EXP_OVER_LEVEL,
+         P.PLAYER_BET,
+         S.STATUS AS PLAYER_STATUS,
+         CN.CARD_NUMBER,
+         CS.SUIT
   FROM PLAYERS P
   INNER JOIN GAMES G ON G.GAME_ID = P.GAME_ID
   INNER JOIN STATUSES S ON S.STATUS_ID = P.STATUS_ID
@@ -50,10 +46,25 @@ const getPlayersByGameId = async (id, query) => {
     WHERE G.GAME_ID = :id
     `;
     const rawPlayersResponse = await connection.execute(getSqlQuery, sqlParams);
-    let rawPlayers = rawPlayersResponse.rows;
-    rawPlayers = mergeRawPlayers(rawPlayers);
+    const rawPlayers = rawPlayersResponse.rows;
     const serializedPlayers = serializePlayers(rawPlayers, query, id);
     return serializedPlayers;
+  } finally {
+    connection.close();
+  }
+};
+
+const validateGame = async (id) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const validateSqlQuery = `
+    SELECT COUNT(1) FROM GAMES G
+    WHERE G.GAME_ID = :id
+    `;
+    const rawGamesResponse = await connection.execute(validateSqlQuery, sqlParams);
+    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
+    return !(gameCount < 1);
   } finally {
     connection.close();
   }
@@ -75,16 +86,15 @@ const getPlayersByGameIdAndPlayerId = async (id, pid) => {
     AND P.PLAYER_ID = :pid
     `;
     const rawPlayersResponse = await connection.execute(getSqlQuery, sqlParams);
-    let rawPlayers = rawPlayersResponse.rows;
-    rawPlayers = mergeRawPlayers(rawPlayers);
-    if (_.isEmpty(rawPlayers)) {
+    const rawPlayers = rawPlayersResponse.rows;
+    const groupedRawPlayers = _.groupBy(rawPlayers, 'GAME_ID');
+    if (_.isEmpty(groupedRawPlayers)) {
       return undefined;
     }
-    if (rawPlayers.length > 1) {
+    if (_.keys(groupedRawPlayers).length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const [firstRawPlayer] = rawPlayers;
-      const serializedPlayer = serializePlayer(firstRawPlayer, id, pid);
+      const serializedPlayer = serializePlayer(rawPlayers, id, pid);
       return serializedPlayer;
     }
   } finally {
@@ -92,4 +102,4 @@ const getPlayersByGameIdAndPlayerId = async (id, pid) => {
   }
 };
 
-module.exports = { getPlayersByGameId, getPlayersByGameIdAndPlayerId };
+module.exports = { getPlayersByGameId, getPlayersByGameIdAndPlayerId, validateGame };
