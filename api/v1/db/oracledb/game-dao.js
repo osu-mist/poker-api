@@ -64,33 +64,38 @@ const getGameById = async (id) => {
 
 const postGame = async (body) => {
   const connection = await conn.getConnection();
-  body = body.data.attributes;
-  body.outId = {
-    type: oracledb.NUMBER,
-    dir: oracledb.BIND_OUT,
-  };
-  body.round = body.round.charAt(0).toUpperCase();
-
-  const { memberIds } = body;
-
-  delete body.memberIds;
-  const postSqlQuery = `INSERT INTO GAMES (ROUND_ID, MINIMUM_BET, MAXIMUM_BET, BET_POOL) VALUES
-  (:round, :minimumBet, :maximumBet, :betPool) RETURNING GAME_ID INTO :outId`;
-  const rawGames = await connection.execute(postSqlQuery, body, { autoCommit: true });
-
-  const gameId = rawGames.outBinds.outId[0];
-  _.forEach(memberIds, async (id) => {
-    const playerSqlParams = {
-      gameId,
-      memberId: id,
+  try {
+    body = body.data.attributes;
+    body.outId = {
+      type: oracledb.NUMBER,
+      dir: oracledb.BIND_OUT,
     };
-    const playerSqlQuery = `INSERT INTO PLAYERS (MEMBER_ID, GAME_ID, PLAYER_BET, STATUS_ID) VALUES
-    (:memberId, :gameId, 0, 'CH')`;
-    await connection.execute(playerSqlQuery, playerSqlParams, { autoCommit: true });
-  });
+    body.round = body.round.charAt(0).toUpperCase();
 
-  const result = await getGameById(rawGames.outBinds.outId[0]);
-  return result;
+    const { memberIds } = body;
+
+    delete body.memberIds;
+    const postSqlQuery = `INSERT INTO GAMES (ROUND_ID, MINIMUM_BET, MAXIMUM_BET, BET_POOL) VALUES
+    (:round, :minimumBet, :maximumBet, :betPool) RETURNING GAME_ID INTO :outId`;
+    const rawGames = await connection.execute(postSqlQuery, body, { autoCommit: true });
+    const promiseArray = [];
+    const gameId = rawGames.outBinds.outId[0];
+    _.forEach(memberIds, (id) => {
+      const playerSqlParams = {
+        gameId,
+        memberId: id,
+      };
+      const playerSqlQuery = `INSERT INTO PLAYERS (MEMBER_ID, GAME_ID, PLAYER_BET, STATUS_ID) VALUES
+      (:memberId, :gameId, 0, 'CH')`;
+      promiseArray.push(connection.execute(playerSqlQuery, playerSqlParams, { autoCommit: true }));
+    });
+    await Promise.all(promiseArray);
+
+    const result = await getGameById(rawGames.outBinds.outId[0]);
+    return result;
+  } finally {
+    connection.close();
+  }
 };
 
 module.exports = { getGames, getGameById, postGame };
