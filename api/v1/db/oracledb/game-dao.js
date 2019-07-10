@@ -76,7 +76,7 @@ const getGameById = async (id) => {
     if (_.isEmpty(groupedRawGames)) {
       return undefined;
     }
-    if (groupedRawGames.length > 1) {
+    if (_.keys(groupedRawGames).length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
       const serializedGame = serializeGame(rawGames);
