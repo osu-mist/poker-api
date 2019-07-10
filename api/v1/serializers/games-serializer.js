@@ -58,6 +58,12 @@ const serializeGames = (rawGames, query, memberId) => {
   _.forEach(rawGames, (game) => {
     individualGameConverter(game);
   });
+  /**
+   * This declaration below is to determine if the endpoint is from
+   * '/games' or '/members/{memberId}/games'. Since they use the same serializer, API will just
+   * check if memberId is passed into it. For different parameters the topLevelSelfLink will be
+   * constructed differently.
+   */
 
   const topLevelSelfLink = !memberId ? paramsLink(gameResourceUrl, query)
     : `${resourcePathLink(memberResourceUrl, memberId)}/games`;
