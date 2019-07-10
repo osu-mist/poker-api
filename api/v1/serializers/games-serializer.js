@@ -87,7 +87,7 @@ const serializeGame = (rawGames, query) => {
    */
   const [rawGame] = mergeRawGames(rawGames);
   individualGameConverter(rawGame);
-  const topLevelSelfLink = resourcePathLink(gameResourceUrl, rawGames.GAME_ID);
+  const topLevelSelfLink = resourcePathLink(gameResourceUrl, rawGame.GAME_ID);
 
   const serializerArgs = {
     identifierField: 'GAME_ID',
