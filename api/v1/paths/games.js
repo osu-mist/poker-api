@@ -23,8 +23,10 @@ const get = async (req, res) => {
  */
 const post = async (req, res) => {
   try {
-    if (!(await memberDao.validateMembers(req.body))) {
-      errorBuilder(res, 400, ['Invalid member Id.']);
+    if (memberDao.hasDuplicateMemberId(req.body)) {
+      errorBuilder(res, 400, ['Contains duplicate memberId.']);
+    } else if (!(await memberDao.validateMembers(req.body))) {
+      errorBuilder(res, 400, ['One or more memberId in memberIds field does not exist.']);
     } else {
       const result = await gamesDao.postGame(req.body);
       res.status(201).send(result);
