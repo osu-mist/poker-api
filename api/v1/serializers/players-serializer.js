@@ -5,14 +5,13 @@ const _ = require('lodash');
 
 const { serializerOptions } = appRoot.require('utils/jsonapi');
 const { openapi } = appRoot.require('utils/load-openapi');
-const { apiBaseUrl, resourcePathLink } = appRoot.require('utils/uri-builder');
+const { apiBaseUrl, resourcePathLink, paramsLink } = appRoot.require('utils/uri-builder');
 
 const playerResourceProp = openapi.definitions.PlayerResource.properties;
 const playerResourceType = playerResourceProp.type.enum[0];
 const playerResourceKeys = _.keys(playerResourceProp.attributes.properties);
-const playerResourcePath = 'players';
-const gameResourcePath = 'games';
-const playerResourceUrl = resourcePathLink(apiBaseUrl, gameResourcePath);
+const playerResourcePath = gameId => `games/${gameId}/players`;
+
 
 /**
  * The column name getting from database is usually UPPER_CASE.
@@ -45,16 +44,14 @@ const mergeRawPlayers = (rawPlayers) => {
 };
 
 const serializePlayers = (rawPlayers, query, gameId) => {
-  rawPlayers = mergeRawPlayers(rawPlayers);
-  _.forEach(rawPlayers, (player) => {
-    playerConverter(player);
-  });
-
-  const topLevelSelfLink = resourcePathLink(playerResourceUrl, `${gameId}/${playerResourcePath}`);
+  playerConverter(rawPlayers);
+  const playerResourcePathInstance = playerResourcePath(gameId);
+  const playerResourceUrl = resourcePathLink(apiBaseUrl, playerResourcePathInstance);
+  const topLevelSelfLink = paramsLink(playerResourceUrl, query);
   const serializerArgs = {
     identifierField: 'PLAYER_ID',
     resourceKeys: playerResourceKeys,
-    resourcePath: `${gameResourcePath}/${gameId}/${playerResourcePath}`,
+    resourcePath: playerResourcePathInstance,
     topLevelSelfLink,
     query,
     enableDataLinks: true,

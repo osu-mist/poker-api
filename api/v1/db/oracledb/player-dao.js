@@ -35,10 +35,13 @@ const getPlayersByGameId = async (id, query) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [id];
-
+    const gameSqlQuery = `
+    SELECT COUNT(1) FROM GAMES G
+    WHERE G.GAME_ID = :id
+    `;
     const rawGamesResponse = await connection.execute(gameSqlQuery, sqlParams);
-    const rawGames = rawGamesResponse.rows;
-    if (_.isEmpty(rawGames)) {
+    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
+    if (gameCount < 1) {
       return undefined;
     }
     const getSqlQuery = `

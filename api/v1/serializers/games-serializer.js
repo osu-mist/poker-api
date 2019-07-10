@@ -11,7 +11,9 @@ const gameResourceProp = openapi.definitions.GameResource.properties;
 const gameResourceType = gameResourceProp.type.enum[0];
 const gameResourceKeys = _.keys(gameResourceProp.attributes.properties);
 const gameResourcePath = 'games';
+const memberResourcePath = 'members';
 const gameResourceUrl = resourcePathLink(apiBaseUrl, gameResourcePath);
+const memberResourceUrl = resourcePathLink(apiBaseUrl, memberResourcePath);
 
 /**
  * The column name getting from database is usually UPPER_CASE.
@@ -24,21 +26,47 @@ _.forEach(gameResourceKeys, (key, index) => {
 });
 gameResourceKeys.push('tableCards');
 
-const gameConverter = (rawGames) => {
-  _.forEach(rawGames, (game) => {
-    game.MINIMUM_BET = parseInt(game.MINIMUM_BET, 10);
-    game.MAXIMUM_BET = parseInt(game.MAXIMUM_BET, 10);
-    game.BET_POOL = parseInt(game.BET_POOL, 10);
-  });
+const individualGameConverter = (rawGame) => {
+  rawGame.MINIMUM_BET = parseInt(rawGame.MINIMUM_BET, 10);
+  rawGame.MAXIMUM_BET = parseInt(rawGame.MAXIMUM_BET, 10);
+  rawGame.BET_POOL = parseInt(rawGame.BET_POOL, 10);
 };
 
-const serializeGames = (rawGames, query) => {
-  /**
-   * Add pagination links and meta information to options if pagination is enabled
-   */
-  gameConverter(rawGames);
+/**
+ * @summary Merge the raw response from database. Extract card information from every row,
+ * and put them into a field called 'tableCards' in the individual merged game object, while other
+ * properties in the object remained in the first layer.
+ * @function
+ * @param {Object[]} rawGames An array of raw game data returned from SQL database.
+ * @returns {Object[]} Game objects merged.
+ */
+const mergeRawGames = (rawGames) => {
+  const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
+  const mergedRawGames = _.map(groupedRawGames, (gameMetaDataArray) => {
+    gameMetaDataArray[0].tableCards = gameMetaDataArray[0].CARD_NUMBER === null ? []
+      : _.map(gameMetaDataArray, data => ({
+        cardNumber: data.CARD_NUMBER,
+        cardSuit: data.SUIT,
+      }));
+    return gameMetaDataArray[0];
+  });
+  return mergedRawGames;
+};
 
-  const topLevelSelfLink = paramsLink(gameResourceUrl, query);
+const serializeGames = (rawGames, query, memberId) => {
+  rawGames = mergeRawGames(rawGames);
+  _.forEach(rawGames, (game) => {
+    individualGameConverter(game);
+  });
+  /**
+   * This declaration below is to determine if the endpoint is from
+   * '/games' or '/members/{memberId}/games'. Since they use the same serializer, API will just
+   * check if memberId is passed into it. For different parameters the topLevelSelfLink will be
+   * constructed differently.
+   */
+
+  const topLevelSelfLink = !memberId ? paramsLink(gameResourceUrl, query)
+    : paramsLink(`${memberResourceUrl}/${memberId}/games`, query);
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
@@ -54,12 +82,10 @@ const serializeGames = (rawGames, query) => {
 };
 
 const serializeGame = (rawGames, query) => {
-  /**
-   * Add pagination links and meta information to options if pagination is enabled
-   */
-  gameConverter(rawGames);
+  const [rawGame] = mergeRawGames(rawGames);
+  individualGameConverter(rawGame);
+  const topLevelSelfLink = resourcePathLink(gameResourceUrl, rawGame.GAME_ID);
 
-  const topLevelSelfLink = resourcePathLink(gameResourceUrl, query);
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
@@ -71,6 +97,6 @@ const serializeGame = (rawGames, query) => {
   return new JsonApiSerializer(
     gameResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawGames);
+  ).serialize(rawGame);
 };
 module.exports = { serializeGames, serializeGame };
