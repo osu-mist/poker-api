@@ -32,7 +32,15 @@ const getPlayersByGameId = async (id, query) => {
       return undefined;
     }
     const sqlQuery = `
-    SELECT P.PLAYER_ID, P.MEMBER_ID, M.MEMBER_NICKNAME, M.MEMBER_LEVEL, M.MEMBER_EXP_OVER_LEVEL, P.PLAYER_BET, S.STATUS AS PLAYER_STATUS, CN.CARD_NUMBER, CS.SUIT
+    SELECT P.PLAYER_ID,
+           P.MEMBER_ID,
+           M.MEMBER_NICKNAME,
+           M.MEMBER_LEVEL,
+           M.MEMBER_EXP_OVER_LEVEL,
+           P.PLAYER_BET,
+           S.STATUS AS PLAYER_STATUS,
+           CN.CARD_NUMBER,
+           CS.SUIT
     FROM PLAYERS P
     INNER JOIN GAMES G ON G.GAME_ID = P.GAME_ID
     INNER JOIN STATUSES S ON S.STATUS_ID = P.STATUS_ID
