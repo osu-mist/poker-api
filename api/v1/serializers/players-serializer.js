@@ -34,13 +34,13 @@ const playerConverter = (rawPlayers) => {
 
 const serializePlayers = (rawPlayers, query, gameId) => {
   playerConverter(rawPlayers);
-
-  const playerResourceUrl = resourcePathLink(apiBaseUrl, playerResourcePath(gameId));
+  const playerResourcePathInstance = playerResourcePath(gameId);
+  const playerResourceUrl = resourcePathLink(apiBaseUrl, playerResourcePathInstance);
   const topLevelSelfLink = paramsLink(playerResourceUrl, query);
   const serializerArgs = {
     identifierField: 'PLAYER_ID',
     resourceKeys: playerResourceKeys,
-    resourcePath: playerResourcePath(gameId),
+    resourcePath: playerResourcePathInstance,
     topLevelSelfLink,
     query,
     enableDataLinks: true,
