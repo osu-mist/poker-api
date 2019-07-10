@@ -66,7 +66,7 @@ const serializeGames = (rawGames, query, memberId) => {
    */
 
   const topLevelSelfLink = !memberId ? paramsLink(gameResourceUrl, query)
-    : `${resourcePathLink(memberResourceUrl, memberId)}/games`;
+    : paramsLink(`${memberResourceUrl}/${memberId}/games`, query);
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
@@ -82,9 +82,6 @@ const serializeGames = (rawGames, query, memberId) => {
 };
 
 const serializeGame = (rawGames, query) => {
-  /**
-   * Add pagination links and meta information to options if pagination is enabled
-   */
   const [rawGame] = mergeRawGames(rawGames);
   individualGameConverter(rawGame);
   const topLevelSelfLink = resourcePathLink(gameResourceUrl, rawGame.GAME_ID);
