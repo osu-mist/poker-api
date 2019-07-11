@@ -22,7 +22,6 @@ const get = async (req, res) => {
  */
 const post = async (req, res) => {
   try {
-    console.log(req.body);
     const result = await membersDao.postMember(req.body);
     res.status(201).send(result);
   } catch (err) {

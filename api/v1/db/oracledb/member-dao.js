@@ -102,8 +102,13 @@ const postMember = async (body) => {
       dir: oracledb.BIND_OUT,
     };
 
-    const postSqlQuery = `INSERT INTO MEMBERS (MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_PASSWORD) VALUES
-    (:memberNickname, :memberEmail, :memberPassword) RETURNING MEMBER_ID INTO :outId`;
+    const postSqlQuery = `INSERT INTO MEMBERS (MEMBER_NICKNAME,
+                                               MEMBER_EMAIL,
+                                               MEMBER_LEVEL,
+                                               MEMBER_EXP_OVER_LEVEL,
+                                               MEMBER_PASSWORD)
+    VALUES
+    (:memberNickname, :memberEmail, 1, 0, :memberPassword) RETURNING MEMBER_ID INTO :outId`;
     const rawMembers = await connection.execute(postSqlQuery, body, { autoCommit: true });
 
     const memberId = rawMembers.outBinds.outId[0];

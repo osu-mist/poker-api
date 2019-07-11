@@ -19,6 +19,8 @@ externalDocs:
   url: https://github.com/osu-mist/poker-api
 produces:
   - application/json
+consumes:
+  - application/json
 paths:
   /games:
     post:
@@ -802,7 +804,7 @@ definitions:
         type: object
         properties:
           type:
-            $ref: '#/definitions/PlayerType'
+            $ref: '#/definitions/MemberType'
           attributes:
             type: object
             properties:
