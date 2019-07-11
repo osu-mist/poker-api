@@ -96,9 +96,8 @@ const validateMembers = async (memberIds) => {
   }
 };
 
-const hasDuplicateMemberId = (memberIds) => {
-  return !(_.size(_.uniq(memberIds)) === _.size(memberIds));
-};
+const hasDuplicateMemberId = memberIds => (!(_.size(_.uniq(memberIds)) === _.size(memberIds)));
+
 
 module.exports = {
   getMembers, getMemberById, validateMembers, hasDuplicateMemberId,
