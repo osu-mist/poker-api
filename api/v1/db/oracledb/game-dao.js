@@ -41,17 +41,44 @@ const getGames = async (query) => {
   }
 };
 
+
+const getGamesByMemberId = async (id, query) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const getMemberSqlQuery = `SELECT COUNT(1) FROM MEMBERS M
+    WHERE M.MEMBER_ID = :id
+    `;
+    const rawMemberResponse = await connection.execute(getMemberSqlQuery, sqlParams);
+    const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
+    if (memberCount < 1) {
+      return undefined;
+    }
+    const getSqlQuery = `${sqlQuery}
+    LEFT OUTER JOIN PLAYERS P ON P.GAME_ID = G.GAME_ID
+    WHERE P.MEMBER_ID = :id
+    `;
+    const rawGamesResponse = await connection.execute(getSqlQuery, sqlParams);
+    const rawGames = rawGamesResponse.rows;
+    const serializedGames = serializeGames(rawGames, query, id);
+    return serializedGames;
+  } finally {
+    connection.close();
+  }
+};
+
 const getGameById = async (id) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [id];
-    const getGameByIdSqlQuery = `${sqlQuery} ${id ? 'WHERE G.GAME_ID = :id' : ''}`;
+    const getGameByIdSqlQuery = `${sqlQuery} WHERE G.GAME_ID = :id`;
     const rawGamesResponse = await connection.execute(getGameByIdSqlQuery, sqlParams);
     const rawGames = rawGamesResponse.rows;
-    if (_.isEmpty(rawGames)) {
+    const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
+    if (_.isEmpty(groupedRawGames)) {
       return undefined;
     }
-    if (_.keys(_.groupBy(rawGames, 'GAME_ID')).length > 1) {
+    if (_.keys(groupedRawGames).length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
       const serializedGame = serializeGame(rawGames);
@@ -97,5 +124,28 @@ const postGame = async (body) => {
     connection.close();
   }
 };
+/**
+ * @summary Check the if the game with the id exists.
+ * @function
+ * @param {number} id The id of the game
+ * @returns {Promise<boolean>} If the game exists or not.
+ */
+const validateGame = async (id) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const validateSqlQuery = `
+    SELECT COUNT(1) FROM GAMES G
+    WHERE G.GAME_ID = :id
+    `;
+    const rawGamesResponse = await connection.execute(validateSqlQuery, sqlParams);
+    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
+    return !(gameCount < 1);
+  } finally {
+    connection.close();
+  }
+};
 
-module.exports = { getGames, getGameById, postGame };
+module.exports = {
+  getGames, getGameById, getGamesByMemberId, validateGame, postGame,
+};

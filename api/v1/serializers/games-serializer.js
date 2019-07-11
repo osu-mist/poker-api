@@ -11,6 +11,7 @@ const gameResourceProp = openapi.definitions.GameResource.properties;
 const gameResourceType = gameResourceProp.type.enum[0];
 const gameResourceKeys = _.keys(gameResourceProp.attributes.properties);
 const gameResourcePath = 'games';
+const memberResourcePath = 'members';
 const gameResourceUrl = resourcePathLink(apiBaseUrl, gameResourcePath);
 
 /**
@@ -91,4 +92,5 @@ const serializeGame = (rawGames, query) => {
     serializerOptions(serializerArgs),
   ).serialize(rawGame);
 };
+
 module.exports = { serializeGames, serializeGame };

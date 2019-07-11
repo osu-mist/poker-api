@@ -1,19 +1,19 @@
 const appRoot = require('app-root-path');
 
-const membersDao = require('../../db/oracledb/member-dao');
+const playerDao = require('../../../db/oracledb/player-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
 const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
- * @summary Get member by unique ID
+ * @summary Get games a specific member is now playing
  */
 const get = async (req, res) => {
   try {
-    const { memberId } = req.params;
-    const result = await membersDao.getMemberById(memberId);
+    const { gameId } = req.params;
+    const result = await playerDao.getPlayersByGameId(gameId);
     if (!result) {
-      errorBuilder(res, 404, 'A member with the specified ID was not found.');
+      errorBuilder(res, 404, 'A game with the specified ID was not found.');
     } else {
       res.send(result);
     }
@@ -22,6 +22,6 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/members/{memberId}'].get;
+get.apiDoc = paths['/games/{gameId}/players'].get;
 
 module.exports = { get };
