@@ -98,4 +98,29 @@ const postGame = async (body) => {
   }
 };
 
-module.exports = { getGames, getGameById, postGame };
+const getGamesByMemberId = async (id, query) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const getMemberSqlQuery = `SELECT COUNT(1) FROM MEMBERS M
+    WHERE M.MEMBER_ID = :id
+    `;
+    const rawMemberResponse = await connection.execute(getMemberSqlQuery, sqlParams);
+    const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
+    if (memberCount < 1) {
+      return undefined;
+    }
+    const getSqlQuery = `${sqlQuery}
+    LEFT OUTER JOIN PLAYERS P ON P.GAME_ID = G.GAME_ID
+    WHERE P.MEMBER_ID = :id
+    `;
+    const rawGamesResponse = await connection.execute(getSqlQuery, sqlParams);
+    const rawGames = rawGamesResponse.rows;
+    const serializedGames = serializeGames(rawGames, query, id);
+    return serializedGames;
+  } finally {
+    connection.close();
+  }
+};
+
+module.exports = { getGames, getGameById, getGamesByMemberId, postGame };
