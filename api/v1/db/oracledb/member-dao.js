@@ -70,11 +70,10 @@ const getMemberById = async () => {
  * @summary Check through each memberId in the memberIds attribute and make sure all of them exist
  * in the database.
  * @function
- * @param {Object} body Request body from client
- * @returns {Boolean} If all of the memberId in memberIds exist or not.
+ * @param {Array[number]} memberIds Request body from client
+ * @returns {Promise<boolean>} If all of the memberId in memberIds exist or not.
  */
-const validateMembers = async (body) => {
-  const { memberIds } = body.data.attributes;
+const validateMembers = async (memberIds) => {
   const connection = await conn.getConnection();
   try {
     /**
@@ -92,8 +91,7 @@ const validateMembers = async (body) => {
   }
 };
 
-const hasDuplicateMemberId = (body) => {
-  const { memberIds } = body.data.attributes;
+const hasDuplicateMemberId = (memberIds) => {
   return !(_.size(_.uniq(memberIds)) === _.size(memberIds));
 };
 
