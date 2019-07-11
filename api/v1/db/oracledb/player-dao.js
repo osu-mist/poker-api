@@ -79,4 +79,13 @@ const getPlayerByGameIdAndPlayerId = async (id, pid) => {
   }
 };
 
-module.exports = { getPlayersByGameId, getPlayerByGameIdAndPlayerId };
+const postPlayerByGameId = async (gameId, body) => {
+  const connection = await conn.getConnection();
+  try {
+
+  } finally {
+
+  }
+};
+
+module.exports = { getPlayersByGameId, getPlayerByGameIdAndPlayerId, postPlayerByGameId };

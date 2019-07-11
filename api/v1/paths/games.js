@@ -23,13 +23,13 @@ const get = async (req, res) => {
  */
 const post = async (req, res) => {
   try {
-    if (memberDao.hasDuplicateMemberId(req.body)) {
-      errorBuilder(res, 400, ['Contains duplicate memberId.']);
-    } else if (!(await memberDao.validateMembers(req.body))) {
-      errorBuilder(res, 400, ['One or more memberId in memberIds field does not exist.']);
+    const { gameId } = req.params;
+    const isGameValid = await gamesDao.validateGame(gameId);
+    if(!isGameValid){
+      errorBuilder(res, 404, 'The game with the specified game ID is not found.');
     } else {
-      const result = await gamesDao.postGame(req.body);
-      res.status(201).send(result);
+      const result = await playerDao.postPlayerByGameId(req.body,gameId);
+      res.send(result);
     }
   } catch (err) {
     errorHandler(res, err);

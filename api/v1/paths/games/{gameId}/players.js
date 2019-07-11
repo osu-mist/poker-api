@@ -22,6 +22,25 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/games/{gameId}/players'].get;
+/**
+ * @summary Post player in game
+ */
+const post = async (req, res) => {
+  try {
+    if (memberDao.hasDuplicateMemberId(req.body)) {
+      errorBuilder(res, 400, ['Contains duplicate memberId.']);
+    } else if (!(await memberDao.validateMembers(req.body))) {
+      errorBuilder(res, 400, ['One or more memberId in memberIds field does not exist.']);
+    } else {
+      const result = await gamesDao.postGame(req.body);
+      res.status(201).send(result);
+    }
+  } catch (err) {
+    errorHandler(res, err);
+  }
+};
 
-module.exports = { get };
+get.apiDoc = paths['/games/{gameId}/players'].get;
+post.apiDoc = paths['/games/{gameId}/players'].post;
+
+module.exports = { get, post };
