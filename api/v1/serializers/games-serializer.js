@@ -24,13 +24,19 @@ _.forEach(gameResourceKeys, (key, index) => {
 });
 gameResourceKeys.push('tableCards');
 
+const individualGameConverter = (rawGame) => {
+  rawGame.MINIMUM_BET = parseInt(rawGame.MINIMUM_BET, 10);
+  rawGame.MAXIMUM_BET = parseInt(rawGame.MAXIMUM_BET, 10);
+  rawGame.BET_POOL = parseInt(rawGame.BET_POOL, 10);
+};
+
 /**
  * @summary Merge the raw response from database. Extract card information from every row,
  * and put them into a field called 'tableCards' in the individual merged game object, while other
  * properties in the object remained in the first layer.
  * @function
- * @param {Array[Object]} rawGames An array of raw game data returned from SQL database.
- * @returns {Array[Object]} Game objects merged.
+ * @param {Object[]} rawGames An array of raw game data returned from SQL database.
+ * @returns {Object[]} Game objects merged.
  */
 const mergeRawGames = (rawGames) => {
   const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
@@ -45,13 +51,8 @@ const mergeRawGames = (rawGames) => {
   return mergedRawGames;
 };
 
-const individualGameConverter = (rawGame) => {
-  rawGame.MINIMUM_BET = parseInt(rawGame.MINIMUM_BET, 10);
-  rawGame.MAXIMUM_BET = parseInt(rawGame.MAXIMUM_BET, 10);
-  rawGame.BET_POOL = parseInt(rawGame.BET_POOL, 10);
-};
 
-const serializeGames = (rawGames, query) => {
+const serializeGames = (rawGames, query, memberId) => {
   rawGames = mergeRawGames(rawGames);
   _.forEach(rawGames, (game) => {
     individualGameConverter(game);
@@ -89,7 +90,8 @@ const serializeGame = (rawGames, query) => {
   return new JsonApiSerializer(
     gameResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawGame);
+  ).serialize(rawGames);
 };
+
 
 module.exports = { serializeGames, serializeGame };
