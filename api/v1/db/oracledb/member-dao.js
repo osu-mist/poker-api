@@ -1,5 +1,6 @@
 const appRoot = require('app-root-path');
 const _ = require('lodash');
+const oracledb = require('oracledb');
 
 const { serializeMembers, serializeMember } = require('../../serializers/members-serializer');
 
@@ -94,7 +95,7 @@ const validateMembers = async (body) => {
 
 const postMember = async (body) => {
   const connection = await conn.getConnection();
-  try{
+  try {
     body = body.data.attributes;
     body.outId = {
       type: oracledb.NUMBER,
@@ -102,7 +103,7 @@ const postMember = async (body) => {
     };
 
     const postSqlQuery = `INSERT INTO MEMBERS (MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_PASSWORD) VALUES
-    (:memberNickname, :memberEmail, :memberPassword) RETURNING GAME_ID INTO :outId`;
+    (:memberNickname, :memberEmail, :memberPassword) RETURNING MEMBER_ID INTO :outId`;
     const rawMembers = await connection.execute(postSqlQuery, body, { autoCommit: true });
 
     const memberId = rawMembers.outBinds.outId[0];
@@ -120,5 +121,5 @@ const hasDuplicateMemberId = (body) => {
 };
 
 module.exports = {
-  getMembers, getMemberById, validateMembers, hasDuplicateMemberId, postMember
+  getMembers, getMemberById, validateMembers, hasDuplicateMemberId, postMember,
 };
