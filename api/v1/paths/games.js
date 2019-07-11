@@ -29,6 +29,7 @@ const post = async (req, res) => {
       errorBuilder(res, 400, ['One or more memberId in memberIds field does not exist.']);
     } else {
       const result = await gamesDao.postGame(req.body);
+      res.set('Location', result.data.links.self);
       res.status(201).send(result);
     }
   } catch (err) {
