@@ -146,6 +146,23 @@ const getGamesByMemberId = async (id, query) => {
   }
 };
 
+const isMemberInGame = async (memberId, gameId) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [memberId, gameId];
+    console.log(sqlParams);
+    const getPlayerSqlQuery = `SELECT COUNT(1) FROM PLAYERS P
+    WHERE P.MEMBER_ID = :memberId AND P.GAME_ID = :gameId
+    `;
+    const rawPlayerResonse = await connection.execute(getPlayerSqlQuery, sqlParams);
+    const playerCount = parseInt(rawPlayerResonse.rows[0]['COUNT(1)'], 10);
+    console.log(playerCount);
+    return playerCount > 0;
+  } finally {
+    connection.close();
+  }
+};
+
 module.exports = {
-  getGames, getGameById, getGamesByMemberId, validateGame, postGame,
+  getGames, getGameById, getGamesByMemberId, validateGame, postGame, isMemberInGame
 };

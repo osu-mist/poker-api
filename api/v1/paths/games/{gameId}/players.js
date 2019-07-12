@@ -2,6 +2,7 @@ const appRoot = require('app-root-path');
 
 const playerDao = require('../../../db/oracledb/player-dao');
 const gameDao = require('../../../db/oracledb/game-dao');
+const memberDao = require('../../../db/oracledb/member-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
 const { openapi: { paths } } = appRoot.require('utils/load-openapi');
@@ -29,8 +30,14 @@ const get = async (req, res) => {
 const post = async (req, res) => {
   try {
     const { gameId } = req.params;
-    if(!gameDao.validateGame(gameId)){
+    const { memberId } = req.body.data.attributes;
+    const isGameValid = await gameDao.validateGame(gameId);
+    if(!isGameValid){
       errorBuilder(res, 404, 'The game with the specified ID was not found.');
+    } else if (!(await memberDao.validateMembers([memberId]))) {
+      errorBuilder(res, 400, ['The member with the memberId in the body does not exist.']);
+    } else if (await gameDao.isMemberInGame(memberId, gameId)){
+      errorBuilder(res, 400, ['The member is already in the game.']);
     }
     else{
       const result = await playerDao.postPlayerByGameId(req.body, gameId);

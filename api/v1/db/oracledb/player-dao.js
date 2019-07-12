@@ -1,5 +1,6 @@
 const appRoot = require('app-root-path');
 const _ = require('lodash');
+const oracledb = require('oracledb');
 
 const { serializePlayers, serializePlayer } = require('../../serializers/players-serializer');
 
@@ -79,9 +80,45 @@ const getPlayerByGameIdAndPlayerId = async (id, pid) => {
   }
 };
 
-const postPlayerByGameId = async (gameId, body) => {
+const postPlayerByGameId = async (body, gameId) => {
   const connection = await conn.getConnection();
   try {
+
+    body = body.data.attributes;
+    body.outId = {
+      type: oracledb.NUMBER,
+      dir: oracledb.BIND_OUT,
+    };
+
+    const { playerCards } = body;
+    delete body.playerCards;
+    console.log(body);
+    console.log(gameId);
+    const postSqlQuery = `
+    INSERT INTO PLAYERS (MEMBER_ID, GAME_ID, PLAYER_BET, STATUS_ID)
+    VALUES (:memberId,
+           ${gameId},
+           :playerBet,
+           (SELECT STATUS_ID FROM STATUSES WHERE STATUSES.STATUS = :playerStatus))
+    `;
+    const rawPlayer = await connection.execute(postSqlQuery, body, { autoCommit: true });
+    // const promiseArray = [];
+    // const playerId = rawPlayer.outBinds.outId[0];
+    // _.forEach(playerCards, (card) => {
+    //   const cardSqlQuery = `INSERT INTO PLAYER_CARDS (PLAYER_ID, CARD_ID) VALUES
+    //   (${playerId},
+    //    (SELECT CARD_ID FROM CARDS C
+    //     INNER JOIN CARD_SUITS CS ON CS.SUIT_ID = C.CARD_SUIT_ID
+    //     INNER JOIN CARD_NUMBERS CN ON CN.CARD_NUMBER_ID = C.CARD_NUMBER_ID
+    //     WHERE SUIT = :cardSuit AND CARD_NUMBER = :cardNumber
+    //    )
+    //   )`;
+    //   promiseArray.push(connection.execute(cardSqlQuery, card, { autoCommit: true }));
+    // });
+    // await Promise.all(promiseArray);
+
+    const result = await getPlayerByGameIdAndPlayerId(gameId, playerId);
+    return result;
 
   } finally {
 
