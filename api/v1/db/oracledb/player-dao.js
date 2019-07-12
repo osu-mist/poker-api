@@ -7,7 +7,7 @@ const conn = appRoot.require('api/v1/db/oracledb/connection');
 
 
 const gameSqlQuery = `
-  SELECT * FROM GAMES G
+  SELECT COUNT(1) FROM GAMES G
   WHERE G.GAME_ID = :id
   `;
 
@@ -71,7 +71,7 @@ const getPlayerByGameIdAndPlayerId = async (id, pid) => {
     if (_.keys(groupedRawPlayers).length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const serializedPlayer = serializePlayer(rawPlayers, id, pid);
+      const serializedPlayer = serializePlayer(rawPlayers, id);
       return serializedPlayer;
     }
   } finally {
