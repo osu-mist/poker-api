@@ -76,11 +76,10 @@ const getMemberById = async (id) => {
  * @summary Check through each memberId in the memberIds attribute and make sure all of them exist
  * in the database.
  * @function
- * @param {Object} body Request body from client
- * @returns {Boolean} If all of the memberId in memberIds exist or not.
+ * @param {Array[number]} memberIds Request body from client
+ * @returns {Promise<boolean>} If all of the memberId in memberIds exist or not.
  */
-const validateMembers = async (body) => {
-  const { memberIds } = body.data.attributes;
+const validateMembers = async (memberIds) => {
   const connection = await conn.getConnection();
   try {
     /**
@@ -97,6 +96,7 @@ const validateMembers = async (body) => {
     connection.close();
   }
 };
+
 
 /**
  * @summary Post a new member into the system.
@@ -131,10 +131,7 @@ const postMember = async (body) => {
   }
 };
 
-const hasDuplicateMemberId = (body) => {
-  const { memberIds } = body.data.attributes;
-  return !(_.size(_.uniq(memberIds)) === _.size(memberIds));
-};
+const hasDuplicateMemberId = memberIds => (!(_.size(_.uniq(memberIds)) === _.size(memberIds)));
 
 const isMemberAlreadyRegistered = async (nickname, email) => {
   const connection = await conn.getConnection();

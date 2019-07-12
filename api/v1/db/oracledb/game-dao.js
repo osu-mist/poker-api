@@ -41,7 +41,7 @@ const getGames = async (query) => {
   }
 };
 
-const getGameById = async (id) => {
+const getGameById = async (id, isPost = false) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [id];
@@ -54,7 +54,7 @@ const getGameById = async (id) => {
     if (_.keys(_.groupBy(rawGames, 'GAME_ID')).length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const serializedGame = serializeGame(rawGames);
+      const serializedGame = serializeGame(rawGames, isPost);
       return serializedGame;
     }
   } finally {
@@ -91,11 +91,38 @@ const postGame = async (body) => {
     });
     await Promise.all(promiseArray);
 
-    const result = await getGameById(rawGames.outBinds.outId[0]);
+    const result = await getGameById(rawGames.outBinds.outId[0], true);
     return result;
   } finally {
     connection.close();
   }
 };
 
-module.exports = { getGames, getGameById, postGame };
+const getGamesByMemberId = async (id, query) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const getMemberSqlQuery = `SELECT COUNT(1) FROM MEMBERS M
+    WHERE M.MEMBER_ID = :id
+    `;
+    const rawMemberResponse = await connection.execute(getMemberSqlQuery, sqlParams);
+    const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
+    if (memberCount < 1) {
+      return undefined;
+    }
+    const getSqlQuery = `${sqlQuery}
+    LEFT OUTER JOIN PLAYERS P ON P.GAME_ID = G.GAME_ID
+    WHERE P.MEMBER_ID = :id
+    `;
+    const rawGamesResponse = await connection.execute(getSqlQuery, sqlParams);
+    const rawGames = rawGamesResponse.rows;
+    const serializedGames = serializeGames(rawGames, query, id);
+    return serializedGames;
+  } finally {
+    connection.close();
+  }
+};
+
+module.exports = {
+  getGames, getGameById, getGamesByMemberId, postGame,
+};

@@ -23,12 +23,13 @@ const get = async (req, res) => {
  */
 const post = async (req, res) => {
   try {
-    if (memberDao.hasDuplicateMemberId(req.body)) {
+    if (memberDao.hasDuplicateMemberId(req.body.data.attributes.memberIds)) {
       errorBuilder(res, 400, ['Contains duplicate memberId.']);
-    } else if (!(await memberDao.validateMembers(req.body))) {
+    } else if (!(await memberDao.validateMembers(req.body.data.attributes.memberIds))) {
       errorBuilder(res, 400, ['One or more memberId in memberIds field does not exist.']);
     } else {
       const result = await gamesDao.postGame(req.body);
+      res.set('Location', result.data.links.self);
       res.status(201).send(result);
     }
   } catch (err) {
