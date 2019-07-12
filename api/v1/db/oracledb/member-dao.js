@@ -98,6 +98,12 @@ const validateMembers = async (body) => {
   }
 };
 
+/**
+ * @summary Post a new member into the system.
+ * @function
+ * @param {Object} body The post body from request object.
+ * @returns {Object} The JSON resource of the new member created.
+ */
 const postMember = async (body) => {
   const connection = await conn.getConnection();
   try {
@@ -130,6 +136,28 @@ const hasDuplicateMemberId = (body) => {
   return !(_.size(_.uniq(memberIds)) === _.size(memberIds));
 };
 
+const isMemberAlreadyRegistered = async (nickname, email) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [nickname, email];
+    const checkSqlQuery = `
+    SELECT COUNT(1) FROM MEMBERS M
+    WHERE M.MEMBER_NICKNAME = :nickname
+    OR M.MEMBER_EMAIL = :email
+    `;
+    const rawMemberResponse = await connection.execute(checkSqlQuery, sqlParams);
+    const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
+    return memberCount > 0;
+  } finally {
+    connection.close();
+  }
+};
+
 module.exports = {
-  getMembers, getMemberById, validateMembers, hasDuplicateMemberId, postMember,
+  getMembers,
+  getMemberById,
+  validateMembers,
+  hasDuplicateMemberId,
+  postMember,
+  isMemberAlreadyRegistered,
 };
