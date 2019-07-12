@@ -71,4 +71,34 @@ const getMemberById = async (id) => {
   }
 };
 
-module.exports = { getMembers, getMemberById };
+/**
+ * @summary Check through each memberId in the memberIds attribute and make sure all of them exist
+ * in the database.
+ * @function
+ * @param {Array[number]} memberIds Request body from client
+ * @returns {Promise<boolean>} If all of the memberId in memberIds exist or not.
+ */
+const validateMembers = async (memberIds) => {
+  const connection = await conn.getConnection();
+  try {
+    /**
+     * If memberIds is empty, simply create the game without inserting player into the database.
+     */
+    if (!_.isEmpty(memberIds)) {
+      const sqlQuery = `SELECT COUNT(1) FROM MEMBERS WHERE MEMBER_ID IN (${memberIds.map((name, index) => `:${index}`).join(', ')})`;
+      const rawMemberResponse = await connection.execute(sqlQuery, memberIds);
+      const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
+      return memberCount === memberIds.length;
+    }
+    return true;
+  } finally {
+    connection.close();
+  }
+};
+
+const hasDuplicateMemberId = memberIds => (!(_.size(_.uniq(memberIds)) === _.size(memberIds)));
+
+
+module.exports = {
+  getMembers, getMemberById, validateMembers, hasDuplicateMemberId,
+};

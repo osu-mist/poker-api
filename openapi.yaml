@@ -23,6 +23,7 @@ paths:
   /games:
     post:
       summary: Create a poker game
+      description: The playerResource created with memberId in the body.memberId will have initialized properties in terms of playerStatus(checked) and playerBet(0).
       tags:
         - games
       consumes:
@@ -578,10 +579,16 @@ definitions:
                 $ref: '#/definitions/MinimumBet'
               maximumBet:
                 $ref: '#/definitions/MaximumBet'
+              round:
+                $ref: '#/definitions/Round'
+              betPool:
+                $ref: '#/definitions/BetPool'
             required:
               - memberIds
               - minimumBet
               - maximumBet
+              - round
+              - betPool
             additionalProperties: false
         required:
           - type
@@ -654,7 +661,7 @@ definitions:
     example: 1234
   MemberId:
     type: integer
-    example: 123
+    example: 101
   MemberIds:
     type: array
     items:
