@@ -53,6 +53,7 @@ const mergeRawGames = (rawGames) => {
   return mergedRawGames;
 };
 
+
 const serializeGames = (rawGames, query, memberId) => {
   rawGames = mergeRawGames(rawGames);
   _.forEach(rawGames, (game) => {
@@ -81,16 +82,16 @@ const serializeGames = (rawGames, query, memberId) => {
   ).serialize(rawGames);
 };
 
-const serializeGame = (rawGames, query) => {
+
+const serializeGame = (rawGames, isPost, query) => {
   const [rawGame] = mergeRawGames(rawGames);
   individualGameConverter(rawGame);
   const topLevelSelfLink = resourcePathLink(gameResourceUrl, rawGame.GAME_ID);
-
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
     resourcePath: gameResourcePath,
-    topLevelSelfLink,
+    topLevelSelfLink: isPost ? gameResourceUrl : topLevelSelfLink,
     query,
     enableDataLinks: true,
   };

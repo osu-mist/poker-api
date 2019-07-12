@@ -1,5 +1,6 @@
 const appRoot = require('app-root-path');
 const _ = require('lodash');
+const oracledb = require('oracledb');
 
 const { serializeGames, serializeGame } = require('../../serializers/games-serializer');
 
@@ -40,6 +41,62 @@ const getGames = async (query) => {
   }
 };
 
+const getGameById = async (id, isPost = false) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const getGameByIdSqlQuery = `${sqlQuery} ${id ? 'WHERE G.GAME_ID = :id' : ''}`;
+    const rawGamesResponse = await connection.execute(getGameByIdSqlQuery, sqlParams);
+    const rawGames = rawGamesResponse.rows;
+    if (_.isEmpty(rawGames)) {
+      return undefined;
+    }
+    if (_.keys(_.groupBy(rawGames, 'GAME_ID')).length > 1) {
+      throw new Error('Expect a single object but got multiple results.');
+    } else {
+      const serializedGame = serializeGame(rawGames, isPost);
+      return serializedGame;
+    }
+  } finally {
+    connection.close();
+  }
+};
+
+const postGame = async (body) => {
+  const connection = await conn.getConnection();
+  try {
+    body = body.data.attributes;
+    body.outId = {
+      type: oracledb.NUMBER,
+      dir: oracledb.BIND_OUT,
+    };
+    body.round = body.round.charAt(0).toUpperCase();
+
+    const { memberIds } = body;
+
+    delete body.memberIds;
+    const postSqlQuery = `INSERT INTO GAMES (ROUND_ID, MINIMUM_BET, MAXIMUM_BET, BET_POOL) VALUES
+    (:round, :minimumBet, :maximumBet, :betPool) RETURNING GAME_ID INTO :outId`;
+    const rawGames = await connection.execute(postSqlQuery, body, { autoCommit: true });
+    const promiseArray = [];
+    const gameId = rawGames.outBinds.outId[0];
+    _.forEach(memberIds, (id) => {
+      const playerSqlParams = {
+        gameId,
+        memberId: id,
+      };
+      const playerSqlQuery = `INSERT INTO PLAYERS (MEMBER_ID, GAME_ID, PLAYER_BET, STATUS_ID) VALUES
+      (:memberId, :gameId, 0, 'CH')`;
+      promiseArray.push(connection.execute(playerSqlQuery, playerSqlParams, { autoCommit: true }));
+    });
+    await Promise.all(promiseArray);
+
+    const result = await getGameById(rawGames.outBinds.outId[0], true);
+    return result;
+  } finally {
+    connection.close();
+  }
+};
 
 const getGamesByMemberId = async (id, query) => {
   const connection = await conn.getConnection();
@@ -61,28 +118,6 @@ const getGamesByMemberId = async (id, query) => {
     const rawGames = rawGamesResponse.rows;
     const serializedGames = serializeGames(rawGames, query, id);
     return serializedGames;
-  } finally {
-    connection.close();
-  }
-};
-
-const getGameById = async (id) => {
-  const connection = await conn.getConnection();
-  try {
-    const sqlParams = [id];
-    const getGameByIdSqlQuery = `${sqlQuery} WHERE G.GAME_ID = :id`;
-    const rawGamesResponse = await connection.execute(getGameByIdSqlQuery, sqlParams);
-    const rawGames = rawGamesResponse.rows;
-    const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
-    if (_.isEmpty(groupedRawGames)) {
-      return undefined;
-    }
-    if (_.keys(groupedRawGames).length > 1) {
-      throw new Error('Expect a single object but got multiple results.');
-    } else {
-      const serializedGame = serializeGame(rawGames);
-      return serializedGame;
-    }
   } finally {
     connection.close();
   }
@@ -113,3 +148,4 @@ const validateGame = async (id) => {
 module.exports = {
   getGames, getGameById, getGamesByMemberId, validateGame,
 };
+

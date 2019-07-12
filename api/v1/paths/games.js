@@ -1,8 +1,9 @@
 const appRoot = require('app-root-path');
 
 const gamesDao = require('../db/oracledb/game-dao');
+const memberDao = require('../db/oracledb/member-dao');
 
-const { errorHandler } = appRoot.require('errors/errors');
+const { errorHandler, errorBuilder } = appRoot.require('errors/errors');
 const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
@@ -22,10 +23,17 @@ const get = async (req, res) => {
  */
 const post = async (req, res) => {
   try {
-    const result = await gamesDao.postGame(req.body);
-    return res.status(201).send(result);
+    if (memberDao.hasDuplicateMemberId(req.body.data.attributes.memberIds)) {
+      errorBuilder(res, 400, ['Contains duplicate memberId.']);
+    } else if (!(await memberDao.validateMembers(req.body.data.attributes.memberIds))) {
+      errorBuilder(res, 400, ['One or more memberId in memberIds field does not exist.']);
+    } else {
+      const result = await gamesDao.postGame(req.body);
+      res.set('Location', result.data.links.self);
+      res.status(201).send(result);
+    }
   } catch (err) {
-    return errorHandler(res, err);
+    errorHandler(res, err);
   }
 };
 
