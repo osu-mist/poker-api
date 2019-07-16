@@ -1,5 +1,6 @@
 const appRoot = require('app-root-path');
 const _ = require('lodash');
+const oracledb = require('oracledb');
 
 const { serializeMembers, serializeMember } = require('../../serializers/members-serializer');
 
@@ -47,7 +48,7 @@ const getMembers = async (query) => {
  *                            or return undefined if term
  *                            is not found
  */
-const getMemberById = async (id) => {
+const getMemberById = async (id, isPost = false) => {
   const connection = await conn.getConnection();
   try {
     const sqlQuery = `
@@ -63,7 +64,7 @@ const getMemberById = async (id) => {
     if (rawMembers.length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const serializedMember = serializeMember(rawMembers[0]);
+      const serializedMember = serializeMember(rawMembers[0], isPost);
       return serializedMember;
     }
   } finally {
@@ -96,9 +97,64 @@ const validateMembers = async (memberIds) => {
   }
 };
 
+
+/**
+ * @summary Post a new member into the system.
+ * @function
+ * @param {Object} body The post body from request object.
+ * @returns {Promise<Object>} The JSON resource of the new member created.
+ */
+const postMember = async (body) => {
+  const connection = await conn.getConnection();
+  try {
+    body = body.data.attributes;
+    body.outId = {
+      type: oracledb.NUMBER,
+      dir: oracledb.BIND_OUT,
+    };
+
+    const postSqlQuery = `INSERT INTO MEMBERS (MEMBER_NICKNAME,
+                                               MEMBER_EMAIL,
+                                               MEMBER_LEVEL,
+                                               MEMBER_EXP_OVER_LEVEL,
+                                               MEMBER_PASSWORD)
+    VALUES
+    (:memberNickname, :memberEmail, 1, 0, :memberPassword) RETURNING MEMBER_ID INTO :outId`;
+    const rawMembers = await connection.execute(postSqlQuery, body, { autoCommit: true });
+
+    const memberId = rawMembers.outBinds.outId[0];
+
+    const result = await getMemberById(memberId, true);
+    return result;
+  } finally {
+    connection.close();
+  }
+};
+
 const hasDuplicateMemberId = memberIds => (!(_.size(_.uniq(memberIds)) === _.size(memberIds)));
 
+const isMemberAlreadyRegistered = async (nickname, email) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [nickname, email];
+    const checkSqlQuery = `
+    SELECT COUNT(1) FROM MEMBERS M
+    WHERE M.MEMBER_NICKNAME = :nickname
+    OR M.MEMBER_EMAIL = :email
+    `;
+    const rawMemberResponse = await connection.execute(checkSqlQuery, sqlParams);
+    const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
+    return memberCount > 0;
+  } finally {
+    connection.close();
+  }
+};
 
 module.exports = {
-  getMembers, getMemberById, validateMembers, hasDuplicateMemberId,
+  getMembers,
+  getMemberById,
+  validateMembers,
+  hasDuplicateMemberId,
+  postMember,
+  isMemberAlreadyRegistered,
 };

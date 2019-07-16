@@ -92,5 +92,4 @@ const serializeGame = (rawGames, isPost, query) => {
   ).serialize(rawGames);
 };
 
-
 module.exports = { serializeGames, serializeGame };
