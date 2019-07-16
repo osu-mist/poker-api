@@ -3,14 +3,10 @@ const _ = require('lodash');
 const oracledb = require('oracledb');
 
 const { serializePlayers, serializePlayer } = require('../../serializers/players-serializer');
+const { validateGame } = require('./game-dao');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 
-
-const gameSqlQuery = `
-  SELECT * FROM GAMES G
-  WHERE G.GAME_ID = :id
-  `;
 
 const sqlQuery = `
   SELECT P.PLAYER_ID,
@@ -36,9 +32,7 @@ const getPlayersByGameId = async (id, query) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [id];
-    const rawGamesResponse = await connection.execute(gameSqlQuery, sqlParams);
-    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
-    if (gameCount < 1) {
+    if (!(await validateGame(id))) {
       return undefined;
     }
     const getSqlQuery = `
@@ -72,7 +66,7 @@ const getPlayerByGameIdAndPlayerId = async (id, pid) => {
     if (_.keys(groupedRawPlayers).length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const serializedPlayer = serializePlayer(rawPlayers, id, pid);
+      const serializedPlayer = serializePlayer(rawPlayers, id);
       return serializedPlayer;
     }
   } finally {
