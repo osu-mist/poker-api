@@ -146,6 +146,5 @@ const validateGame = async (id) => {
 };
 
 module.exports = {
-  getGames, getGameById, getGamesByMemberId, validateGame,
+  getGames, getGameById, getGamesByMemberId, validateGame, postGame,
 };
-

@@ -2,14 +2,10 @@ const appRoot = require('app-root-path');
 const _ = require('lodash');
 
 const { serializePlayers, serializePlayer } = require('../../serializers/players-serializer');
+const { validateGame } = require('./game-dao');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 
-
-const gameSqlQuery = `
-  SELECT COUNT(1) FROM GAMES G
-  WHERE G.GAME_ID = :id
-  `;
 
 const sqlQuery = `
   SELECT P.PLAYER_ID,
@@ -35,9 +31,7 @@ const getPlayersByGameId = async (id, query) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [id];
-    const rawGamesResponse = await connection.execute(gameSqlQuery, sqlParams);
-    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
-    if (gameCount < 1) {
+    if (!(await validateGame(id))) {
       return undefined;
     }
     const getSqlQuery = `
