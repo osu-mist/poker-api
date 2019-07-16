@@ -123,6 +123,28 @@ const getGamesByMemberId = async (id, query) => {
   }
 };
 
+/**
+ * @summary Check the if the game with the id exists.
+ * @function
+ * @param {number} id The id of the game
+ * @returns {Promise<boolean>} If the game exists or not.
+ */
+const validateGame = async (id) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const validateSqlQuery = `
+    SELECT COUNT(1) FROM GAMES G
+    WHERE G.GAME_ID = :id
+    `;
+    const rawGamesResponse = await connection.execute(validateSqlQuery, sqlParams);
+    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
+    return !(gameCount < 1);
+  } finally {
+    connection.close();
+  }
+};
+
 module.exports = {
-  getGames, getGameById, getGamesByMemberId, postGame,
+  getGames, getGameById, getGamesByMemberId, validateGame, postGame,
 };
