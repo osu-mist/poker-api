@@ -32,16 +32,16 @@ const post = async (req, res) => {
     const { gameId } = req.params;
     const { memberId } = req.body.data.attributes;
     const isGameValid = await gameDao.validateGame(gameId);
-    if(!isGameValid){
+    if (!isGameValid) {
       errorBuilder(res, 404, 'The game with the specified ID was not found.');
     } else if (!(await memberDao.validateMembers([memberId]))) {
       errorBuilder(res, 400, ['The member with the memberId in the body does not exist.']);
-    } else if (await gameDao.isMemberInGame(memberId, gameId)){
+    } else if (await gameDao.isMemberInGame(memberId, gameId)) {
       errorBuilder(res, 400, ['The member is already in the game.']);
-    }
-    else{
+    } else {
       const result = await playerDao.postPlayerByGameId(req.body, gameId);
-      return result;
+      res.set('Location', result.data.links.self);
+      res.status(201).send(result);
     }
   } catch (err) {
     errorHandler(res, err);

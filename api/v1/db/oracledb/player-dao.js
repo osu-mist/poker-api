@@ -49,7 +49,7 @@ const getPlayersByGameId = async (id, query) => {
 };
 
 
-const getPlayerByGameIdAndPlayerId = async (id, pid) => {
+const getPlayerByGameIdAndPlayerId = async (id, pid, isPost = false) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [id, pid];
@@ -66,7 +66,7 @@ const getPlayerByGameIdAndPlayerId = async (id, pid) => {
     if (_.keys(groupedRawPlayers).length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const serializedPlayer = serializePlayer(rawPlayers, id);
+      const serializedPlayer = serializePlayer(rawPlayers, id, isPost);
       return serializedPlayer;
     }
   } finally {
@@ -111,11 +111,11 @@ const postPlayerByGameId = async (body, gameId) => {
     });
     await Promise.all(promiseArray);
 
-    const result = await getPlayerByGameIdAndPlayerId(gameId, playerId);
+    const result = await getPlayerByGameIdAndPlayerId(gameId, playerId, true);
+    console.log(result);
     return result;
-
   } finally {
-
+    connection.close();
   }
 };
 
