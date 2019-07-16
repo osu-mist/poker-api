@@ -164,5 +164,5 @@ const isMemberInGame = async (memberId, gameId) => {
 };
 
 module.exports = {
-  getGames, getGameById, getGamesByMemberId, validateGame, postGame, isMemberInGame
+  getGames, getGameById, getGamesByMemberId, validateGame, postGame, isMemberInGame,
 };
