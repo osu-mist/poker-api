@@ -50,6 +50,7 @@ const del = async (req, res) => {
   }
 };
 
+
 get.apiDoc = paths['/games/{gameId}/players/{playerId}'].get;
 del.apiDoc = paths['/games/{gameId}/players/{playerId}'].del;
 
