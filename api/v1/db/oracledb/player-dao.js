@@ -90,6 +90,7 @@ const cleanPlayerCardsByPlayerId = async (playerId) => {
 const deletePlayerByPlayerId = async (playerId) => {
   const connection = await conn.getConnection();
   try {
+    await cleanPlayerCardsByPlayerId(playerId);
     const sqlParams = [playerId];
     const deleteSqlQuery = `
     DELETE FROM PLAYERS WHERE PLAYER_ID = :playerId
