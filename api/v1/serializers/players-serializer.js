@@ -24,16 +24,30 @@ _.forEach(playerResourceKeys, (key, index) => {
 });
 playerResourceKeys.push('playerCards');
 
-const playerConverter = (rawPlayers) => {
-  _.forEach(rawPlayers, (player) => {
-    player.MEMBER_LEVEL = parseInt(player.MEMBER_LEVEL, 10);
-    player.MEMBER_EXP_OVER_LEVEL = parseInt(player.MEMBER_EXP_OVER_LEVEL, 10);
-    player.PLAYER_BET = parseInt(player.PLAYER_BET, 10);
+const playerConverter = (player) => {
+  player.MEMBER_LEVEL = parseInt(player.MEMBER_LEVEL, 10);
+  player.MEMBER_EXP_OVER_LEVEL = parseInt(player.MEMBER_EXP_OVER_LEVEL, 10);
+  player.PLAYER_BET = parseInt(player.PLAYER_BET, 10);
+};
+
+const mergeRawPlayers = (rawPlayers) => {
+  const groupedRawPlayers = _.groupBy(rawPlayers, 'PLAYER_ID');
+  const mergedRawPlayers = _.map(groupedRawPlayers, (playerMetaDataArray) => {
+    playerMetaDataArray[0].playerCards = playerMetaDataArray[0].CARD_NUMBER === null ? []
+      : _.map(playerMetaDataArray, data => ({
+        cardNumber: data.CARD_NUMBER,
+        cardSuit: data.SUIT,
+      }));
+    return playerMetaDataArray[0];
   });
+  return mergedRawPlayers;
 };
 
 const serializePlayers = (rawPlayers, query, gameId) => {
-  playerConverter(rawPlayers);
+  rawPlayers = mergeRawPlayers(rawPlayers);
+  _.forEach(rawPlayers, (player) => {
+    playerConverter(player);
+  });
   const playerResourcePathInstance = playerResourcePath(gameId);
   const playerResourceUrl = resourcePathLink(apiBaseUrl, playerResourcePathInstance);
   const topLevelSelfLink = paramsLink(playerResourceUrl, query);
@@ -51,4 +65,25 @@ const serializePlayers = (rawPlayers, query, gameId) => {
   ).serialize(rawPlayers);
 };
 
-module.exports = { serializePlayers };
+const serializePlayer = (rawPlayers, gameId) => {
+  const [rawPlayer] = mergeRawPlayers(rawPlayers);
+  playerConverter(rawPlayer);
+  const playerId = rawPlayer.PLAYER_ID;
+  const playerResourcePathInstance = playerResourcePath(gameId);
+  const playerResourceUrl = resourcePathLink(apiBaseUrl, playerResourcePathInstance);
+  const topLevelSelfLink = resourcePathLink(playerResourceUrl, playerId);
+  const serializerArgs = {
+    identifierField: 'PLAYER_ID',
+    resourceKeys: playerResourceKeys,
+    resourcePath: playerResourcePathInstance,
+    topLevelSelfLink,
+    enableDataLinks: true,
+  };
+
+  return new JsonApiSerializer(
+    playerResourceType,
+    serializerOptions(serializerArgs),
+  ).serialize(rawPlayer);
+};
+
+module.exports = { serializePlayers, serializePlayer };
