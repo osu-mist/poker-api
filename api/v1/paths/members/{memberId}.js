@@ -26,13 +26,13 @@ const get = async (req, res) => {
  * @summary Delete member by unique ID.
  */
 const del = async (req, res) => {
-  try{
+  try {
     const { memberId } = req.params;
     const result = await membersDao.deleteMember(memberId);
     if (result.rowsAffected < 1) {
       errorBuilder(res, 404, 'A member with the specified Id was not found');
     } else {
-      res.sendStatus(404);
+      res.sendStatus(204);
     }
   } catch (err) {
     errorHandler(res, err);

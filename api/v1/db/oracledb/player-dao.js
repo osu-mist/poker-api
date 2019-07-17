@@ -73,4 +73,37 @@ const getPlayerByGameIdAndPlayerId = async (id, pid) => {
   }
 };
 
-module.exports = { getPlayersByGameId, getPlayerByGameIdAndPlayerId };
+const cleanPlayerCardsByPlayerId = async (playerId) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [playerId];
+    const deleteSqlQuery = `
+    DELETE FROM PLAYER_CARDS WHERE PLAYER_ID = :playerId
+    `;
+    const result = await connection.execute(deleteSqlQuery, sqlParams, { autoCommit: true });
+    return result;
+  } finally {
+    connection.close();
+  }
+};
+
+const deletePlayerByPlayerId = async (playerId) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [playerId];
+    const deleteSqlQuery = `
+    DELETE FROM PLAYERS WHERE PLAYER_ID = :playerId
+    `;
+    const result = await connection.execute(deleteSqlQuery, sqlParams, { autoCommit: true });
+    return result;
+  } finally {
+    connection.close();
+  }
+};
+
+module.exports = {
+  getPlayersByGameId,
+  getPlayerByGameIdAndPlayerId,
+  cleanPlayerCardsByPlayerId,
+  deletePlayerByPlayerId,
+};

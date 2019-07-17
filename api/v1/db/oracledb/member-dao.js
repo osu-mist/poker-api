@@ -153,9 +153,11 @@ const isMemberAlreadyRegistered = async (nickname, email) => {
 const deleteMember = async (memberId) => {
   const connection = await conn.getConnection();
   try {
-    const delSqlQuery = `DELETE FROM MEMBERS WHERE MEMBER_ID = :id`;
+    const delSqlQuery = `
+    DELETE FROM MEMBERS WHERE MEMBER_ID = :id
+    `;
     const sqlParams = {
-      id: memberId
+      id: memberId,
     };
     const result = await connection.execute(delSqlQuery, sqlParams, { autoCommit: true });
     return result;
@@ -171,5 +173,5 @@ module.exports = {
   hasDuplicateMemberId,
   postMember,
   isMemberAlreadyRegistered,
-  deleteMember
+  deleteMember,
 };
