@@ -453,21 +453,24 @@ parameters:
   gameId:
     name: gameId
     in: path
-    description: unique integer
+    description: unique string
     required: true
-    type: integer
+    type: string
+    pattern: ^[0-9]+$
   memberId:
     name: memberId
     in: path
-    description: unique integer
+    description: unique string
     required: true
-    type: integer
+    type: string
+    pattern: ^[0-9]+$
   playerId:
     name: playerId
     in: path
-    description: unique integer
+    description: unique string
     required: true
-    type: integer
+    type: string
+    pattern: ^[0-9]+$
 definitions:
   BetPool:
     type: integer

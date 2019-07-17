@@ -39,7 +39,7 @@ const post = async (req, res) => {
     } else if (await gameDao.isMemberInGame(memberId, gameId)) {
       errorBuilder(res, 400, ['The member is already in the game.']);
     } else {
-      const result = await playerDao.postPlayerByGameId(req.body, gameId);
+      const result = await playerDao.postPlayerByGameId(req.body.data.attributes, gameId);
       res.set('Location', result.data.links.self);
       res.status(201).send(result);
     }

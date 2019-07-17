@@ -146,17 +146,21 @@ const getGamesByMemberId = async (id, query) => {
   }
 };
 
+/**
+ * @summary Check if a certain member is already in the game by memberId and gameId parameters.
+ * @function
+ * @param {number} memberId
+ * @param {number} gameId
+ */
 const isMemberInGame = async (memberId, gameId) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [memberId, gameId];
-    console.log(sqlParams);
     const getPlayerSqlQuery = `SELECT COUNT(1) FROM PLAYERS P
     WHERE P.MEMBER_ID = :memberId AND P.GAME_ID = :gameId
     `;
-    const rawPlayerResonse = await connection.execute(getPlayerSqlQuery, sqlParams);
-    const playerCount = parseInt(rawPlayerResonse.rows[0]['COUNT(1)'], 10);
-    console.log(playerCount);
+    const rawPlayerResponse = await connection.execute(getPlayerSqlQuery, sqlParams);
+    const playerCount = parseInt(rawPlayerResponse.rows[0]['COUNT(1)'], 10);
     return playerCount > 0;
   } finally {
     connection.close();
@@ -164,5 +168,10 @@ const isMemberInGame = async (memberId, gameId) => {
 };
 
 module.exports = {
-  getGames, getGameById, getGamesByMemberId, validateGame, postGame, isMemberInGame,
+  getGames,
+  getGameById,
+  getGamesByMemberId,
+  validateGame,
+  postGame,
+  isMemberInGame,
 };

@@ -71,12 +71,13 @@ const serializePlayer = (rawPlayers, gameId, isPost = false) => {
   const playerId = rawPlayer.PLAYER_ID;
   const playerResourcePathInstance = playerResourcePath(gameId);
   const playerResourceUrl = resourcePathLink(apiBaseUrl, playerResourcePathInstance);
-  const topLevelSelfLink = resourcePathLink(playerResourceUrl, playerId);
+  const topLevelSelfLink = isPost ? playerResourceUrl
+    : resourcePathLink(playerResourceUrl, playerId);
   const serializerArgs = {
     identifierField: 'PLAYER_ID',
     resourceKeys: playerResourceKeys,
     resourcePath: playerResourcePathInstance,
-    topLevelSelfLink: isPost ? playerResourceUrl : topLevelSelfLink,
+    topLevelSelfLink,
     enableDataLinks: true,
   };
 
