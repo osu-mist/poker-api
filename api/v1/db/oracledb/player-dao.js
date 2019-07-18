@@ -128,6 +128,26 @@ const deletePlayersByGameId = async (gameId) => {
   }
 };
 
+const deletePlayersByMemberId = async (memberId, connection) => {
+  const sqlParams = [memberId];
+  const playerSqlQuery = `
+  SELECT PLAYER_ID FROM PLAYERS P
+  WHERE MEMBER_ID = :memberId
+  `;
+  const rawPlayersResponse = await connection.execute(playerSqlQuery, sqlParams);
+  const playerIds = _.map(rawPlayersResponse.rows, player => (player.PLAYER_ID));
+  const bindString = playerIds.map((name, index) => `:${index}`).join(', ');
+  if (!_.isEmpty(playerIds)) {
+    const deletePlayerCardSqlQuery = `
+    DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${bindString})`;
+    await connection.execute(deletePlayerCardSqlQuery, playerIds);
+
+    const deletePlayersSqlQuery = `
+    DELETE FROM PLAYERS WHERE PLAYER_ID IN (${bindString})`;
+    await connection.execute(deletePlayersSqlQuery, playerIds);
+  }
+};
+
 const postPlayerByGameId = async (body, gameId) => {
   const connection = await conn.getConnection();
   try {
@@ -176,4 +196,5 @@ module.exports = {
   deletePlayerByPlayerId,
   deletePlayersByGameId,
   postPlayerByGameId,
+  deletePlayersByMemberId,
 };
