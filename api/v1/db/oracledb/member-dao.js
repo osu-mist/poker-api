@@ -3,6 +3,7 @@ const _ = require('lodash');
 const oracledb = require('oracledb');
 
 const { serializeMembers, serializeMember } = require('../../serializers/members-serializer');
+const playerDao = require('./player-dao');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 
@@ -153,6 +154,7 @@ const isMemberAlreadyRegistered = async (nickname, email) => {
 const deleteMember = async (memberId) => {
   const connection = await conn.getConnection();
   try {
+    await playerDao.deletePlayersByMemberId(memberId, connection);
     const delSqlQuery = `
     DELETE FROM MEMBERS WHERE MEMBER_ID = :id
     `;
