@@ -103,28 +103,23 @@ const deletePlayerByPlayerId = async (playerId, passedConnection) => {
 };
 
 
-const deletePlayersByGameId = async (gameId) => {
-  const connection = await conn.getConnection();
-  try {
-    const sqlParams = [gameId];
-    const playerSqlQuery = `
-    SELECT PLAYER_ID FROM PLAYERS P
-    WHERE GAME_ID = :gameId
-    `;
-    const rawPlayersResponse = await connection.execute(playerSqlQuery, sqlParams);
-    const playerIds = _.map(rawPlayersResponse.rows, player => (player.PLAYER_ID));
-    const bindString = playerIds.map((name, index) => `:${index}`).join(', ');
-    if (!_.isEmpty(playerIds)) {
-      const deletePlayerCardSqlQuery = `
-      DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${bindString})`;
-      await connection.execute(deletePlayerCardSqlQuery, playerIds, { autoCommit: true });
+const deletePlayersByGameId = async (gameId, connection) => {
+  const sqlParams = [gameId];
+  const playerSqlQuery = `
+  SELECT PLAYER_ID FROM PLAYERS P
+  WHERE GAME_ID = :gameId
+  `;
+  const rawPlayersResponse = await connection.execute(playerSqlQuery, sqlParams);
+  const playerIds = _.map(rawPlayersResponse.rows, player => (player.PLAYER_ID));
+  const bindString = playerIds.map((name, index) => `:${index}`).join(', ');
+  if (!_.isEmpty(playerIds)) {
+    const deletePlayerCardSqlQuery = `
+    DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${bindString})`;
+    await connection.execute(deletePlayerCardSqlQuery, playerIds);
 
-      const deletePlayersSqlQuery = `
-      DELETE FROM PLAYERS WHERE PLAYER_ID IN (${bindString})`;
-      await connection.execute(deletePlayersSqlQuery, playerIds, { autoCommit: true });
-    }
-  } finally {
-    connection.close();
+    const deletePlayersSqlQuery = `
+    DELETE FROM PLAYERS WHERE PLAYER_ID IN (${bindString})`;
+    await connection.execute(deletePlayersSqlQuery, playerIds);
   }
 };
 
