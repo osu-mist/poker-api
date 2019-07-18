@@ -151,6 +151,7 @@ const getGamesByMemberId = async (id, query) => {
  * @function
  * @param {number} memberId
  * @param {number} gameId
+ * @returns {boolean} If the member is already in the game.
  */
 const isMemberInGame = async (memberId, gameId) => {
   const connection = await conn.getConnection();
