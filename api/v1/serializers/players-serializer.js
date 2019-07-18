@@ -65,13 +65,15 @@ const serializePlayers = (rawPlayers, query, gameId) => {
   ).serialize(rawPlayers);
 };
 
-const serializePlayer = (rawPlayers, gameId) => {
+
+const serializePlayer = (rawPlayers, gameId, isPost = false) => {
   const [rawPlayer] = mergeRawPlayers(rawPlayers);
   playerConverter(rawPlayer);
   const playerId = rawPlayer.PLAYER_ID;
   const playerResourcePathInstance = playerResourcePath(gameId);
   const playerResourceUrl = resourcePathLink(apiBaseUrl, playerResourcePathInstance);
-  const topLevelSelfLink = resourcePathLink(playerResourceUrl, playerId);
+  const topLevelSelfLink = isPost ? playerResourceUrl
+    : resourcePathLink(playerResourceUrl, playerId);
   const serializerArgs = {
     identifierField: 'PLAYER_ID',
     resourceKeys: playerResourceKeys,

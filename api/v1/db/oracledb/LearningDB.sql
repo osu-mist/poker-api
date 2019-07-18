@@ -257,6 +257,3 @@ INSERT INTO PLAYER_CARDS (PLAYER_ID, CARD_ID) VALUES (3, 11);
 
 
 COMMENT ON TABLE PLAYER_CARDS IS 'The cards that belong to a certain player';
-
-
-
