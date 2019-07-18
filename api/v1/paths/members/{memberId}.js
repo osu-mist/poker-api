@@ -42,6 +42,14 @@ const del = async (req, res) => {
 /**
  * @summary Patch member by unique id
  */
+const patch = async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    if()
+  } catch (err) {
+    errorHandler(res, err);
+  }
+}
 
 get.apiDoc = paths['/members/{memberId}'].get;
 del.apiDoc = paths['/members/{memberId}'].del;
