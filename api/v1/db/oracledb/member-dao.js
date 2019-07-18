@@ -48,7 +48,7 @@ const getMembers = async (query) => {
  *                            or return undefined if term
  *                            is not found
  */
-const getMemberById = async (id) => {
+const getMemberById = async (id, isPost = false) => {
   const connection = await conn.getConnection();
   try {
     const sqlQuery = `
@@ -64,7 +64,7 @@ const getMemberById = async (id) => {
     if (rawMembers.length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
-      const serializedMember = serializeMember(rawMembers[0]);
+      const serializedMember = serializeMember(rawMembers[0], isPost);
       return serializedMember;
     }
   } finally {
@@ -102,7 +102,7 @@ const validateMembers = async (memberIds) => {
  * @summary Post a new member into the system.
  * @function
  * @param {Object} body The post body from request object.
- * @returns {Object} The JSON resource of the new member created.
+ * @returns {Promise<Object>} The JSON resource of the new member created.
  */
 const postMember = async (body) => {
   const connection = await conn.getConnection();
@@ -124,7 +124,7 @@ const postMember = async (body) => {
 
     const memberId = rawMembers.outBinds.outId[0];
 
-    const result = await getMemberById(memberId);
+    const result = await getMemberById(memberId, true);
     return result;
   } finally {
     connection.close();
