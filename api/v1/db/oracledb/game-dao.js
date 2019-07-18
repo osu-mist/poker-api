@@ -42,6 +42,7 @@ const getGames = async (query) => {
   }
 };
 
+
 const getGameById = async (id, isPost = false) => {
   const connection = await conn.getConnection();
   try {
@@ -49,10 +50,11 @@ const getGameById = async (id, isPost = false) => {
     const getGameByIdSqlQuery = `${sqlQuery} ${id ? 'WHERE G.GAME_ID = :id' : ''}`;
     const rawGamesResponse = await connection.execute(getGameByIdSqlQuery, sqlParams);
     const rawGames = rawGamesResponse.rows;
-    if (_.isEmpty(rawGames)) {
+    const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
+    if (_.isEmpty(groupedRawGames)) {
       return undefined;
     }
-    if (_.keys(_.groupBy(rawGames, 'GAME_ID')).length > 1) {
+    if (_.keys(groupedRawGames).length > 1) {
       throw new Error('Expect a single object but got multiple results.');
     } else {
       const serializedGame = serializeGame(rawGames, isPost);
@@ -98,6 +100,27 @@ const postGame = async (body) => {
     connection.close();
   }
 };
+/**
+ * @summary Check the if the game with the id exists.
+ * @function
+ * @param {number} id The id of the game
+ * @returns {Promise<boolean>} If the game exists or not.
+ */
+const validateGame = async (id) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [id];
+    const validateSqlQuery = `
+    SELECT COUNT(1) FROM GAMES G
+    WHERE G.GAME_ID = :id
+    `;
+    const rawGamesResponse = await connection.execute(validateSqlQuery, sqlParams);
+    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
+    return !(gameCount < 1);
+  } finally {
+    connection.close();
+  }
+};
 
 const getGamesByMemberId = async (id, query) => {
   const connection = await conn.getConnection();
@@ -125,22 +148,22 @@ const getGamesByMemberId = async (id, query) => {
 };
 
 /**
- * @summary Check the if the game with the id exists.
+ * @summary Check if a certain member is already in the game by memberId and gameId parameters.
  * @function
- * @param {number} id The id of the game
- * @returns {Promise<boolean>} If the game exists or not.
+ * @param {number} memberId
+ * @param {number} gameId
+ * @returns {Promise<boolean>} If the member is already in the game.
  */
-const validateGame = async (id) => {
+const isMemberInGame = async (memberId, gameId) => {
   const connection = await conn.getConnection();
   try {
-    const sqlParams = [id];
-    const validateSqlQuery = `
-    SELECT COUNT(1) FROM GAMES G
-    WHERE G.GAME_ID = :id
+    const sqlParams = [memberId, gameId];
+    const getPlayerSqlQuery = `SELECT COUNT(1) FROM PLAYERS P
+    WHERE P.MEMBER_ID = :memberId AND P.GAME_ID = :gameId
     `;
-    const rawGamesResponse = await connection.execute(validateSqlQuery, sqlParams);
-    const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
-    return !(gameCount < 1);
+    const rawPlayerResponse = await connection.execute(getPlayerSqlQuery, sqlParams);
+    const playerCount = parseInt(rawPlayerResponse.rows[0]['COUNT(1)'], 10);
+    return playerCount > 0;
   } finally {
     connection.close();
   }
@@ -183,4 +206,5 @@ module.exports = {
   validateGame,
   postGame,
   deleteGameByGameId,
+  isMemberInGame,
 };

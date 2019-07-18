@@ -11,9 +11,7 @@ const gameResourceProp = openapi.definitions.GameResource.properties;
 const gameResourceType = gameResourceProp.type.enum[0];
 const gameResourceKeys = _.keys(gameResourceProp.attributes.properties);
 const gameResourcePath = 'games';
-const memberResourcePath = 'members';
 const gameResourceUrl = resourcePathLink(apiBaseUrl, gameResourcePath);
-const memberResourceUrl = resourcePathLink(apiBaseUrl, memberResourcePath);
 
 /**
  * The column name getting from database is usually UPPER_CASE.
@@ -54,20 +52,13 @@ const mergeRawGames = (rawGames) => {
 };
 
 
-const serializeGames = (rawGames, query, memberId) => {
+const serializeGames = (rawGames, query) => {
   rawGames = mergeRawGames(rawGames);
   _.forEach(rawGames, (game) => {
     individualGameConverter(game);
   });
-  /**
-   * This declaration below is to determine if the endpoint is from
-   * '/games' or '/members/{memberId}/games'. Since they use the same serializer, API will just
-   * check if memberId is passed into it. For different parameters the topLevelSelfLink will be
-   * constructed differently.
-   */
 
-  const topLevelSelfLink = !memberId ? paramsLink(gameResourceUrl, query)
-    : paramsLink(`${memberResourceUrl}/${memberId}/games`, query);
+  const topLevelSelfLink = paramsLink(gameResourceUrl, query);
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
@@ -98,7 +89,7 @@ const serializeGame = (rawGames, isPost, query) => {
   return new JsonApiSerializer(
     gameResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawGame);
+  ).serialize(rawGames);
 };
 
 module.exports = { serializeGames, serializeGame };
