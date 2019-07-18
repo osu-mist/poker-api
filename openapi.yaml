@@ -662,8 +662,9 @@ definitions:
     description: Player's experience point above current level.
     example: 1234
   MemberId:
-    type: integer
-    example: 101
+    type: string
+    description: A string of integer
+    pattern: ^[0-9]+$
   MemberIds:
     type: array
     items:

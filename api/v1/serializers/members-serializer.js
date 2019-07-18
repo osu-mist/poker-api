@@ -62,7 +62,7 @@ const serializeMembers = (rawMembers, query) => {
  * @param {Object} rawMember Raw data row from data source
  * @returns {Object} Serialized memberResource object
  */
-const serializeMember = (rawMember) => {
+const serializeMember = (rawMember, isPost = false) => {
   singleMemberConverter(rawMember);
 
   const topLevelSelfLink = resourcePathLink(memberResourceUrl, rawMember.MEMBER_ID);
@@ -70,7 +70,7 @@ const serializeMember = (rawMember) => {
     identifierField: 'MEMBER_ID',
     resourceKeys: memberResourceKeys,
     resourcePath: memberResourcePath,
-    topLevelSelfLink,
+    topLevelSelfLink: isPost ? memberResourceUrl : topLevelSelfLink,
     enableDataLinks: true,
   };
 
