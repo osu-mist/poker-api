@@ -117,4 +117,3 @@ const postPlayerByGameId = async (body, gameId) => {
 };
 
 module.exports = { getPlayersByGameId, getPlayerByGameIdAndPlayerId, postPlayerByGameId };
-
