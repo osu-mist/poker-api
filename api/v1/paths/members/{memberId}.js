@@ -22,6 +22,24 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/members/{memberId}'].get;
+/**
+ * @summary Delete member by unique ID.
+ */
+const del = async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    const result = await membersDao.deleteMember(memberId);
+    if (result.rowsAffected < 1) {
+      errorBuilder(res, 404, 'A member with the specified Id was not found');
+    } else {
+      res.sendStatus(204);
+    }
+  } catch (err) {
+    errorHandler(res, err);
+  }
+};
 
-module.exports = { get };
+get.apiDoc = paths['/members/{memberId}'].get;
+del.apiDoc = paths['/members/{memberId}'].del;
+
+module.exports = { get, del };
