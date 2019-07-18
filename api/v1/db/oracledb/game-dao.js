@@ -169,24 +169,19 @@ const isMemberInGame = async (memberId, gameId) => {
   }
 };
 
-const cleanTableCardsByGameId = async (gameId) => {
-  const connection = await conn.getConnection();
-  try {
-    const sqlParams = [gameId];
-    const cleanCardSqlQuery = `
-    DELETE FROM TABLE_CARDS WHERE GAME_ID = :gameID
-    `;
-    await connection.execute(cleanCardSqlQuery, sqlParams, { autoCommit: true });
-  } finally {
-    connection.close();
-  }
+const cleanTableCardsByGameId = async (gameId, connection) => {
+  const sqlParams = [gameId];
+  const cleanCardSqlQuery = `
+  DELETE FROM TABLE_CARDS WHERE GAME_ID = :gameID
+  `;
+  await connection.execute(cleanCardSqlQuery, sqlParams);
 };
 
 
 const deleteGameByGameId = async (gameId) => {
   const connection = await conn.getConnection();
   try {
-    await cleanTableCardsByGameId(gameId);
+    await cleanTableCardsByGameId(gameId, connection);
     await playerDao.deletePlayersByGameId(gameId);
     const sqlParams = [gameId];
     const deleteSqlQuery = `
