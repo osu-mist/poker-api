@@ -39,7 +39,12 @@ const del = async (req, res) => {
   }
 };
 
+/**
+ * @summary Patch member by unique id
+ */
+
 get.apiDoc = paths['/members/{memberId}'].get;
 del.apiDoc = paths['/members/{memberId}'].del;
+patch.apiDoc = paths['/members/{mamberId}'].patch;
 
-module.exports = { get, del };
+module.exports = { get, del, patch };
