@@ -89,7 +89,7 @@ const serializeGame = (rawGames, isPost, query) => {
   return new JsonApiSerializer(
     gameResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawGame);
+  ).serialize(rawGames);
 };
 
 module.exports = { serializeGames, serializeGame };
