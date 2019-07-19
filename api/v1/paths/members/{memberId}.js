@@ -45,7 +45,17 @@ const del = async (req, res) => {
 const patch = async (req, res) => {
   try {
     const { memberId } = req.params;
-    if()
+    if (memberId !== req.body.data.id) {
+      errorBuilder(res, 400, ['Member id in path does not match id in the body.']);
+    } else {
+      const result = await membersDao.patchMember(memberId, req.body);
+      if(result.rowsAffected < 1) {
+        errorBuilder(res, 404, 'A member with the Id was not found.');
+      } else {
+        const updatedResult = await membersDao.getMemberById(memberId);
+        res.send(updatedResult);
+      }
+    }
   } catch (err) {
     errorHandler(res, err);
   }
