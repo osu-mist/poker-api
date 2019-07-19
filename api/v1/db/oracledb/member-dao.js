@@ -168,6 +168,26 @@ const deleteMember = async (memberId) => {
   }
 };
 
+const patchMember = async(memberId, attributes) => {
+  const connection = await conn.getConnection();
+  try {
+    attributes.id = memberId;
+    const sqlQuery = `
+    UPDATE MEMBERS
+    SET ${attributes.memberNickname ? 'MEMBER_NICKNAME = :memberNickname,' : ''}
+    ${attributes.memberEmail ? 'MEMBER_EMAIL = :memberEmail,' : ''}
+    ${attributes.memberPassword ? 'MEMBER_PASSWORD = :memberPassword,' : ''}
+    ${attributes.memberLevel ? 'MEMBER_LEVEL = :memberLevel,' : ''}
+    ${attributes.memberExpOverLevel ? 'MEMBER_EXP_OVER_LEVEL = :memberExpOverLevel' : ''}
+    WHERE MEMBER_ID = :id
+    `;
+    const response = await connection.execute(sqlQuery, attributes, { autoCommit: true });
+    return response;
+  } finally {
+    connection.close();
+  }
+};
+
 module.exports = {
   getMembers,
   getMemberById,
@@ -176,4 +196,5 @@ module.exports = {
   postMember,
   isMemberAlreadyRegistered,
   deleteMember,
+  patchMember,
 };

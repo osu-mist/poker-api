@@ -48,7 +48,7 @@ const patch = async (req, res) => {
     if (memberId !== req.body.data.id) {
       errorBuilder(res, 400, ['Member id in path does not match id in the body.']);
     } else {
-      const result = await membersDao.patchMember(memberId, req.body);
+      const result = await membersDao.patchMember(memberId, req.body.data.attributes);
       if(result.rowsAffected < 1) {
         errorBuilder(res, 404, 'A member with the Id was not found.');
       } else {
@@ -63,6 +63,6 @@ const patch = async (req, res) => {
 
 get.apiDoc = paths['/members/{memberId}'].get;
 del.apiDoc = paths['/members/{memberId}'].del;
-patch.apiDoc = paths['/members/{mamberId}'].patch;
+patch.apiDoc = paths['/members/{memberId}'].patch;
 
 module.exports = { get, del, patch };
