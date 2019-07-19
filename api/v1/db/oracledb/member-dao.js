@@ -168,7 +168,7 @@ const deleteMember = async (memberId) => {
   }
 };
 
-const patchMember = async(memberId, attributes) => {
+const patchMember = async (memberId, attributes) => {
   const connection = await conn.getConnection();
   try {
     attributes.id = memberId;
