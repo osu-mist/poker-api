@@ -177,6 +177,9 @@ const cleanTableCardsByGameId = async (gameId, connection) => {
   await connection.execute(cleanCardSqlQuery, sqlParams);
 };
 
+const insertCardsByGameId = async (gameId, connection, tableCards) => {
+
+}
 
 const deleteGameByGameId = async (gameId) => {
   const connection = await conn.getConnection();
@@ -194,6 +197,20 @@ const deleteGameByGameId = async (gameId) => {
   }
 };
 
+const patchGame = async (gameId, attributes) => {
+  const connection = await conn.getConnection();
+  try {
+    attributes.id = gameId;
+    const tableCards = attributes.tableCards;
+    delete attributes.tableCards;
+    //Clean the card first, then insert the cards
+    await cleanTableCardsByGameId(gameId, connection);
+
+  } finally {
+    connection.close();
+  }
+}
+
 module.exports = {
   getGames,
   getGameById,
@@ -202,4 +219,5 @@ module.exports = {
   postGame,
   deleteGameByGameId,
   isMemberInGame,
+  patchGame,
 };
