@@ -171,18 +171,29 @@ const deleteMember = async (memberId) => {
 const patchMember = async (memberId, attributes) => {
   const connection = await conn.getConnection();
   try {
-    attributes.id = memberId;
+    const memberNicknameString = `${attributes.memberNickname ? 'MEMBER_NICKNAME = :memberNickname' : ''}`;
+    const memberEmailString = `${attributes.memberEmail ? 'MEMBER_EMAIL = :memberEmail' : ''}`;
+    const memberPassword = `${attributes.memberPassword ? 'MEMBER_PASSWORD = :memberPassword' : ''}`;
+    const memberLevel = `${attributes.memberLevel ? 'MEMBER_LEVEL = :memberLevel' : ''}`;
+    const memberExpOverLevel = `${attributes.memberExpOverLevel || attributes.memberExpOverLevel === 0 ? 'MEMBER_EXP_OVER_LEVEL = :memberExpOverLevel' : ''}`;
+    const joinedString = _.join(_.compact([memberNicknameString,
+      memberEmailString,
+      memberPassword,
+      memberLevel,
+      memberExpOverLevel,
+    ]), ', ');
     const sqlQuery = `
     UPDATE MEMBERS
-    SET ${attributes.memberNickname ? 'MEMBER_NICKNAME = :memberNickname,' : ''}
-    ${attributes.memberEmail ? 'MEMBER_EMAIL = :memberEmail,' : ''}
-    ${attributes.memberPassword ? 'MEMBER_PASSWORD = :memberPassword,' : ''}
-    ${attributes.memberLevel ? 'MEMBER_LEVEL = :memberLevel,' : ''}
-    ${attributes.memberExpOverLevel ? 'MEMBER_EXP_OVER_LEVEL = :memberExpOverLevel' : ''}
+    SET ${joinedString}
     WHERE MEMBER_ID = :id
     `;
-    const response = await connection.execute(sqlQuery, attributes, { autoCommit: true });
-    return response;
+    const filteredAttributes = _.pickBy(attributes, val => (val || val === 0));
+    if (_.isEmpty(filteredAttributes)) {
+      return true;
+    }
+    filteredAttributes.id = memberId;
+    const response = await connection.execute(sqlQuery, filteredAttributes, { autoCommit: true });
+    return response.rowsAffected > 0;
   } finally {
     connection.close();
   }
