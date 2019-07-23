@@ -183,14 +183,14 @@ const insertCardsByGameId = async (gameId, tableCards, connection) => {
   const flattenedArray = _.flatten(_.map(tableCards, card => (_.values(card))));
   const individualSelection = [];
   for (let i = 0; i < _.size(flattenedArray); i += 2) {
-    individualSelection.push(`(:${i}, :${i+1})`);
+    individualSelection.push(`(:${i}, :${i + 1})`);
   }
   const selectBindString = _.join(individualSelection, ',');
   const getIdSqlQuery = `
   SELECT C.CARD_ID FROM CARDS C
   INNER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
   INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
-  WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`
+  WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`;
   const cardIdResult = await connection.execute(getIdSqlQuery, flattenedArray);
   const cardIds = _.flatten(_.map(cardIdResult.rows, card => card.CARD_ID));
 
@@ -199,10 +199,10 @@ const insertCardsByGameId = async (gameId, tableCards, connection) => {
   INSERT ALL
     ${insertBindString}
   SELECT 1 FROM DUAL
-  `
+  `;
   const sqlParams = {
     ...cardIds,
-    gameId
+    gameId,
   };
   await connection.execute(insertSqlQuery, sqlParams);
 };
@@ -224,43 +224,46 @@ const deleteGameByGameId = async (gameId) => {
   }
 };
 
-const databaseName = string => (decamelize(string).toUpperCase());
+const databaseName = (string) => {
+  if (string === 'round') {
+    return 'ROUND_ID';
+  }
+  return decamelize(string).toUpperCase();
+};
 
 const isTruthyOrZero = val => (val || val === 0);
 
 const patchGame = async (gameId, attributes) => {
   const connection = await conn.getConnection();
   try {
-    attributes.id = gameId;
-    const tableCards = attributes.tableCards;
+    const tableCards = { attributes };
     delete attributes.tableCards;
-    attributes.round = attributes.round[0].toUpperCase();
-    //Clean the card first, then insert the cards
-    await cleanTableCardsByGameId(gameId, connection);
-    await insertCardsByGameId(gameId, tableCards, connection);
-
-    //Do other patch jobs right here
+    attributes.round = attributes.round ? attributes.round[0].toUpperCase() : null;
+    if (!_.isEmpty(tableCards)) {
+      await cleanTableCardsByGameId(gameId, connection);
+      await insertCardsByGameId(gameId, tableCards, connection);
+    }
     const joinedStringArray = _.map(attributes, (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
-    const sqlQuery = `
+    const patchSqlQuery = `
     UPDATE GAMES
     SET ${joinedString}
     WHERE GAME_ID = :id
-    `
+    `;
     const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
-    console.log(filteredAttributes);
-    return true;
     if (_.isEmpty(filteredAttributes)) {
-      //commit the change right here
+      await connection.commit();
       return true;
     }
     filteredAttributes.id = gameId;
-    const response = await connection.execute(sqlQuery, filteredAttributes, { autoCommit: true });
+    const response = await connection.execute(patchSqlQuery,
+      filteredAttributes,
+      { autoCommit: true });
     return response.rowsAffected > 0;
   } finally {
     connection.close();
   }
-}
+};
 
 module.exports = {
   getGames,

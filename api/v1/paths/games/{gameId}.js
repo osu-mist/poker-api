@@ -43,10 +43,10 @@ const del = async (req, res) => {
  * @summary Patch game by unique ID.
  */
 
- const patch = async (req, res) => {
+const patch = async (req, res) => {
   try {
     const { gameId } = req.params;
-    if(gameId !== req.body.data.id) {
+    if (gameId !== req.body.data.id) {
       errorBuilder(res, 400, ['Game id in path does not match id in body.']);
     } else {
       const result = await gameDao.patchGame(gameId, req.body.data.attributes);
@@ -60,7 +60,7 @@ const del = async (req, res) => {
   } catch (err) {
     errorHandler(res, err);
   }
- };
+};
 
 get.apiDoc = paths['/games/{gameId}'].get;
 del.apiDoc = paths['/games/{gameId}'].del;
