@@ -50,11 +50,11 @@ paths:
         '400':
           description: Invalid game object
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
     get:
       summary: Info of a list of game
       tags:
@@ -80,7 +80,7 @@ paths:
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
   /games/{gameId}:
     get:
       summary: Info for a specific game
@@ -99,11 +99,11 @@ paths:
         '404':
           description: Game not found
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
     patch:
       tags:
         - games
@@ -127,7 +127,7 @@ paths:
         '400':
           description: Invalid game object
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '404':
           description: Game not found
           schema:
@@ -135,7 +135,7 @@ paths:
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
     delete:
       tags:
         - games
@@ -149,11 +149,11 @@ paths:
         '404':
           description: No game with this id
           schema:
-            $ref: "#/definitions/Error"
+            $ref: "#/definitions/ErrorResult"
         '500':
           description: Internal server error
           schema:
-            $ref: "#/definitions/Error"
+            $ref: "#/definitions/ErrorResult"
   /games/{gameId}/players:
     get:
       summary: A list of player in the game with their specific in-game information
@@ -171,11 +171,11 @@ paths:
         '404':
           description: Game not found
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
     post:
       summary: Add a player to the game by including the member id in the body
       tags:
@@ -203,15 +203,15 @@ paths:
         '400':
           description: Invalid player post object
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '404':
           description: Game not found
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
   /games/{gameId}/players/{playerId}:
     get:
       summary: Info of the player in terms of the specific game
@@ -230,11 +230,11 @@ paths:
         '404':
           description: Player not found / Game not found
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
     patch:
       tags:
         - players
@@ -256,19 +256,19 @@ paths:
         '200':
           description: Successfully update a player from game
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '400':
           description: Invalid player in game object
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '404':
           description: Player not found / Game not found.
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
     delete:
       tags:
         - players
@@ -284,11 +284,11 @@ paths:
         '404':
           description: No game with this id / No player with this id
           schema:
-            $ref: "#/definitions/Error"
+            $ref: "#/definitions/ErrorResult"
         '500':
           description: Internal server error
           schema:
-            $ref: "#/definitions/Error"
+            $ref: "#/definitions/ErrorResult"
   /members:
     get:
       summary: Info of the list of member
@@ -313,7 +313,7 @@ paths:
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
     post:
       summary: Create a member profile
       tags:
@@ -338,11 +338,11 @@ paths:
         '400':
           description: Invalid member object
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
   /members/{memberId}:
     delete:
       summary: Delete a member specified by its memberId
@@ -360,11 +360,11 @@ paths:
         '404':
           description: No member with this id
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
     get:
       summary: Info for a specific member
       tags:
@@ -382,11 +382,11 @@ paths:
         '404':
           description: Member not found
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
     patch:
       summary: Update a member specified by its memberId
       tags:
@@ -411,15 +411,15 @@ paths:
         '400':
           description: Invalid member object
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '404':
           description: Member not found
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
   /members/{memberId}/games:
     get:
       summary: Info for games that the member is current playing
@@ -505,7 +505,7 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/Card'
-  Error:
+  ErrorObject:
     properties:
       status:
         type: string
@@ -529,12 +529,12 @@ definitions:
             format: url
             description: A link to further information about the error
             example: https://developer.oregonstate.edu/documentation/Error-reference#1234
-  Errors:
+  ErrorResult:
     properties:
       errors:
         type: array
         items:
-          $ref: '#/definitions/Error'
+          $ref: '#/definitions/ErrorObject'
   GameId:
     type: string
     description: A unique ID of a poker game
