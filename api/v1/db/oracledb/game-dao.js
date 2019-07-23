@@ -177,9 +177,33 @@ const cleanTableCardsByGameId = async (gameId, connection) => {
   await connection.execute(cleanCardSqlQuery, sqlParams);
 };
 
-const insertCardsByGameId = async (gameId, connection, tableCards) => {
+const insertCardsByGameId = async (gameId, tableCards, connection) => {
+  const flattenedArray = _.flatten(_.map(tableCards, card => (_.values(card))));
+  const individualSelection = [];
+  for (let i = 0; i < _.size(flattenedArray); i += 2) {
+    individualSelection.push(`(:${i}, :${i+1})`);
+  }
+  const selectBindString = _.join(individualSelection, ',');
+  const getIdSqlQuery = `
+  SELECT C.CARD_ID FROM CARDS C
+  INNER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
+  INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
+  WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`
+  const cardIdResult = await connection.execute(getIdSqlQuery, flattenedArray);
+  const cardIds = _.flatten(_.map(cardIdResult.rows, card => card.CARD_ID));
 
-}
+  const insertBindString = cardIds.map((name, index) => `INTO TABLE_CARDS (GAME_ID, CARD_ID) VALUES (:gameId, :${index})`).join('\n');
+  const insertSqlQuery = `
+  INSERT ALL
+    ${insertBindString}
+  SELECT 1 FROM DUAL
+  `
+  const sqlParams = {
+    ...cardIds,
+    gameId
+  };
+  await connection.execute(insertSqlQuery, sqlParams);
+};
 
 const deleteGameByGameId = async (gameId) => {
   const connection = await conn.getConnection();
@@ -205,7 +229,12 @@ const patchGame = async (gameId, attributes) => {
     delete attributes.tableCards;
     //Clean the card first, then insert the cards
     await cleanTableCardsByGameId(gameId, connection);
+    await insertCardsByGameId(gameId, tableCards, connection);
 
+    const minBetString = `${attributes.minimumBet ? 'MINIMUM_BET = :minimumBet' : ''}`;
+    const maxBetString = `${attributes.maximumBet ? 'MAXIMUM_BET = :maximumBet' : ''}`;
+    const betPoolString = `${attributes.betPool ? 'BET_POOL = :betPool' : ''}`;
+    const
   } finally {
     connection.close();
   }
