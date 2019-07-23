@@ -2,6 +2,8 @@ const appRoot = require('app-root-path');
 const _ = require('lodash');
 const oracledb = require('oracledb');
 
+const decamelize = require('decamelize');
+
 const { serializeGames, serializeGame } = require('../../serializers/games-serializer');
 const playerDao = require('./player-dao');
 
@@ -221,20 +223,39 @@ const deleteGameByGameId = async (gameId) => {
   }
 };
 
+const databaseName = string => (decamelize(string).toUpperCase());
+
+const isTruthyOrZero = val => (val || val === 0);
+
 const patchGame = async (gameId, attributes) => {
   const connection = await conn.getConnection();
   try {
     attributes.id = gameId;
     const tableCards = attributes.tableCards;
     delete attributes.tableCards;
+    attributes.round = attributes.round[0].toUpperCase();
     //Clean the card first, then insert the cards
     await cleanTableCardsByGameId(gameId, connection);
     await insertCardsByGameId(gameId, tableCards, connection);
 
-    const minBetString = `${attributes.minimumBet ? 'MINIMUM_BET = :minimumBet' : ''}`;
-    const maxBetString = `${attributes.maximumBet ? 'MAXIMUM_BET = :maximumBet' : ''}`;
-    const betPoolString = `${attributes.betPool ? 'BET_POOL = :betPool' : ''}`;
-    const
+    //Do other patch jobs right here
+    const joinedStringArray = _.map(attributes, (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
+    const joinedString = _(joinedStringArray).compact().join(', ');
+    const sqlQuery = `
+    UPDATE GAMES
+    SET ${joinedString}
+    WHERE GAME_ID = :id
+    `
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    console.log(filteredAttributes);
+    return true;
+    if (_.isEmpty(filteredAttributes)) {
+      //commit the change right here
+      return true;
+    }
+    filteredAttributes.id = gameId;
+    const response = await connection.execute(sqlQuery, filteredAttributes, { autoCommit: true });
+    return response.rowsAffected > 0;
   } finally {
     connection.close();
   }
