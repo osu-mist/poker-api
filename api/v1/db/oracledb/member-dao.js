@@ -1,6 +1,7 @@
 const appRoot = require('app-root-path');
 const _ = require('lodash');
 const oracledb = require('oracledb');
+const decamelize = require('decamelize');
 
 const { serializeMembers, serializeMember } = require('../../serializers/members-serializer');
 const playerDao = require('./player-dao');
@@ -134,6 +135,8 @@ const postMember = async (body) => {
 
 const hasDuplicateMemberId = memberIds => (!(_.size(_.uniq(memberIds)) === _.size(memberIds)));
 
+const isTruthyOrZero = val => (val || val === 0);
+
 const isMemberAlreadyRegistered = async (nickname, email) => {
   const connection = await conn.getConnection();
   try {
@@ -168,26 +171,19 @@ const deleteMember = async (memberId) => {
   }
 };
 
+const databaseName = string => (decamelize(string).toUpperCase());
+
 const patchMember = async (memberId, attributes) => {
   const connection = await conn.getConnection();
   try {
-    const memberNicknameString = `${attributes.memberNickname ? 'MEMBER_NICKNAME = :memberNickname' : ''}`;
-    const memberEmailString = `${attributes.memberEmail ? 'MEMBER_EMAIL = :memberEmail' : ''}`;
-    const memberPassword = `${attributes.memberPassword ? 'MEMBER_PASSWORD = :memberPassword' : ''}`;
-    const memberLevel = `${attributes.memberLevel ? 'MEMBER_LEVEL = :memberLevel' : ''}`;
-    const memberExpOverLevel = `${attributes.memberExpOverLevel || attributes.memberExpOverLevel === 0 ? 'MEMBER_EXP_OVER_LEVEL = :memberExpOverLevel' : ''}`;
-    const joinedString = _.join(_.compact([memberNicknameString,
-      memberEmailString,
-      memberPassword,
-      memberLevel,
-      memberExpOverLevel,
-    ]), ', ');
+    const joinedStringArray = _.map(attributes, (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
+    const joinedString = _(joinedStringArray).compact().join(', ');
     const sqlQuery = `
     UPDATE MEMBERS
     SET ${joinedString}
     WHERE MEMBER_ID = :id
     `;
-    const filteredAttributes = _.pickBy(attributes, val => (val || val === 0));
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
     if (_.isEmpty(filteredAttributes)) {
       return true;
     }

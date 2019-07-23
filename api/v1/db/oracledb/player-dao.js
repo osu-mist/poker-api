@@ -197,5 +197,4 @@ module.exports = {
   deletePlayersByGameId,
   postPlayerByGameId,
   deletePlayersByMemberId,
-  postPlayerByGameId,
 };

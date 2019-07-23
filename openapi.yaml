@@ -659,6 +659,7 @@ definitions:
     type: string
     example: abc@efg.com
     format: email
+    minLength: 1
   MemberExpOverLevel:
     type: integer
     minimum: 0
@@ -774,10 +775,12 @@ definitions:
   MemberNickname:
     type: string
     example: Jack
+    minLength: 1
   MemberPassword:
     type: string
     example:  hunter2
     format: password
+    minLength: 1
   MemberPatchBody:
     properties:
       data:
