@@ -131,7 +131,7 @@ paths:
         '404':
           description: Game not found
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
@@ -438,11 +438,11 @@ paths:
         '404':
           description: Member not found
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
         '500':
           description: Internal server error
           schema:
-            $ref: '#/definitions/Errors'
+            $ref: '#/definitions/ErrorResult'
 parameters:
   authorization:
     name: Authorization
