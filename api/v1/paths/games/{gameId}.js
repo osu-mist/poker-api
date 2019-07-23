@@ -22,6 +22,24 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/games/{gameId}'].get;
+/**
+ * @summary Delete game by unique ID.
+ */
+const del = async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    const result = await gameDao.deleteGameByGameId(gameId);
+    if (result.rowsAffected < 1) {
+      errorBuilder(res, 404, 'Game with the specified Id was not found');
+    } else {
+      res.sendStatus(204);
+    }
+  } catch (err) {
+    errorHandler(res, err);
+  }
+};
 
-module.exports = { get };
+get.apiDoc = paths['/games/{gameId}'].get;
+del.apiDoc = paths['/games/{gameId}'].del;
+
+module.exports = { get, del };

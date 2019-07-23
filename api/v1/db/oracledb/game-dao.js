@@ -3,6 +3,7 @@ const _ = require('lodash');
 const oracledb = require('oracledb');
 
 const { serializeGames, serializeGame } = require('../../serializers/games-serializer');
+const playerDao = require('./player-dao');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 
@@ -168,11 +169,37 @@ const isMemberInGame = async (memberId, gameId) => {
   }
 };
 
+const cleanTableCardsByGameId = async (gameId, connection) => {
+  const sqlParams = [gameId];
+  const cleanCardSqlQuery = `
+  DELETE FROM TABLE_CARDS WHERE GAME_ID = :gameID
+  `;
+  await connection.execute(cleanCardSqlQuery, sqlParams);
+};
+
+
+const deleteGameByGameId = async (gameId) => {
+  const connection = await conn.getConnection();
+  try {
+    await cleanTableCardsByGameId(gameId, connection);
+    await playerDao.deletePlayersByGameId(gameId);
+    const sqlParams = [gameId];
+    const deleteSqlQuery = `
+    DELETE FROM GAMES WHERE GAME_ID = :gameId
+    `;
+    const result = await connection.execute(deleteSqlQuery, sqlParams, { autoCommit: true });
+    return result;
+  } finally {
+    connection.close();
+  }
+};
+
 module.exports = {
   getGames,
   getGameById,
   getGamesByMemberId,
   validateGame,
   postGame,
+  deleteGameByGameId,
   isMemberInGame,
 };

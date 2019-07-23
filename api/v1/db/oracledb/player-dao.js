@@ -83,19 +83,64 @@ const cleanPlayerCardsByPlayerId = async (playerId, connection) => {
   return result;
 };
 
-const deletePlayerByPlayerId = async (playerId) => {
-  const connection = await conn.getConnection();
+const deletePlayerByPlayerId = async (playerId, passedConnection) => {
+  const isPassedConnection = Boolean(passedConnection);
+  const connection = isPassedConnection ? passedConnection : await conn.getConnection();
   try {
     await cleanPlayerCardsByPlayerId(playerId, connection);
     const sqlParams = [playerId];
     const deleteSqlQuery = `
     DELETE FROM PLAYERS WHERE PLAYER_ID = :playerId
     `;
-    const result = await connection.execute(deleteSqlQuery, sqlParams, { autoCommit: true });
-        return result;
+    const result = await connection.execute(deleteSqlQuery, sqlParams,
+      { autoCommit: !isPassedConnection });
+    return result;
+  } finally {
+    if (!isPassedConnection) {
+      connection.close();
+    }
+  }
+};
+
+
+const deletePlayersByGameId = async (gameId) => {
+  const connection = await conn.getConnection();
+  try {
+    const sqlParams = [gameId];
+    const playerSqlQuery = `
+    SELECT PLAYER_ID FROM PLAYERS P
+    WHERE GAME_ID = :gameId
+    `;
+    const rawPlayersResponse = await connection.execute(playerSqlQuery, sqlParams);
+    const playerIds = _.map(rawPlayersResponse.rows, player => (player.PLAYER_ID));
+    const bindString = playerIds.map((name, index) => `:${index}`).join(', ');
+    if (!_.isEmpty(playerIds)) {
+      const deletePlayerCardSqlQuery = `
+      DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${bindString})`;
+      await connection.execute(deletePlayerCardSqlQuery, playerIds, { autoCommit: true });
+
+      const deletePlayersSqlQuery = `
+      DELETE FROM PLAYERS WHERE PLAYER_ID IN (${bindString})`;
+      await connection.execute(deletePlayersSqlQuery, playerIds, { autoCommit: true });
+    }
   } finally {
     connection.close();
   }
+};
+
+const deletePlayersByMemberId = async (memberId, connection) => {
+  const sqlParams = [memberId];
+  const playerSqlQuery = `
+  SELECT PLAYER_ID FROM PLAYERS P
+  WHERE MEMBER_ID = :memberId
+  `;
+  const deletePlayerCardSqlQuery = `
+  DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${playerSqlQuery})`;
+  await connection.execute(deletePlayerCardSqlQuery, sqlParams);
+
+  const deletePlayersSqlQuery = `
+  DELETE FROM PLAYERS WHERE PLAYER_ID IN (${playerSqlQuery})`;
+  await connection.execute(deletePlayersSqlQuery, sqlParams);
 };
 
 const postPlayerByGameId = async (body, gameId) => {
@@ -144,5 +189,7 @@ module.exports = {
   getPlayerByGameIdAndPlayerId,
   cleanPlayerCardsByPlayerId,
   deletePlayerByPlayerId,
+  deletePlayersByGameId,
   postPlayerByGameId,
+  deletePlayersByMemberId,
 };
