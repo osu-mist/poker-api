@@ -210,8 +210,9 @@ const insertCardsByGameId = async (gameId, tableCards, connection) => {
 const deleteGameByGameId = async (gameId) => {
   const connection = await conn.getConnection();
   try {
-    await cleanTableCardsByGameId(gameId, connection);
-    await playerDao.deletePlayersByGameId(gameId);
+    const cleanTableProm = cleanTableCardsByGameId(gameId, connection);
+    const delPlayerProm = playerDao.deletePlayersByGameId(gameId, connection);
+    await Promise.all([cleanTableProm, delPlayerProm]);
     const sqlParams = [gameId];
     const deleteSqlQuery = `
     DELETE FROM GAMES WHERE GAME_ID = :gameId
