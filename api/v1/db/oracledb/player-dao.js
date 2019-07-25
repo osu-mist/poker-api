@@ -173,6 +173,10 @@ const postPlayerByGameId = async (body, gameId) => {
   }
 };
 
+const patchPlayer = async (pid, attributes) => {
+
+};
+
 module.exports = {
   getPlayersByGameId,
   getPlayerByGameIdAndPlayerId,
@@ -181,4 +185,5 @@ module.exports = {
   deletePlayersByGameId,
   postPlayerByGameId,
   deletePlayersByMemberId,
+  patchPlayer,
 };

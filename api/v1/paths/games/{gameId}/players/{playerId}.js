@@ -50,7 +50,24 @@ const del = async (req, res) => {
   }
 };
 
-const patch = () => {};
+const patch = async (req, res) => {
+  try {
+    const { gameId, playerId } = req.params;
+    if (playerId !== req.body.data.id) {
+      errorBuilder(res, 400, ['Player id in path does not match id in body.']);
+    } else {
+      const result = await playerDao.patchPlayer(playerId, req.body.data.attributes);
+      if (result.rowsAffected < 1) {
+        errorBuilder(res, 404, 'A player with the specified ID was not found.');
+      } else {
+        const updatedResult = await playerDao.getPlayerByGameIdAndPlayerId(gameId, playerId);
+        res.send(updatedResult);
+      }
+    }
+  } catch (err) {
+    errorHandler(res, err);
+  }
+};
 
 
 get.apiDoc = paths['/games/{gameId}/players/{playerId}'].get;
