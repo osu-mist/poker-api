@@ -57,7 +57,7 @@ const patch = async (req, res) => {
       errorBuilder(res, 400, ['Player id in path does not match id in body.']);
     } else {
       const result = await playerDao.patchPlayer(playerId, req.body.data.attributes);
-      if (result.rowsAffected < 1) {
+      if (!result) {
         errorBuilder(res, 404, 'A player with the specified ID was not found.');
       } else {
         const updatedResult = await playerDao.getPlayerByGameIdAndPlayerId(gameId, playerId);

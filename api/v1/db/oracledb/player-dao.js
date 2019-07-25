@@ -1,6 +1,7 @@
 const appRoot = require('app-root-path');
 const _ = require('lodash');
 const oracledb = require('oracledb');
+const decamelize = require('decamelize');
 
 const { serializePlayers, serializePlayer } = require('../../serializers/players-serializer');
 const { validateGame } = require('./game-dao');
@@ -173,8 +174,78 @@ const postPlayerByGameId = async (body, gameId) => {
   }
 };
 
-const patchPlayer = async (pid, attributes) => {
+const insertCardsByPlayerId = async (playerId, playerCards, connection) => {
+  const flattenedArray = _.flatten(_.map(playerCards, card => (_.values(card))));
+  const individualSelection = [];
+  for (let i = 0; i < _.size(flattenedArray); i += 2) {
+    individualSelection.push(`(:${i}, :${i + 1})`);
+  }
+  const selectBindString = _.join(individualSelection, ',');
+  const getIdSqlQuery = `
+  SELECT C.CARD_ID FROM CARDS C
+  INNER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
+  INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
+  WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`;
+  const cardIdResult = await connection.execute(getIdSqlQuery, flattenedArray);
+  const cardIds = _.flatten(_.map(cardIdResult.rows, card => card.CARD_ID));
 
+  const insertBindString = cardIds.map((name, index) => `INTO PLAYER_CARDS (PLAYER_ID, CARD_ID) VALUES (:playerId, :${index})`).join('\n');
+  const insertSqlQuery = `
+  INSERT ALL
+    ${insertBindString}
+  SELECT 1 FROM DUAL
+  `;
+  const sqlParams = {
+    ...cardIds,
+    playerId,
+  };
+  await connection.execute(insertSqlQuery, sqlParams);
+};
+
+const databaseName = string => (decamelize(string).toUpperCase());
+
+const isTruthyOrZero = val => (val || val === 0);
+
+const patchPlayer = async (playerId, attributes) => {
+  const connection = await conn.getConnection();
+  try {
+    const { playerCards } = attributes;
+    delete attributes.playerCards;
+    if (attributes.playerStatus) {
+      const statusSqlQuery = `
+      SELECT S.STATUS_ID FROM STATUSES S
+      WHERE S.STATUS = :playerStatus
+      `;
+      const statusParam = [attributes.playerStatus];
+      const statusResponse = await connection.execute(statusSqlQuery, statusParam);
+      attributes.statusId = statusResponse.rows[0].STATUS_ID;
+      delete attributes.playerStatus;
+    }
+
+    if (!_.isEmpty(playerCards)) {
+      await cleanPlayerCardsByPlayerId(playerId, connection);
+      await insertCardsByPlayerId(playerId, playerCards, connection);
+    }
+    const joinedStringArray = _.map(attributes, (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
+    const joinedString = _(joinedStringArray).compact().join(', ');
+    const patchSqlQuery = `
+    UPDATE PLAYERS
+    SET ${joinedString}
+    WHERE PLAYER_ID = :id
+    `;
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    if (_.isEmpty(filteredAttributes)) {
+      await connection.commit();
+      return true;
+    }
+    filteredAttributes.id = playerId;
+    const response = await connection.execute(patchSqlQuery,
+      filteredAttributes,
+      { autoCommit: true });
+    return response.rowsAffected > 0;
+  } finally {
+    connection.close();
+  }
 };
 
 module.exports = {
