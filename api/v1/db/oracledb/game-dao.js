@@ -236,7 +236,7 @@ const isTruthyOrZero = val => (val || val === 0);
 const patchGame = async (gameId, attributes) => {
   const connection = await conn.getConnection();
   try {
-    const tableCards = { attributes };
+    const { tableCards } = attributes;
     delete attributes.tableCards;
     attributes.round = attributes.round ? attributes.round[0].toUpperCase() : null;
     if (!_.isEmpty(tableCards)) {
