@@ -130,7 +130,6 @@ const deletePlayersByMemberId = async (memberId, connection) => {
   const deletePlayersSqlQuery = `
   DELETE FROM PLAYERS WHERE PLAYER_ID IN (${playerSqlQuery})`;
   await connection.execute(deletePlayersSqlQuery, sqlParams);
-
 };
 
 const postPlayerByGameId = async (body, gameId) => {
