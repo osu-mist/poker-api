@@ -222,18 +222,23 @@ const patchPlayer = async (playerId, attributes) => {
       delete attributes.playerStatus;
     }
 
+    if(playerCards && _.isEmpty(playerCards)){
+      await cleanPlayerCardsByPlayerId(playerId, connection);
+    }
+
     if (!_.isEmpty(playerCards)) {
       await cleanPlayerCardsByPlayerId(playerId, connection);
       await insertCardsByPlayerId(playerId, playerCards, connection);
     }
-    const joinedStringArray = _.map(attributes, (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    const joinedStringArray = _.map(filteredAttributes,
+      (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const patchSqlQuery = `
     UPDATE PLAYERS
     SET ${joinedString}
     WHERE PLAYER_ID = :id
     `;
-    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
     if (_.isEmpty(filteredAttributes)) {
       await connection.commit();
       return true;
