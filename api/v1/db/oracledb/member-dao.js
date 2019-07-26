@@ -176,7 +176,8 @@ const isTruthyOrZero = val => (val || val === 0);
 const patchMember = async (memberId, attributes) => {
   const connection = await conn.getConnection();
   try {
-    const joinedStringArray = _.map(attributes,
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    const joinedStringArray = _.map(filteredAttributes,
       (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const sqlQuery = `
@@ -184,7 +185,6 @@ const patchMember = async (memberId, attributes) => {
     SET ${joinedString}
     WHERE MEMBER_ID = :id
     `;
-    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
     if (_.isEmpty(filteredAttributes)) {
       return true;
     }
