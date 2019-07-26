@@ -222,7 +222,7 @@ const patchPlayer = async (playerId, attributes) => {
       delete attributes.playerStatus;
     }
 
-    if(playerCards && _.isEmpty(playerCards)){
+    if (playerCards && _.isEmpty(playerCards)) {
       await cleanPlayerCardsByPlayerId(playerId, connection);
     }
 
