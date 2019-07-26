@@ -243,7 +243,8 @@ const patchGame = async (gameId, attributes) => {
       await cleanTableCardsByGameId(gameId, connection);
       await insertCardsByGameId(gameId, tableCards, connection);
     }
-    const joinedStringArray = _.map(attributes, (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
+    const joinedStringArray = _.map(attributes,
+      (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const patchSqlQuery = `
     UPDATE GAMES
