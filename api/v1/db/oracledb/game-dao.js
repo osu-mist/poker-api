@@ -192,9 +192,9 @@ const insertCardsByGameId = async (gameId, tableCards, connection) => {
   INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
   WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`;
   const cardIdResult = await connection.execute(getIdSqlQuery, flattenedArray);
-  const cardIds = _.flatten(_.map(cardIdResult.rows, card => card.CARD_ID));
+  const cardIds = _.map(cardIdResult.rows, card => card.CARD_ID);
 
-  const insertBindString = cardIds.map((name, index) => `INTO TABLE_CARDS (GAME_ID, CARD_ID) VALUES (:gameId, :${index})`).join('\n');
+  const insertBindString = _.map(cardIds, (name, index) => `INTO TABLE_CARDS (GAME_ID, CARD_ID) VALUES (:gameId, :${index})`).join('\n');
   const insertSqlQuery = `
   INSERT ALL
     ${insertBindString}
@@ -243,7 +243,8 @@ const patchGame = async (gameId, attributes) => {
       await cleanTableCardsByGameId(gameId, connection);
       await insertCardsByGameId(gameId, tableCards, connection);
     }
-    const joinedStringArray = _.map(attributes,
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    const joinedStringArray = _.map(filteredAttributes,
       (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const patchSqlQuery = `
@@ -251,7 +252,6 @@ const patchGame = async (gameId, attributes) => {
     SET ${joinedString}
     WHERE GAME_ID = :id
     `;
-    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
     if (_.isEmpty(filteredAttributes)) {
       await connection.commit();
       return true;
