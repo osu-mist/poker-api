@@ -175,9 +175,11 @@ const postPlayerByGameId = async (body, gameId) => {
 };
 
 const insertCardsByPlayerId = async (playerId, playerCards, connection) => {
-  const flattenedArray = _.flatten(_.map(playerCards,
-    card => (_.values(_(card).toPairs().sortBy(0).fromPairs()
-      .value()))));
+  const flattenedArray = _.reduce(playerCards, (result, card) => {
+    result.push(card.cardNumber);
+    result.push(card.cardSuit);
+    return result;
+  }, []);
   const individualSelection = [];
   for (let i = 0; i < _.size(flattenedArray); i += 2) {
     individualSelection.push(`(:${i}, :${i + 1})`);
