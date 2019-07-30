@@ -9,7 +9,6 @@ const proxyquire = require('proxyquire');
 
 sinon.replace(config, 'get', () => ({ oracledb: {} }));
 const conn = appRoot.require('api/v1/db/oracledb/connection');
-// const membersDao = appRoot.require('api/v1/db/oracledb/member-dao');
 const membersSerializer = appRoot.require('api/v1/serializers/members-serializer');
 
 chai.should();
