@@ -180,7 +180,10 @@ const cleanTableCardsByGameId = async (gameId, connection) => {
 };
 
 const insertCardsByGameId = async (gameId, tableCards, connection) => {
-  const flattenedArray = _.flatten(_.map(tableCards, card => (_.values(card))));
+  // const flattenedArray = _.flatten(_.map(tableCards, card => (_.values(card))));
+  const flattenedArray = _.flatten(_.map(tableCards,
+    card => (_.values(_(card).toPairs().sortBy(0).fromPairs()
+      .value()))));
   const individualSelection = [];
   for (let i = 0; i < _.size(flattenedArray); i += 2) {
     individualSelection.push(`(:${i}, :${i + 1})`);
@@ -194,7 +197,8 @@ const insertCardsByGameId = async (gameId, tableCards, connection) => {
   const cardIdResult = await connection.execute(getIdSqlQuery, flattenedArray);
   const cardIds = _.map(cardIdResult.rows, card => card.CARD_ID);
 
-  const insertBindString = _.map(cardIds, (name, index) => `INTO TABLE_CARDS (GAME_ID, CARD_ID) VALUES (:gameId, :${index})`).join('\n');
+  const insertBindString = _.map(cardIds,
+    (name, index) => `INTO TABLE_CARDS (GAME_ID, CARD_ID) VALUES (:gameId, :${index})`).join('\n');
   const insertSqlQuery = `
   INSERT ALL
     ${insertBindString}
