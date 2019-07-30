@@ -1,6 +1,7 @@
 const appRoot = require('app-root-path');
 const _ = require('lodash');
 const oracledb = require('oracledb');
+const decamelize = require('decamelize');
 
 const { serializeMembers, serializeMember } = require('../../serializers/members-serializer');
 const playerDao = require('./player-dao');
@@ -168,6 +169,33 @@ const deleteMember = async (memberId) => {
   }
 };
 
+const databaseName = string => (decamelize(string).toUpperCase());
+
+const isTruthyOrZero = val => (val || val === 0);
+
+const patchMember = async (memberId, attributes) => {
+  const connection = await conn.getConnection();
+  try {
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    if (_.isEmpty(filteredAttributes)) {
+      return true;
+    }
+    const joinedStringArray = _.map(filteredAttributes,
+      (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
+    const joinedString = _(joinedStringArray).compact().join(', ');
+    const sqlQuery = `
+    UPDATE MEMBERS
+    SET ${joinedString}
+    WHERE MEMBER_ID = :id
+    `;
+    filteredAttributes.id = memberId;
+    const response = await connection.execute(sqlQuery, filteredAttributes, { autoCommit: true });
+    return response.rowsAffected > 0;
+  } finally {
+    connection.close();
+  }
+};
+
 module.exports = {
   getMembers,
   getMemberById,
@@ -176,4 +204,5 @@ module.exports = {
   postMember,
   isMemberAlreadyRegistered,
   deleteMember,
+  patchMember,
 };

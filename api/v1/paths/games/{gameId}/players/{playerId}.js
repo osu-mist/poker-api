@@ -50,8 +50,11 @@ const del = async (req, res) => {
   }
 };
 
+const patch = () => {};
+
 
 get.apiDoc = paths['/games/{gameId}/players/{playerId}'].get;
 del.apiDoc = paths['/games/{gameId}/players/{playerId}'].del;
+patch.apiDoc = paths['/games/{gameId}/players/{playerId}'].patch;
 
-module.exports = { get, del };
+module.exports = { get, del, patch };

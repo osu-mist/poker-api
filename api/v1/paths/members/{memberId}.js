@@ -39,7 +39,30 @@ const del = async (req, res) => {
   }
 };
 
+/**
+ * @summary Patch member by unique id
+ */
+const patch = async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    if (memberId !== req.body.data.id) {
+      errorBuilder(res, 400, ['Member id in path does not match id in the body.']);
+    } else {
+      const result = await membersDao.patchMember(memberId, req.body.data.attributes);
+      if (!result) {
+        errorBuilder(res, 404, 'A member with the Id was not found.');
+      } else {
+        const updatedResult = await membersDao.getMemberById(memberId);
+        res.send(updatedResult);
+      }
+    }
+  } catch (err) {
+    errorHandler(res, err);
+  }
+};
+
 get.apiDoc = paths['/members/{memberId}'].get;
 del.apiDoc = paths['/members/{memberId}'].del;
+patch.apiDoc = paths['/members/{memberId}'].patch;
 
-module.exports = { get, del };
+module.exports = { get, del, patch };
