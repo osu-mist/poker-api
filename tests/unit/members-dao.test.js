@@ -1,18 +1,24 @@
 const appRoot = require('app-root-path');
 const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+const chaiExclude = require('chai-exclude');
 const config = require('config');
 const _ = require('lodash');
 const sinon = require('sinon');
+const proxyquire = require('proxyquire');
 
 sinon.replace(config, 'get', () => ({ oracledb: {} }));
 const conn = appRoot.require('api/v1/db/oracledb/connection');
-const membersDao = appRoot.require('api/v1/db/oracledb/member-dao');
-const membersSerializer = appRoot.require('api/v1/serializers/member-serializer');
+// const membersDao = appRoot.require('api/v1/db/oracledb/member-dao');
+const membersSerializer = appRoot.require('api/v1/serializers/members-serializer');
 
 chai.should();
+chai.use(chaiExclude);
+chai.use(chaiAsPromised);
 
 describe('Test members-dao', () => {
   const fakeId = 'fakeId';
+  let membersDao;
 
   const standardConnStub = () => {
     sinon.stub(conn, 'getConnection').resolves({
@@ -45,14 +51,23 @@ describe('Test members-dao', () => {
       close: () => null,
     });
   };
-});
+  afterEach(() => sinon.restore());
 
-afterEach(() => sinon.restore());
+  it('getMembers should return multiResult', () => {
+    standardConnStub();
+    const membersSerializerStub = sinon.stub(membersSerializer, 'serializeMembers');
+    membersSerializerStub.returnsArg(0);
 
-it('getMembers should return multiResult', () => {
-  standardConnStub();
-  const membersSerializerStub = sinon.stub(membersSerializer, 'serializeMembers');
-  membersSerializerStub.returnsArg(0);
+    membersDao = proxyquire(`${appRoot}/api/v1/db/oracledb/member-dao`,
+      {[`${appRoot}/api/v1/serializers/members-serializer`]: membersSerializerStub})
 
-
+    const expectedResult = [{}, {}];
+    const result = membersDao.getMembers();
+    return result.should
+      .eventually.be.fulfilled
+      .and.deep.equal(expectedResult)
+      .then(() => {
+        sinon.assert.callCount(membersSerializerStub, 1);
+      });
+  });
 });
