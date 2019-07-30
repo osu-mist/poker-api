@@ -175,7 +175,9 @@ const postPlayerByGameId = async (body, gameId) => {
 };
 
 const insertCardsByPlayerId = async (playerId, playerCards, connection) => {
-  const flattenedArray = _.flatten(_.map(playerCards, card => (_.values(card))));
+  const flattenedArray = _.flatten(_.map(playerCards,
+    card => (_.values(_(card).toPairs().sortBy(0).fromPairs()
+      .value()))));
   const individualSelection = [];
   for (let i = 0; i < _.size(flattenedArray); i += 2) {
     individualSelection.push(`(:${i}, :${i + 1})`);
@@ -212,9 +214,8 @@ const patchPlayer = async (playerId, attributes) => {
   try {
     const { playerCards } = attributes;
     delete attributes.playerCards;
-    /**
-     * Get the status ID of the playerStatus in request body.
-     */
+
+    //  Get the status ID of the playerStatus in request body.
     if (attributes.playerStatus) {
       const statusSqlQuery = `
       SELECT S.STATUS_ID FROM STATUSES S
@@ -226,9 +227,9 @@ const patchPlayer = async (playerId, attributes) => {
       delete attributes.playerStatus;
     }
 
-    /**
-     * When playerCards is empty, simply clean the card.
-     */
+
+    //  When playerCards is empty, simply clean the card.
+
     if (playerCards) {
       await cleanPlayerCardsByPlayerId(playerId, connection);
       if (!_.isEmpty(playerCards)) {
@@ -236,13 +237,12 @@ const patchPlayer = async (playerId, attributes) => {
       }
     }
 
-    /**
-     * Only pick the attributes that are truthy or zero.
-     */
+    //  Only pick the attributes that are truthy or zero.
+
     const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
-    /**
-     * If no attributes available, simply commit the changes to the database.
-     */
+
+    //  If no attributes available, simply commit the changes to the database.
+
     if (_.isEmpty(filteredAttributes)) {
       await connection.commit();
       return true;
