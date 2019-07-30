@@ -177,6 +177,9 @@ const patchMember = async (memberId, attributes) => {
   const connection = await conn.getConnection();
   try {
     const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    if (_.isEmpty(filteredAttributes)) {
+      return true;
+    }
     const joinedStringArray = _.map(filteredAttributes,
       (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
@@ -185,9 +188,6 @@ const patchMember = async (memberId, attributes) => {
     SET ${joinedString}
     WHERE MEMBER_ID = :id
     `;
-    if (_.isEmpty(filteredAttributes)) {
-      return true;
-    }
     filteredAttributes.id = memberId;
     const response = await connection.execute(sqlQuery, filteredAttributes, { autoCommit: true });
     return response.rowsAffected > 0;
