@@ -239,11 +239,17 @@ const patchGame = async (gameId, attributes) => {
     const { tableCards } = attributes;
     delete attributes.tableCards;
     attributes.round = attributes.round ? attributes.round[0].toUpperCase() : null;
-    if (!_.isEmpty(tableCards)) {
+    if (tableCards) {
       await cleanTableCardsByGameId(gameId, connection);
-      await insertCardsByGameId(gameId, tableCards, connection);
+      if (!_.isEmpty(tableCards)) {
+        await insertCardsByGameId(gameId, tableCards, connection);
+      }
     }
     const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    if (_.isEmpty(filteredAttributes)) {
+      await connection.commit();
+      return true;
+    }
     const joinedStringArray = _.map(filteredAttributes,
       (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
@@ -252,10 +258,6 @@ const patchGame = async (gameId, attributes) => {
     SET ${joinedString}
     WHERE GAME_ID = :id
     `;
-    if (_.isEmpty(filteredAttributes)) {
-      await connection.commit();
-      return true;
-    }
     filteredAttributes.id = gameId;
     const response = await connection.execute(patchSqlQuery,
       filteredAttributes,
