@@ -53,21 +53,27 @@ describe('Test members-dao', () => {
   };
   afterEach(() => sinon.restore());
 
-  it('getMembers should return multiResult', () => {
-    standardConnStub();
-    const membersSerializerStub = sinon.stub(membersSerializer, 'serializeMembers');
-    membersSerializerStub.returnsArg(0);
+  describe('Test getMembers', () =>{
+    it('getMembers should be fulfilled with multiResult', () => {
+      standardConnStub();
+      const membersSerializerStub = sinon.stub(membersSerializer, 'serializeMembers');
+      membersSerializerStub.returnsArg(0);
 
-    membersDao = proxyquire(`${appRoot}/api/v1/db/oracledb/member-dao`,
-      {[`${appRoot}/api/v1/serializers/members-serializer`]: membersSerializerStub})
+      membersDao = proxyquire(`${appRoot}/api/v1/db/oracledb/member-dao`,
+        {[`${appRoot}/api/v1/serializers/members-serializer`]: membersSerializerStub})
 
-    const expectedResult = [{}, {}];
-    const result = membersDao.getMembers();
-    return result.should
-      .eventually.be.fulfilled
-      .and.deep.equal(expectedResult)
-      .then(() => {
-        sinon.assert.callCount(membersSerializerStub, 1);
-      });
+      const expectedResult = [{}, {}];
+      const result = membersDao.getMembers();
+      return result.should
+        .eventually.be.fulfilled
+        .and.deep.equal(expectedResult)
+        .then(() => {
+          sinon.assert.callCount(membersSerializerStub, 1);
+        });
+    });
+  });
+
+  describe('Test getMembersById', () => {
+
   });
 });
