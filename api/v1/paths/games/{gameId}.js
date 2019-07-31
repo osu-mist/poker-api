@@ -42,7 +42,6 @@ const del = async (req, res) => {
 /**
  * @summary Patch game by unique ID.
  */
-
 const patch = async (req, res) => {
   try {
     const { gameId } = req.params;

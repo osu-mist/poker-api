@@ -181,7 +181,16 @@ const cleanTableCardsByGameId = async (gameId, connection) => {
 
 
 const insertCardsByGameId = async (gameId, tableCards, connection) => {
-  const flattenedArray = _.flatten(_.map(tableCards, card => (_.values(card))));
+  /*
+   * The code below flattens the array of suit-number pair of every single card object of
+   * tableCards. The flattened array will be used to generate bind strings so only one
+   * database call is needed to insert all the cards in the tableCards array.
+   */
+  const flattenedArray = _.reduce(tableCards, (result, card) => {
+    result.push(card.cardNumber);
+    result.push(card.cardSuit);
+    return result;
+  }, []);
   const individualSelection = [];
   for (let i = 0; i < _.size(flattenedArray); i += 2) {
     individualSelection.push(`(:${i}, :${i + 1})`);
@@ -193,8 +202,10 @@ const insertCardsByGameId = async (gameId, tableCards, connection) => {
   INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
   WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`;
   const cardIdResult = await connection.execute(getIdSqlQuery, flattenedArray);
-  const cardIds = _.flatten(_.map(cardIdResult.rows, card => card.CARD_ID));
-  const insertBindString = cardIds.map((name, index) => `INTO TABLE_CARDS (GAME_ID, CARD_ID) VALUES (:gameId, :${index})`).join('\n');
+  const cardIds = _.map(cardIdResult.rows, card => card.CARD_ID);
+
+  const insertBindString = _.map(cardIds,
+    (name, index) => `INTO TABLE_CARDS (GAME_ID, CARD_ID) VALUES (:gameId, :${index})`).join('\n');
   const insertSqlQuery = `
   INSERT ALL
     ${insertBindString}
@@ -236,25 +247,28 @@ const isTruthyOrZero = val => (val || val === 0);
 const patchGame = async (gameId, attributes) => {
   const connection = await conn.getConnection();
   try {
-    const tableCards = { attributes };
+    const { tableCards } = attributes;
     delete attributes.tableCards;
     attributes.round = attributes.round ? attributes.round[0].toUpperCase() : null;
-    if (!_.isEmpty(tableCards)) {
+    if (tableCards) {
       await cleanTableCardsByGameId(gameId, connection);
-      await insertCardsByGameId(gameId, tableCards, connection);
+      if (!_.isEmpty(tableCards)) {
+        await insertCardsByGameId(gameId, tableCards, connection);
+      }
     }
-    const joinedStringArray = _.map(attributes, (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    if (_.isEmpty(filteredAttributes)) {
+      await connection.commit();
+      return true;
+    }
+    const joinedStringArray = _.map(filteredAttributes,
+      (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const patchSqlQuery = `
     UPDATE GAMES
     SET ${joinedString}
     WHERE GAME_ID = :id
     `;
-    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
-    if (_.isEmpty(filteredAttributes)) {
-      await connection.commit();
-      return true;
-    }
     filteredAttributes.id = gameId;
     const response = await connection.execute(patchSqlQuery,
       filteredAttributes,
