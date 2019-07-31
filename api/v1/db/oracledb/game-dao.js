@@ -179,6 +179,7 @@ const cleanTableCardsByGameId = async (gameId, connection) => {
   await connection.execute(cleanCardSqlQuery, sqlParams);
 };
 
+
 const insertCardsByGameId = async (gameId, tableCards, connection) => {
   /*
    * The code below flattens the array of suit-number pair of every single card object of
