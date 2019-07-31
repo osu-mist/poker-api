@@ -39,7 +39,28 @@ const del = async (req, res) => {
   }
 };
 
-const patch = () => {};
+/**
+ * @summary Patch game by unique ID.
+ */
+
+const patch = async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    if (gameId !== req.body.data.id) {
+      errorBuilder(res, 400, ['Game id in path does not match id in body.']);
+    } else {
+      const result = await gameDao.patchGame(gameId, req.body.data.attributes);
+      if (result.rowsAffected < 1) {
+        errorBuilder(res, 404, 'A game with the specified ID was not found.');
+      } else {
+        const updatedResult = await gameDao.getGameById(gameId);
+        res.send(updatedResult);
+      }
+    }
+  } catch (err) {
+    errorHandler(res, err);
+  }
+};
 
 get.apiDoc = paths['/games/{gameId}'].get;
 del.apiDoc = paths['/games/{gameId}'].del;
