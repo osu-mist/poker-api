@@ -204,4 +204,5 @@ module.exports = {
   isMemberAlreadyRegistered,
   deleteMember,
   patchMember,
+  isTruthyOrZero,
 };
