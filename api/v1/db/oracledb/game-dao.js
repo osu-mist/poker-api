@@ -180,7 +180,7 @@ const cleanTableCardsByGameId = async (gameId, connection) => {
 };
 
 const insertCardsByGameId = async (gameId, tableCards, connection) => {
-  /**
+  /*
    * The code below flattens the array of suit-number pair of every single card object of
    * tableCards. The flattened array will be used to generate bind strings so only one
    * database call is needed to insert all the cards in the tableCards array.
