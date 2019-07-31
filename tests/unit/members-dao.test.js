@@ -40,7 +40,7 @@ describe('Test members-dao', () => {
         let result;
         if (sql.includes('DELETE')) {
           result = sqlResults.emptyResult;
-        } else if ('memberId' in sqlParams) {
+        } else if (sql.includes('MEMBER_ID = ')) {
           result = sqlResults.singleResult;
         } else {
           result = sqlResults.multiResults;
@@ -59,7 +59,7 @@ describe('Test members-dao', () => {
       membersSerializerStub.returnsArg(0);
 
       membersDao = proxyquire(`${appRoot}/api/v1/db/oracledb/member-dao`,
-        {[`${appRoot}/api/v1/serializers/members-serializer`]: membersSerializerStub})
+        {[`${appRoot}/api/v1/serializers/members-serializer`]: membersSerializerStub});
 
       const expectedResult = [{}, {}];
       const result = membersDao.getMembers();
@@ -73,6 +73,26 @@ describe('Test members-dao', () => {
   });
 
   describe('Test getMembersById', () => {
+    it('getMemberById should be fulfilled with singleResult', () => {
+      standardConnStub();
+      const membersSerializerStub = sinon.stub(membersSerializer, 'serializeMember');
+      membersSerializerStub.returnsArg(0);
 
+      membersDao = proxyquire(`${appRoot}/api/v1/db/oracledb/member-dao`,
+        {[`${appRoot}/api/v1/serializers/members-serializer`]: membersSerializerStub});
+
+      const expectedResult = {};
+      const result = membersDao.getMemberById(fakeId);
+      return result.should
+        .eventually.be.fulfilled
+        .and.deep.equal(expectedResult)
+        .then(() => {
+          sinon.assert.callCount(membersSerializerStub, 1);
+        });
+    });
+
+    it('getMemberId should be rejected when multiple values are returned', () => {
+
+    });
   });
 });
