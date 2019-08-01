@@ -7,10 +7,15 @@ const _ = require('lodash');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const { createConnStub } = require('./test-util');
-const { fakeId, fakeMemberPostBody } = require('./test-data');
+const {
+  fakeId,
+  fakeMemberPostBody,
+  fakeEmail,
+  fakeName,
+  fakeMemberPatchBody,
+} = require('./test-data');
 
 sinon.replace(config, 'get', () => ({ oracledb: {} }));
-const conn = appRoot.require('api/v1/db/oracledb/connection');
 const membersSerializer = appRoot.require('api/v1/serializers/members-serializer');
 
 chai.should();
@@ -51,6 +56,18 @@ describe('Test members-dao', () => {
         rows: [],
       },
       description: 'empty result',
+    },
+    rowEffectedOneResult: {
+      data: {
+        rowsAffected: 1,
+      },
+      description: 'One row affected.',
+    },
+    rowEffectZeroResult: {
+      data: {
+        rowsAffected: 0,
+      },
+      description: 'No row affected.',
     },
   };
 
@@ -154,6 +171,47 @@ describe('Test members-dao', () => {
     });
   });
 
+  describe('Test isMemberAlreadyRegistered', () => {
+    it('The function should be rejected when the database response does not contain COUNT(1) field', () => {
+      const testCase = testCases.emptyResult;
+
+      createConnStub(testCase);
+      const result = membersDao.isMemberAlreadyRegistered(fakeName, fakeEmail);
+      return result.should.eventually.be.rejected
+        .and.be.an.instanceOf(TypeError);
+    });
+  });
+
+  describe('Test databaseName', () => {
+    it('Should return expected name for database schema', () => {
+      const paramAndResult = [
+        {
+          param: 'abc',
+          result: 'ABC',
+        },
+        {
+          param: 'abcDef',
+          result: 'ABC_DEF',
+        },
+        {
+          param: 'abcDefJsk',
+          result: 'ABC_DEF_JSK',
+        },
+        {
+          param: 'ABCHH',
+          result: 'ABCHH',
+        },
+        {
+          param: 'AbChC',
+          result: 'AB_CH_C',
+        },
+      ];
+      _.forEach(paramAndResult, (item) => {
+        assert.strictEqual(membersDao.databaseName(item.param), item.result);
+      });
+    });
+  });
+
   describe('Test isTruthyOrZero', () => {
     it('Return false for Falsey values (exluding 0)', () => {
       const falseyList = [
@@ -207,7 +265,7 @@ describe('Test members-dao', () => {
       const result = membersDao.postMember(fakeMemberPostBody);
       return result.should
         .eventually.be.fulfilled
-        .and.deep.equal({});
+        .and.deep.equal(expectedResult);
     });
 
     it('Should be rejected when there are no OutId in the result field', () => {
@@ -217,6 +275,75 @@ describe('Test members-dao', () => {
       return result.should
         .eventually.be.rejected
         .and.be.an.instanceOf(TypeError);
+    });
+  });
+
+  describe('Test deleteMember', () => {
+    const validTestCases = [
+      testCases.singleResult,
+      testCases.emptyResult,
+    ];
+    _.forEach(validTestCases, (testCase) => {
+      it(`deleteMember should be fulfilled with ${testCase.description}`, () => {
+        createConnStub(testCase);
+
+        const expectedResult = testCase.data;
+        const result = membersDao.deleteMember(fakeId);
+        return result.should
+          .eventually.be.fulfilled
+          .and.deep.equal(expectedResult)
+          .then(() => {
+
+          });
+      });
+    });
+  });
+
+  describe('Test patchMember', () => {
+    const validFalseTestCases = [
+      testCases.singleResult,
+      testCases.emptyResult,
+      testCases.rowEffectZeroResult,
+    ];
+
+    it('Empty body should be fulfilled while the execute function from conn object is not called at all', () => {
+      const connStub = createConnStub();
+
+      const result = membersDao.patchMember(fakeId, {});
+      return result.should
+        .eventually.be.fulfilled
+        .and.equal(true)
+        .then(() => {
+          sinon.assert.callCount(connStub.executeStub, 0);
+        });
+    });
+
+    _.forEach(validFalseTestCases, (testCase) => {
+      it(`patchMember should be fulfilled with ${testCase.description} and return false`, () => {
+        createConnStub(testCase);
+
+        const expectedResult = false;
+        const result = membersDao.patchMember(fakeId, fakeMemberPatchBody);
+        return result.should
+          .eventually.be.fulfilled
+          .and.deep.equal(expectedResult)
+          .then(() => {
+
+          });
+      });
+    });
+
+    it('patchMember should be fulfilled with one row effected result and return true', () => {
+      createConnStub(testCases.rowEffectedOneResult);
+
+      const expectedResult = true;
+      const result = membersDao.patchMember(fakeId, fakeMemberPatchBody);
+      return result.should
+        .eventually.be.fulfilled
+        .and.deep.equal(expectedResult)
+        .then(() => {
+
+        });
     });
   });
 });

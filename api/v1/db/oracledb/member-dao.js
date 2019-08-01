@@ -205,4 +205,5 @@ module.exports = {
   deleteMember,
   patchMember,
   isTruthyOrZero,
+  databaseName,
 };
