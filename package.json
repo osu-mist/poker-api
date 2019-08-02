@@ -24,9 +24,11 @@
   "dependencies": {
     "app-root-path": "^2.1.0",
     "body-parser": "^1.18.3",
+    "camelcase": "^5.3.1",
     "capitalize": "^2.0.0",
     "chai-as-promised": "^7.1.1",
     "chai-exclude": "^2.0.2",
+    "chai-subset": "^1.6.0",
     "compose-middleware": "^5.0.1",
     "config": "^2.0.1",
     "deasync": "^0.1.14",
