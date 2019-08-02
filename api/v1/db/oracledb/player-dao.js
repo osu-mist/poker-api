@@ -175,7 +175,11 @@ const postPlayerByGameId = async (body, gameId) => {
 };
 
 const insertCardsByPlayerId = async (playerId, playerCards, connection) => {
-  const flattenedArray = _.flatten(_.map(playerCards, card => (_.values(card))));
+  const flattenedArray = _.reduce(playerCards, (result, card) => {
+    result.push(card.cardNumber);
+    result.push(card.cardSuit);
+    return result;
+  }, []);
   const individualSelection = [];
   for (let i = 0; i < _.size(flattenedArray); i += 2) {
     individualSelection.push(`(:${i}, :${i + 1})`);
@@ -187,9 +191,10 @@ const insertCardsByPlayerId = async (playerId, playerCards, connection) => {
   INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
   WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`;
   const cardIdResult = await connection.execute(getIdSqlQuery, flattenedArray);
-  const cardIds = _.flatten(_.map(cardIdResult.rows, card => card.CARD_ID));
+  const cardIds = _.map(cardIdResult.rows, card => card.CARD_ID);
 
-  const insertBindString = cardIds.map((name, index) => `INTO PLAYER_CARDS (PLAYER_ID, CARD_ID) VALUES (:playerId, :${index})`).join('\n');
+  const insertBindString = cardIds.map((name, index) => `INTO PLAYER_CARDS (PLAYER_ID, CARD_ID)
+  VALUES (:playerId, :${index})`).join('\n');
   const insertSqlQuery = `
   INSERT ALL
     ${insertBindString}
@@ -211,6 +216,8 @@ const patchPlayer = async (playerId, attributes) => {
   try {
     const { playerCards } = attributes;
     delete attributes.playerCards;
+
+    //  Get the status ID of the playerStatus in request body.
     if (attributes.playerStatus) {
       const statusSqlQuery = `
       SELECT S.STATUS_ID FROM STATUSES S
@@ -222,22 +229,34 @@ const patchPlayer = async (playerId, attributes) => {
       delete attributes.playerStatus;
     }
 
-    if (!_.isEmpty(playerCards)) {
+
+    //  When playerCards is empty, simply clean the card.
+
+    if (playerCards) {
       await cleanPlayerCardsByPlayerId(playerId, connection);
-      await insertCardsByPlayerId(playerId, playerCards, connection);
+      if (!_.isEmpty(playerCards)) {
+        await insertCardsByPlayerId(playerId, playerCards, connection);
+      }
     }
-    const joinedStringArray = _.map(attributes, (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
+
+    //  Only pick the attributes that are truthy or zero.
+
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+
+    //  If no attributes available, simply commit the changes to the database.
+
+    if (_.isEmpty(filteredAttributes)) {
+      await connection.commit();
+      return true;
+    }
+    const joinedStringArray = _.map(filteredAttributes,
+      (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const patchSqlQuery = `
     UPDATE PLAYERS
     SET ${joinedString}
     WHERE PLAYER_ID = :id
     `;
-    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
-    if (_.isEmpty(filteredAttributes)) {
-      await connection.commit();
-      return true;
-    }
     filteredAttributes.id = playerId;
     const response = await connection.execute(patchSqlQuery,
       filteredAttributes,

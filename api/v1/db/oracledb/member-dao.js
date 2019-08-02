@@ -135,8 +135,6 @@ const postMember = async (body) => {
 
 const hasDuplicateMemberId = memberIds => (!(_.size(_.uniq(memberIds)) === _.size(memberIds)));
 
-const isTruthyOrZero = val => (val || val === 0);
-
 const isMemberAlreadyRegistered = async (nickname, email) => {
   const connection = await conn.getConnection();
   try {
@@ -173,20 +171,23 @@ const deleteMember = async (memberId) => {
 
 const databaseName = string => (decamelize(string).toUpperCase());
 
+const isTruthyOrZero = val => (val || val === 0);
+
 const patchMember = async (memberId, attributes) => {
   const connection = await conn.getConnection();
   try {
-    const joinedStringArray = _.map(attributes, (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
+    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
+    if (_.isEmpty(filteredAttributes)) {
+      return true;
+    }
+    const joinedStringArray = _.map(filteredAttributes,
+      (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const sqlQuery = `
     UPDATE MEMBERS
     SET ${joinedString}
     WHERE MEMBER_ID = :id
     `;
-    const filteredAttributes = _.pickBy(attributes, isTruthyOrZero);
-    if (_.isEmpty(filteredAttributes)) {
-      return true;
-    }
     filteredAttributes.id = memberId;
     const response = await connection.execute(sqlQuery, filteredAttributes, { autoCommit: true });
     return response.rowsAffected > 0;
