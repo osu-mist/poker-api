@@ -25,16 +25,16 @@ describe('Test games-dao', () => {
   } = testData;
 
   beforeEach(() => {
-    const gamesSerializerStub = sinon.stub(gamesSerializer, 'serializeGames');
-    const gameSerializerStub = sinon.stub(gamesSerializer, 'serializeGame');
-    gamesSerializerStub.returnsArg(0);
-    gameSerializerStub.returnsArg(0);
+    const serializeGamesStub = sinon.stub(gamesSerializer, 'serializeGames');
+    const serializeGameStub = sinon.stub(gamesSerializer, 'serializeGame');
+    serializeGamesStub.returnsArg(0);
+    serializeGameStub.returnsArg(0);
 
     gamesDao = proxyquire(`${appRoot}/api/v1/db/oracledb/game-dao`,
       {
         [`${appRoot}/api/v1/serializers/games-serializer`]: {
-          serializeGame: gameSerializerStub,
-          serializeGames: gamesSerializerStub,
+          serializeGame: serializeGameStub,
+          serializeGames: serializeGamesStub,
         },
       });
   });

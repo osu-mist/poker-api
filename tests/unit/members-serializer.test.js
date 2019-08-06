@@ -20,7 +20,7 @@ chai.should();
 chai.use(chaiAsPromised);
 chai.use(chaiSubset);
 
-describe('Test members-serializer', () => {
+describe('Test memberSerializer', () => {
   const { rawMembers } = testData;
   const resourceType = 'member';
   const id = 'MEMBER_ID';
@@ -36,19 +36,13 @@ describe('Test members-serializer', () => {
       rawMembers[0][id],
       _.omit(rawMembers[0], id));
   });
+  describe('Test membersSerializer', () => {
+    it('Should return an array of valid JSON objects that follow the OpenAPI specification', () => {
+      sinon.replace(config, 'get', () => ({ oracledb: {} }));
+      const { serializeMembers } = memberSerializer;
 
-  it('Should return an array of valid JSON objects that follow the OpenAPI specification', () => {
-    sinon.replace(config, 'get', () => ({ oracledb: {} }));
-    const { serializeMembers } = memberSerializer;
-
-    const serializedMembers = serializeMembers(rawMembers, testData.fakeMemberQuery);
-    testMultipleResources(serializedMembers);
-
-    for (let i = 0; i < serializedMembers.length; i += 1) {
-      testSingleResource(serializedMembers[i],
-        resourceType,
-        rawMembers[i][id],
-        _.omit(rawMembers[i], id));
-    }
+      const serializedMembers = serializeMembers(rawMembers, testData.fakeMemberQuery);
+      testMultipleResources(serializedMembers, rawMembers, resourceType);
+    });
   });
 });

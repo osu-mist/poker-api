@@ -38,11 +38,13 @@ describe('Test members-dao', () => {
     _.forEach(validTestCases, (testCase) => {
       it(`getMembers should be fulfilled with ${testCase.description}`, () => {
         createConnStub(testCase);
-        const membersSerializerStub = sinon.stub(membersSerializer, 'serializeMembers');
-        membersSerializerStub.returnsArg(0);
+        const serializeMembersStub = sinon.stub(membersSerializer, 'serializeMembers');
+        serializeMembersStub.returnsArg(0);
 
         membersDao = proxyquire(`${appRoot}/api/v1/db/oracledb/member-dao`,
-          { [`${appRoot}/api/v1/serializers/members-serializer`]: membersSerializerStub });
+          {
+            [`${appRoot}/api/v1/serializers/members-serializer`]: { serializeMembers: serializeMembersStub },
+          });
 
         const expectedResult = testCase.data.rows;
         const result = membersDao.getMembers();
@@ -50,7 +52,7 @@ describe('Test members-dao', () => {
           .eventually.be.fulfilled
           .and.deep.equal(expectedResult)
           .then(() => {
-            sinon.assert.callCount(membersSerializerStub, 1);
+            sinon.assert.callCount(serializeMembersStub, 1);
           });
       });
     });
@@ -64,18 +66,20 @@ describe('Test members-dao', () => {
     _.forEach(validTestCases, (testCase) => {
       it(`getMemberById should be fulfilled with ${testCase.description}`, () => {
         createConnStub(testCase);
-        const membersSerializerStub = sinon.stub(membersSerializer, 'serializeMember');
-        membersSerializerStub.returnsArg(0);
+        const serializeMembersStub = sinon.stub(membersSerializer, 'serializeMember');
+        serializeMembersStub.returnsArg(0);
 
         membersDao = proxyquire(`${appRoot}/api/v1/db/oracledb/member-dao`,
-          { [`${appRoot}/api/v1/serializers/members-serializer`]: membersSerializerStub });
+          {
+            [`${appRoot}/api/v1/serializers/members-serializer`]: { serializeMembers: serializeMembersStub },
+          });
         const [expectedResult] = testCase.data.rows;
         const result = membersDao.getMemberById(fakeId);
         return result.should
           .eventually.be.fulfilled
           .and.deep.equal(expectedResult)
           .then(() => {
-            sinon.assert.callCount(membersSerializerStub, expectedResult ? 1 : 0);
+            sinon.assert.callCount(serializeMembersStub, expectedResult ? 1 : 0);
           });
       });
     });
@@ -247,10 +251,7 @@ describe('Test members-dao', () => {
         const result = membersDao.deleteMember(fakeId);
         return result.should
           .eventually.be.fulfilled
-          .and.deep.equal(expectedResult)
-          .then(() => {
-
-          });
+          .and.deep.equal(expectedResult);
       });
     });
   });
@@ -282,10 +283,7 @@ describe('Test members-dao', () => {
         const result = membersDao.patchMember(fakeId, fakeMemberPatchBody);
         return result.should
           .eventually.be.fulfilled
-          .and.deep.equal(expectedResult)
-          .then(() => {
-
-          });
+          .and.deep.equal(expectedResult);
       });
     });
 
@@ -296,10 +294,7 @@ describe('Test members-dao', () => {
       const result = membersDao.patchMember(fakeId, fakeMemberPatchBody);
       return result.should
         .eventually.be.fulfilled
-        .and.deep.equal(expectedResult)
-        .then(() => {
-
-        });
+        .and.deep.equal(expectedResult);
     });
   });
 });

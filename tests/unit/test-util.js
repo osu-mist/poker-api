@@ -5,7 +5,7 @@ const camelCase = require('camelcase');
 const _ = require('lodash');
 const config = require('config');
 
-sinon.replace(config, 'get', () => ({ oracledb: {} }));
+sinon.stub(config, 'get').returns({ oracledb: {} });
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 const { openapi } = appRoot.require('utils/load-openapi');
 const { fakeBaseUrl } = require('./test-data');
@@ -49,15 +49,20 @@ const getDefinition = (def) => {
 };
 
 const testSingleResource = (serializedResource, resourceType, resourceId, nestedProps) => {
-  expect(serializedResource).to.containSubset(resourceSchema(resourceType,
+  expect(serializedResource).to.deep.equal(resourceSchema(resourceType,
     resourceId,
     nestedProps));
 };
 
-const testMultipleResources = (serializedResources) => {
+const testMultipleResources = (serializedResources, rawResources, resourceType) => {
   expect(serializedResources).to.have.all.keys('data', 'links');
   expect(serializedResources.data).to.be.an('array');
-  getDefinition('MemberResult');
+  for (let i = 0; i < serializedResources.length; i += 1) {
+    testSingleResource(serializedResources[i],
+      resourceType,
+      rawResources[i].id,
+      _.omit(rawResources[i], 'id'));
+  }
 };
 
 
