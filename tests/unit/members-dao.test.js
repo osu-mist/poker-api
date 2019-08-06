@@ -2,7 +2,6 @@ const appRoot = require('app-root-path');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const chaiExclude = require('chai-exclude');
-const config = require('config');
 const _ = require('lodash');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
@@ -13,9 +12,10 @@ const {
   fakeEmail,
   fakeName,
   fakeMemberPatchBody,
+  testCases,
 } = require('./test-data');
 
-sinon.replace(config, 'get', () => ({ oracledb: {} }));
+// sinon.replace(config, 'get', () => ({ oracledb: {} }));
 const membersSerializer = appRoot.require('api/v1/serializers/members-serializer');
 
 chai.should();
@@ -26,50 +26,6 @@ const { assert } = chai;
 describe('Test members-dao', () => {
   let membersDao;
 
-  const testCases = {
-    singleResult: {
-      data: {
-        rows: [{}],
-      },
-      description: 'single result',
-    },
-    singleResultWithOutId: {
-      data: {
-        rows: [{}],
-        outBinds: {
-          outId: [1],
-        },
-      },
-      description: 'single result with OutId',
-    },
-    multiResult: {
-      data: {
-        rows: [{}, {}],
-        outBinds: {
-          outId: [1],
-        },
-      },
-      description: 'multiple result',
-    },
-    emptyResult: {
-      data: {
-        rows: [],
-      },
-      description: 'empty result',
-    },
-    rowEffectedOneResult: {
-      data: {
-        rowsAffected: 1,
-      },
-      description: 'One row affected.',
-    },
-    rowEffectZeroResult: {
-      data: {
-        rowsAffected: 0,
-      },
-      description: 'No row affected.',
-    },
-  };
 
   afterEach(() => sinon.restore());
 

@@ -3,7 +3,9 @@ const { expect } = require('chai');
 const appRoot = require('app-root-path');
 const camelCase = require('camelcase');
 const _ = require('lodash');
+const config = require('config');
 
+sinon.replace(config, 'get', () => ({ oracledb: {} }));
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 const { openapi } = appRoot.require('utils/load-openapi');
 const { fakeBaseUrl } = require('./test-data');

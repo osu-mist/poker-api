@@ -3,7 +3,12 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const chaiSubset = require('chai-subset');
 const _ = require('lodash');
+const sinon = require('sinon');
+const config = require('config');
 const testData = require('./test-data');
+
+sinon.restore();
+
 const {
   testSingleResource,
   testMultipleResources,
@@ -20,7 +25,10 @@ describe('Test members-serializer', () => {
   const resourceType = 'member';
   const id = 'MEMBER_ID';
 
+  afterEach(() => sinon.restore());
+
   it('Should return a valid JSON object that follow the OpenAPI specification', () => {
+    sinon.replace(config, 'get', () => ({ oracledb: {} }));
     const { serializeMember } = memberSerializer;
     const serializedMember = serializeMember(rawMembers[0]);
     testSingleResource(serializedMember,
@@ -30,6 +38,7 @@ describe('Test members-serializer', () => {
   });
 
   it('Should return an array of valid JSON objects that follow the OpenAPI specification', () => {
+    sinon.replace(config, 'get', () => ({ oracledb: {} }));
     const { serializeMembers } = memberSerializer;
 
     const serializedMembers = serializeMembers(rawMembers, testData.fakeMemberQuery);

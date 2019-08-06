@@ -1,3 +1,57 @@
+const testCases = {
+  singleResult: {
+    data: {
+      rows: [{}],
+    },
+    description: 'single result',
+  },
+  singleResultWithOutId: {
+    data: {
+      rows: [{}],
+      outBinds: {
+        outId: [1],
+      },
+    },
+    description: 'single result with OutId',
+  },
+  multiResult: {
+    data: {
+      rows: [{}, {}],
+      outBinds: {
+        outId: [1],
+      },
+    },
+    description: 'multiple result',
+  },
+  multiGameResult: {
+    data: {
+      rows: [{
+        GAME_ID: 1,
+      }, {
+        GAME_ID: 2,
+      }],
+    },
+  },
+  emptyResult: {
+    data: {
+      rows: [],
+    },
+    description: 'empty result',
+  },
+  rowEffectedOneResult: {
+    data: {
+      rowsAffected: 1,
+    },
+    description: 'One row affected.',
+  },
+  rowEffectZeroResult: {
+    data: {
+      rowsAffected: 0,
+    },
+    description: 'No row affected.',
+  },
+};
+
 const fakeId = 'fakeId';
 const fakeBaseUrl = 'v1';
 const fakeName = 'Sam';
@@ -9,6 +63,24 @@ const fakeMemberPostBody = {
       memberNickname: 'Jack',
       memberEmail: 'abc@efg.com',
       memberPassword: 'hunter2',
+    },
+  },
+};
+const fakeGamePostBody = {
+  data: {
+    id: 'string',
+    type: 'game',
+    attributes: {
+      round: 'blind',
+      minimumBet: 1000,
+      maximumBet: 2000,
+      betPool: 0,
+      tableCards: [
+        {
+          cardNumber: 'A',
+          cardSuit: 'diamonds',
+        },
+      ],
     },
   },
 };
@@ -60,4 +132,6 @@ module.exports = {
   rawMembers,
   fakeBaseUrl,
   fakeMemberQuery,
+  testCases,
+  fakeGamePostBody,
 };
