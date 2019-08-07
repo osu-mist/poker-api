@@ -49,20 +49,23 @@ const getDefinition = (def) => {
 };
 
 const testSingleResource = (serializedResource, resourceType, resourceId, nestedProps) => {
+  console.log(serializedResource);
+  console.log(resourceSchema(resourceType,
+    resourceId,
+    nestedProps));
   expect(serializedResource).to.deep.equal(resourceSchema(resourceType,
     resourceId,
     nestedProps));
 };
 
-const testMultipleResources = (serializedResources, rawResources, resourceType) => {
+const testMultipleResources = (serializedResources, rawResources, resourceType, resourceKey) => {
   expect(serializedResources).to.have.all.keys('data', 'links');
   expect(serializedResources.data).to.be.an('array');
-  for (let i = 0; i < serializedResources.length; i += 1) {
-    testSingleResource(serializedResources[i],
-      resourceType,
-      rawResources[i].id,
-      _.omit(rawResources[i], 'id'));
-  }
+  _.zipWith(serializedResources.data, rawResources, (a, b) => {
+    expect(a).to.deep.equal(resourceSchema(resourceType,
+      b[resourceKey],
+      _.omit(b, resourceKey)).data);
+  });
 };
 
 

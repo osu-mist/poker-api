@@ -42,7 +42,7 @@ describe('Test memberSerializer', () => {
       const { serializeMembers } = memberSerializer;
 
       const serializedMembers = serializeMembers(rawMembers, testData.fakeMemberQuery);
-      testMultipleResources(serializedMembers, rawMembers, resourceType);
+      testMultipleResources(serializedMembers, rawMembers, resourceType, id);
     });
   });
 });
