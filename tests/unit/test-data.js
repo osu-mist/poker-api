@@ -136,7 +136,171 @@ const rawMembers = [{
   MEMBER_LEVEL: '2',
   MEMBER_EXP_OVER_LEVEL: '0',
 }];
+const rawGames = [{
+  CARD_NUMBER: '2',
+  SUIT: 'spades',
+  GAME_ID: '1',
+  ROUND: 'blind',
+  MAXIMUM_BET: '200',
+  MINIMUM_BET: '100',
+  BET_POOL: '1000',
+},
+{
+  CARD_NUMBER: '8',
+  SUIT: 'diamonds',
+  GAME_ID: '2',
+  ROUND: 'river',
+  MAXIMUM_BET: '2000',
+  MINIMUM_BET: '1000',
+  BET_POOL: '104000',
+},
+{
+  CARD_NUMBER: '9',
+  SUIT: 'diamonds',
+  GAME_ID: '2',
+  ROUND: 'river',
+  MAXIMUM_BET: '2000',
+  MINIMUM_BET: '1000',
+  BET_POOL: '104000',
+},
+{
+  CARD_NUMBER: '10',
+  SUIT: 'diamonds',
+  GAME_ID: '2',
+  ROUND: 'river',
+  MAXIMUM_BET: '2000',
+  MINIMUM_BET: '1000',
+  BET_POOL: '104000',
+},
+{
+  CARD_NUMBER: 'J',
+  SUIT: 'diamonds',
+  GAME_ID: '2',
+  ROUND: 'river',
+  MAXIMUM_BET: '2000',
+  MINIMUM_BET: '1000',
+  BET_POOL: '104000',
+},
+{
+  CARD_NUMBER: 'Q',
+  SUIT: 'diamonds',
+  GAME_ID: '2',
+  ROUND: 'river',
+  MAXIMUM_BET: '2000',
+  MINIMUM_BET: '1000',
+  BET_POOL: '104000',
+},
+{
+  CARD_NUMBER: null,
+  SUIT: null,
+  GAME_ID: '3',
+  ROUND: 'river',
+  MAXIMUM_BET: '20000',
+  MINIMUM_BET: '10000',
+  BET_POOL: '1040000',
+}];
 
+const mergedRawGames = [{
+  CARD_NUMBER: '2',
+  SUIT: 'spades',
+  GAME_ID: '1',
+  ROUND: 'blind',
+  MAXIMUM_BET: '200',
+  MINIMUM_BET: '100',
+  BET_POOL: '1000',
+  tableCards: [{ cardNumber: '2', cardSuit: 'spades' }],
+},
+{
+  CARD_NUMBER: '8',
+  SUIT: 'diamonds',
+  GAME_ID: '2',
+  ROUND: 'river',
+  MAXIMUM_BET: '2000',
+  MINIMUM_BET: '1000',
+  BET_POOL: '104000',
+  tableCards:
+ [{ cardNumber: '8', cardSuit: 'diamonds' },
+   { cardNumber: '9', cardSuit: 'diamonds' },
+   { cardNumber: '10', cardSuit: 'diamonds' },
+   { cardNumber: 'J', cardSuit: 'diamonds' },
+   { cardNumber: 'Q', cardSuit: 'diamonds' }],
+},
+{
+  CARD_NUMBER: null,
+  SUIT: null,
+  GAME_ID: '3',
+  ROUND: 'river',
+  MAXIMUM_BET: '20000',
+  MINIMUM_BET: '10000',
+  BET_POOL: '1040000',
+  tableCards: [],
+}];
+
+const serializedGames = {
+  links: { self: '/v1/games' },
+  data:
+ [{
+   type: 'game',
+   id: '1',
+   links: { self: '/v1/games/1' },
+   attributes:
+      {
+        round: 'blind',
+        minimumBet: 100,
+        maximumBet: 200,
+        betPool: 1000,
+        tableCards: [{ cardNumber: '2', cardSuit: 'spades' }],
+      },
+ },
+ {
+   type: 'game',
+   id: '2',
+   links: { self: '/v1/games/2' },
+   attributes:
+      {
+        round: 'river',
+        minimumBet: 1000,
+        maximumBet: 2000,
+        betPool: 104000,
+        tableCards:
+         [{ cardNumber: '8', cardSuit: 'diamonds' },
+           { cardNumber: '9', cardSuit: 'diamonds' },
+           { cardNumber: '10', cardSuit: 'diamonds' },
+           { cardNumber: 'J', cardSuit: 'diamonds' },
+           { cardNumber: 'Q', cardSuit: 'diamonds' }],
+      },
+ },
+ {
+   type: 'game',
+   id: '3',
+   links: { self: '/v1/games/3' },
+   attributes:
+      {
+        round: 'river',
+        minimumBet: 10000,
+        maximumBet: 20000,
+        betPool: 1040000,
+        tableCards: [],
+      },
+ }],
+};
+const serializedGame = {
+  links: { self: '/v1/games/1' },
+  data:
+ {
+   type: 'game',
+   id: '1',
+   links: { self: '/v1/games/1' },
+   attributes:
+    {
+      round: 'blind',
+      minimumBet: 100,
+      maximumBet: 200,
+      betPool: 1000,
+      tableCards: [{ cardNumber: '2', cardSuit: 'spades' }],
+    },
+ },
+};
 const fakeMemberQuery = {
   memberNickname: 'J',
   memberEmail: 'abc@efg.com',
@@ -153,4 +317,8 @@ module.exports = {
   testCases,
   fakeGamePostBody,
   fakeGamePatchBody,
+  rawGames,
+  mergedRawGames,
+  serializedGames,
+  serializedGame,
 };
