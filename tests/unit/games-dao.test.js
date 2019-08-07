@@ -22,6 +22,7 @@ describe('Test games-dao', () => {
     fakeId,
     testCases,
     fakeGamePostBody,
+    fakeGamePatchBody,
   } = testData;
 
   beforeEach(() => {
@@ -120,34 +121,95 @@ describe('Test games-dao', () => {
   });
 
   describe('Test validateGame', () => {
+    it('The function should be rejected when the database response does not contain COUNT(1) field', () => {
+      const testCase = testCases.emptyResult;
+      const error = 'Cannot read property \'COUNT(1)\' of undefined';
 
+      createConnStub(testCase);
+      const result = gamesDao.validateGame(fakeId);
+      return result.should.eventually.be.rejectedWith(TypeError, error);
+    });
   });
 
   describe('Test getGamesByMemberId', () => {
+    it('The function should be rejected when the database response does not contain COUNT(1) field', () => {
+      const testCase = testCases.emptyResult;
+      const error = 'Cannot read property \'COUNT(1)\' of undefined';
 
+      createConnStub(testCase);
+      const result = gamesDao.getGamesByMemberId(fakeId);
+      return result.should.eventually.be.rejectedWith(TypeError, error);
+    });
   });
 
   describe('Test isMemberInGame', () => {
+    it('The function should be rejected when the database response does not contain COUNT(1) field', () => {
+      const testCase = testCases.emptyResult;
+      const error = 'Cannot read property \'COUNT(1)\' of undefined';
 
-  });
-
-  describe('Test cleanTableCardsById', () => {
-
-  });
-
-  describe('Test insertCardsByGameId', () => {
-
+      createConnStub(testCase);
+      const result = gamesDao.isMemberInGame(fakeId);
+      return result.should.eventually.be.rejectedWith(TypeError, error);
+    });
   });
 
   describe('Test deleteGameById', () => {
+    const validTestCases = [
+      testCases.singleResult,
+      testCases.emptyResult,
+    ];
+    _.forEach(validTestCases, (testCase) => {
+      it(`deleteGameById should be fulfilled with ${testCase.description}`, () => {
+        createConnStub(testCase);
 
-  });
-
-  describe('Test databaseName', () => {
-
+        const expectedResult = testCase.data;
+        const result = gamesDao.deleteGameByGameId(fakeId);
+        return result.should
+          .eventually.be.fulfilled
+          .and.deep.equal(expectedResult);
+      });
+    });
   });
 
   describe('Test patchGame', () => {
+    const validFalseTestCases = [
+      testCases.singleResult,
+      testCases.emptyResult,
+      testCases.rowEffectZeroResult,
+    ];
 
+    it('Empty body should be fulfilled while the execute function from conn object is not called at all', () => {
+      const connStub = createConnStub();
+
+      const result = gamesDao.patchGame(fakeId, {});
+      return result.should
+        .eventually.be.fulfilled
+        .and.equal(true)
+        .then(() => {
+          sinon.assert.callCount(connStub.executeStub, 0);
+        });
+    });
+
+    _.forEach(validFalseTestCases, (testCase) => {
+      it(`should be fulfilled with ${testCase.description} and return false`, () => {
+        createConnStub(testCase);
+
+        const expectedResult = false;
+        const result = gamesDao.patchGame(fakeId, fakeGamePatchBody);
+        return result.should
+          .eventually.be.fulfilled
+          .and.deep.equal(expectedResult);
+      });
+    });
+
+    it('patchMember should be fulfilled with one row effected result and return true', () => {
+      createConnStub(testCases.rowEffectedOneResult);
+
+      const expectedResult = true;
+      const result = gamesDao.patchGame(fakeId, fakeGamePatchBody);
+      return result.should
+        .eventually.be.fulfilled
+        .and.deep.equal(expectedResult);
+    });
   });
 });

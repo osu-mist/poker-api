@@ -15,6 +15,7 @@ const createConnStub = (testCase) => {
   sinon.stub(conn, 'getConnection').resolves({
     execute: executeStub,
     close: () => null,
+    commit: () => null,
   });
   return {
     executeStub,
@@ -49,10 +50,6 @@ const getDefinition = (def) => {
 };
 
 const testSingleResource = (serializedResource, resourceType, resourceId, nestedProps) => {
-  console.log(serializedResource);
-  console.log(resourceSchema(resourceType,
-    resourceId,
-    nestedProps));
   expect(serializedResource).to.deep.equal(resourceSchema(resourceType,
     resourceId,
     nestedProps));

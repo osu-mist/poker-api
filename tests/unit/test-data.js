@@ -84,6 +84,24 @@ const fakeGamePostBody = {
     },
   },
 };
+const fakeGamePatchBody = {
+  data: {
+    id: 'string',
+    type: 'game',
+    attributes: {
+      round: 'blind',
+      minimumBet: 1000,
+      maximumBet: 2000,
+      betPool: 0,
+      tableCards: [
+        {
+          cardNumber: 'A',
+          cardSuit: 'diamonds',
+        },
+      ],
+    },
+  },
+};
 const fakeMemberPatchBody = {
   data: {
     id: 101,
@@ -134,4 +152,5 @@ module.exports = {
   fakeMemberQuery,
   testCases,
   fakeGamePostBody,
+  fakeGamePatchBody,
 };
