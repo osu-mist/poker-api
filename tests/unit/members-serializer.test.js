@@ -5,8 +5,8 @@ const chaiSubset = require('chai-subset');
 const _ = require('lodash');
 const sinon = require('sinon');
 const config = require('config');
-const testData = require('./test-data');
 
+const testData = require('./test-data');
 const {
   testSingleResource,
   testMultipleResources,
@@ -21,7 +21,7 @@ chai.use(chaiSubset);
 describe('Test memberSerializer', () => {
   const { rawMembers } = testData;
   const resourceType = 'member';
-  const id = 'MEMBER_ID';
+  const memberId = 'MEMBER_ID';
 
   afterEach(() => sinon.restore());
   describe('Test memberSerializer', () => {
@@ -31,8 +31,8 @@ describe('Test memberSerializer', () => {
       const serializedMember = serializeMember(rawMembers[0]);
       testSingleResource(serializedMember,
         resourceType,
-        rawMembers[0][id],
-        _.omit(rawMembers[0], id));
+        rawMembers[0][memberId],
+        _.omit(rawMembers[0], memberId));
     });
   });
 
@@ -42,7 +42,7 @@ describe('Test memberSerializer', () => {
       const { serializeMembers } = memberSerializer;
 
       const serializedMembers = serializeMembers(rawMembers, testData.fakeMemberQuery);
-      testMultipleResources(serializedMembers, rawMembers, resourceType, id);
+      testMultipleResources(serializedMembers, rawMembers, resourceType, memberId);
     });
   });
 });

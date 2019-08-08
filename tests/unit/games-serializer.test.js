@@ -2,9 +2,8 @@ const appRoot = require('app-root-path');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const chaiSubset = require('chai-subset');
-const sinon = require('sinon');
-const testData = require('./test-data');
 
+const testData = require('./test-data');
 
 const gameSerializer = appRoot.require('api/v1/serializers/games-serializer');
 
@@ -19,8 +18,6 @@ describe('Test games-serializer', () => {
     serializedGames,
     serializedGame,
   } = testData;
-
-  afterEach(() => sinon.restore());
 
   describe('Test mergeRawGames', () => {
     it('Should merge rawgames properly', () => {

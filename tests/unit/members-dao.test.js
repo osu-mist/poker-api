@@ -5,6 +5,7 @@ const chaiExclude = require('chai-exclude');
 const _ = require('lodash');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
+
 const { createConnStub } = require('./test-util');
 const {
   fakeId,
@@ -13,9 +14,13 @@ const {
   fakeName,
   fakeMemberPatchBody,
   testCases,
+  databaseNameTestData,
+  truthyList,
+  falseyList,
+  nonDuplicateArray,
+  duplicateArray,
 } = require('./test-data');
 
-// sinon.replace(config, 'get', () => ({ oracledb: {} }));
 const membersSerializer = appRoot.require('api/v1/serializers/members-serializer');
 
 chai.should();
@@ -52,7 +57,7 @@ describe('Test members-dao', () => {
           .eventually.be.fulfilled
           .and.deep.equal(expectedResult)
           .then(() => {
-            sinon.assert.callCount(serializeMembersStub, 1);
+            sinon.assert.calledOnce(serializeMembersStub);
           });
       });
     });
@@ -103,7 +108,7 @@ describe('Test members-dao', () => {
       return result.should.eventually.be.fulfilled
         .and.equal(true)
         .then(() => {
-          sinon.assert.callCount(connStub.executeStub, 0);
+          sinon.assert.notCalled(connStub.executeStub);
         });
     });
 
@@ -121,12 +126,12 @@ describe('Test members-dao', () => {
     it('Return false when empty or valid no dup array', () => {
       const emptyResult = membersDao.hasDuplicateMemberId([]);
       assert.strictEqual(emptyResult, false);
-      const validResult = membersDao.hasDuplicateMemberId([1, 4, 2, 3, 7, 6, 200]);
+      const validResult = membersDao.hasDuplicateMemberId(nonDuplicateArray);
       assert.strictEqual(validResult, false);
     });
 
     it('Return true when dup array', () => {
-      const emptyResult = membersDao.hasDuplicateMemberId([3, 5, 3, 2, 4, 6]);
+      const emptyResult = membersDao.hasDuplicateMemberId(duplicateArray);
       assert.strictEqual(emptyResult, true);
     });
   });
@@ -144,29 +149,7 @@ describe('Test members-dao', () => {
 
   describe('Test databaseName', () => {
     it('Should return expected name for database schema', () => {
-      const paramAndResult = [
-        {
-          param: 'abc',
-          result: 'ABC',
-        },
-        {
-          param: 'abcDef',
-          result: 'ABC_DEF',
-        },
-        {
-          param: 'abcDefJsk',
-          result: 'ABC_DEF_JSK',
-        },
-        {
-          param: 'ABCHH',
-          result: 'ABCHH',
-        },
-        {
-          param: 'AbChC',
-          result: 'AB_CH_C',
-        },
-      ];
-      _.forEach(paramAndResult, (item) => {
+      _.forEach(databaseNameTestData, (item) => {
         assert.strictEqual(membersDao.databaseName(item.param), item.result);
       });
     });
@@ -174,34 +157,12 @@ describe('Test members-dao', () => {
 
   describe('Test isTruthyOrZero', () => {
     it('Return false for Falsey values (exluding 0)', () => {
-      const falseyList = [
-        false,
-        '',
-        null,
-        undefined,
-        NaN,
-      ];
       _.forEach(falseyList, (item) => {
         assert.strictEqual(membersDao.isTruthyOrZero(item), false);
       });
     });
 
     it('Return Truthy value for truthy values and 0', () => {
-      const truthyList = [
-        0,
-        1,
-        'a',
-        'abc',
-        '0',
-        'false',
-        [],
-        [1, 2, 3],
-        {
-          a: 'b',
-        },
-        {},
-        () => {},
-      ];
       _.forEach(truthyList, (item) => {
         assert.isOk(membersDao.isTruthyOrZero(item));
       });
@@ -271,7 +232,7 @@ describe('Test members-dao', () => {
         .eventually.be.fulfilled
         .and.equal(true)
         .then(() => {
-          sinon.assert.callCount(connStub.executeStub, 0);
+          sinon.assert.notCalled(connStub.executeStub);
         });
     });
 

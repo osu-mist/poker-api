@@ -14,7 +14,8 @@ sinon.stub(config, 'get').returns({ oracledb: {} });
 /**
  * @summary Create the stub for connection object that is useful for controlled testing environment.
  * @function
- * @param {Object} testCase The testcase that becomes the return value of connection.execute in the stub.
+ * @param {Object} testCase The testcase that becomes the return value of connection.execute
+ * in the stub.
  * @returns {Object} An object of all the interal function stub created for this stub.
  */
 const createConnStub = (testCase) => {

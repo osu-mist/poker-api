@@ -1,3 +1,34 @@
+const databaseNameTestData = [
+  {
+    param: 'abc',
+    result: 'ABC',
+  },
+  {
+    param: 'abcDef',
+    result: 'ABC_DEF',
+  },
+  {
+    param: 'abcDefJsk',
+    result: 'ABC_DEF_JSK',
+  },
+  {
+    param: 'ABCHH',
+    result: 'ABCHH',
+  },
+  {
+    param: 'AbChC',
+    result: 'AB_CH_C',
+  },
+];
+
+const falseyList = [
+  false,
+  '',
+  null,
+  undefined,
+  NaN,
+];
+
 const testCases = {
   singleResult: {
     data: {
@@ -305,6 +336,23 @@ const fakeMemberQuery = {
   memberNickname: 'J',
   memberEmail: 'abc@efg.com',
 };
+const truthyList = [
+  0,
+  1,
+  'a',
+  'abc',
+  '0',
+  'false',
+  [],
+  [1, 2, 3],
+  {
+    a: 'b',
+  },
+  {},
+  () => {},
+];
+const nonDuplicateArray = [1, 4, 2, 3, 7, 6, 200];
+const duplicateArray = [3, 5, 3, 2, 4, 6];
 module.exports = {
   fakeId,
   fakeMemberPostBody,
@@ -321,4 +369,9 @@ module.exports = {
   mergedRawGames,
   serializedGames,
   serializedGame,
+  databaseNameTestData,
+  truthyList,
+  falseyList,
+  nonDuplicateArray,
+  duplicateArray,
 };

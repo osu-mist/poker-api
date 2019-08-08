@@ -5,9 +5,9 @@ const chaiExclude = require('chai-exclude');
 const _ = require('lodash');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+
 const { createConnStub } = require('./test-util');
 const testData = require('./test-data');
-
 
 const gamesSerializer = appRoot.require('api/v1/serializers/games-serializer');
 
@@ -24,6 +24,13 @@ describe('Test games-dao', () => {
     fakeGamePostBody,
     fakeGamePatchBody,
   } = testData;
+  const {
+    emptyResult, multiResult, singleResult,
+    rowEffectedOneResult,
+    multiGameResult,
+    singleResultWithOutId,
+    rowEffectZeroResult,
+  } = testCases;
 
   beforeEach(() => {
     const serializeGamesStub = sinon.stub(gamesSerializer, 'serializeGames');
@@ -44,9 +51,9 @@ describe('Test games-dao', () => {
 
   describe('Test getGames', () => {
     const validTestCases = [
-      testCases.emptyResult,
-      testCases.multiResult,
-      testCases.singleResult,
+      emptyResult,
+      multiResult,
+      singleResult,
     ];
     _.forEach(validTestCases, (testCase) => {
       it(`getGames should be fulfilled with ${testCase.description}`, () => {
@@ -63,8 +70,8 @@ describe('Test games-dao', () => {
 
   describe('Test getGameById', () => {
     const validTestCases = [
-      testCases.emptyResult,
-      testCases.singleResult,
+      emptyResult,
+      singleResult,
     ];
     _.forEach(validTestCases, (testCase) => {
       it(`getGameById should be fulfilled with ${testCase.description}`, () => {
@@ -79,8 +86,7 @@ describe('Test games-dao', () => {
     });
 
     it('getGameById should reject with multiple results', () => {
-      const testCase = testCases.multiGameResult;
-
+      const testCase = multiGameResult;
       const error = 'Expect a single object but got multiple results.';
 
       createConnStub(testCase);
@@ -101,7 +107,7 @@ describe('Test games-dao', () => {
     });
 
     it('Should be rejected when there are no OutId in the result field', () => {
-      createConnStub(testCases.singleResult);
+      createConnStub(singleResult);
 
       const result = gamesDao.postGame(fakeGamePostBody);
       return result.should
@@ -111,7 +117,7 @@ describe('Test games-dao', () => {
 
     it('Should be fulfilled with single result', () => {
       const expectedResult = [{}];
-      createConnStub(testCases.singleResultWithOutId);
+      createConnStub(singleResultWithOutId);
 
       const result = gamesDao.postGame(fakeGamePostBody);
       return result.should
@@ -120,43 +126,32 @@ describe('Test games-dao', () => {
     });
   });
 
-  describe('Test validateGame', () => {
-    it('The function should be rejected when the database response does not contain COUNT(1) field', () => {
-      const testCase = testCases.emptyResult;
-      const error = 'Cannot read property \'COUNT(1)\' of undefined';
 
-      createConnStub(testCase);
-      const result = gamesDao.validateGame(fakeId);
-      return result.should.eventually.be.rejectedWith(TypeError, error);
-    });
-  });
+  it('', () => {
+    const countOneFunctions = [
+      gamesDao.validateGame,
+      gamesDao.getGamesByMemberId,
+      gamesDao.isMemberInGame,
+    ];
+    _.forEach(countOneFunctions, (fun) => {
+      describe(`Test ${fun.name}`, () => {
+        it('The function should be rejected when the database response does not contain COUNT(1) field', () => {
+          const testCase = emptyResult;
+          const error = 'Cannot read property \'COUNT(1)\' of undefined';
 
-  describe('Test getGamesByMemberId', () => {
-    it('The function should be rejected when the database response does not contain COUNT(1) field', () => {
-      const testCase = testCases.emptyResult;
-      const error = 'Cannot read property \'COUNT(1)\' of undefined';
-
-      createConnStub(testCase);
-      const result = gamesDao.getGamesByMemberId(fakeId);
-      return result.should.eventually.be.rejectedWith(TypeError, error);
-    });
-  });
-
-  describe('Test isMemberInGame', () => {
-    it('The function should be rejected when the database response does not contain COUNT(1) field', () => {
-      const testCase = testCases.emptyResult;
-      const error = 'Cannot read property \'COUNT(1)\' of undefined';
-
-      createConnStub(testCase);
-      const result = gamesDao.isMemberInGame(fakeId);
-      return result.should.eventually.be.rejectedWith(TypeError, error);
+          createConnStub(testCase);
+          const result = fun(fakeId);
+          sinon.restore();
+          return result.should.eventually.be.rejectedWith(TypeError, error);
+        });
+      });
     });
   });
 
   describe('Test deleteGameById', () => {
     const validTestCases = [
-      testCases.singleResult,
-      testCases.emptyResult,
+      singleResult,
+      emptyResult,
     ];
     _.forEach(validTestCases, (testCase) => {
       it(`deleteGameById should be fulfilled with ${testCase.description}`, () => {
@@ -173,9 +168,9 @@ describe('Test games-dao', () => {
 
   describe('Test patchGame', () => {
     const validFalseTestCases = [
-      testCases.singleResult,
-      testCases.emptyResult,
-      testCases.rowEffectZeroResult,
+      singleResult,
+      emptyResult,
+      rowEffectZeroResult,
     ];
 
     it('Empty body should be fulfilled while the execute function from conn object is not called at all', () => {
@@ -186,7 +181,7 @@ describe('Test games-dao', () => {
         .eventually.be.fulfilled
         .and.equal(true)
         .then(() => {
-          sinon.assert.callCount(connStub.executeStub, 0);
+          sinon.assert.notCalled(connStub.executeStub);
         });
     });
 
@@ -203,7 +198,7 @@ describe('Test games-dao', () => {
     });
 
     it('patchMember should be fulfilled with one row effected result and return true', () => {
-      createConnStub(testCases.rowEffectedOneResult);
+      createConnStub(rowEffectedOneResult);
 
       const expectedResult = true;
       const result = gamesDao.patchGame(fakeId, fakeGamePatchBody);
