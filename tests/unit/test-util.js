@@ -5,11 +5,18 @@ const camelCase = require('camelcase');
 const _ = require('lodash');
 const config = require('config');
 
-sinon.stub(config, 'get').returns({ oracledb: {} });
-const conn = appRoot.require('api/v1/db/oracledb/connection');
-const { openapi } = appRoot.require('utils/load-openapi');
 const { fakeBaseUrl } = require('./test-data');
 
+const conn = appRoot.require('api/v1/db/oracledb/connection');
+const { openapi } = appRoot.require('utils/load-openapi');
+
+sinon.stub(config, 'get').returns({ oracledb: {} });
+/**
+ * @summary Create the stub for connection object that is useful for controlled testing environment.
+ * @function
+ * @param {Object} testCase The testcase that becomes the return value of connection.execute in the stub.
+ * @returns {Object} An object of all the interal function stub created for this stub.
+ */
 const createConnStub = (testCase) => {
   const executeStub = sinon.stub().returns(testCase ? testCase.data : null);
   sinon.stub(conn, 'getConnection').resolves({
@@ -22,6 +29,14 @@ const createConnStub = (testCase) => {
   };
 };
 
+/**
+ * @summary Transoform the rawData into serializedData.
+ * @function
+ * @param {string} resourceType The type of resource.
+ * @param {string} resourceId The id of resource.
+ * @param {Object} resourceAttributes The attribute of the resource.
+ * @returns {Object} Expected serialized rawData.
+ */
 const resourceSchema = (resourceType, resourceId, resourceAttributes) => {
   const fakeUrl = `/${fakeBaseUrl}/${resourceType}s/${resourceId}`;
   const schema = {
@@ -44,10 +59,24 @@ const resourceSchema = (resourceType, resourceId, resourceAttributes) => {
   return schema;
 };
 
+/**
+ * @summary Get the schema of a type of resource.
+ * @function
+ * @param {string} def The type of the resource.
+ * @returns {Object} The schema of the resource to look up.
+ */
 const getDefinition = (def) => {
   const result = openapi.definitions[def].properties.data.properties;
   return result;
 };
+
+/**
+ * @summary Test if a single resource matches the schema in the specification.
+ * @param {Object} serializedResource serialized resource to be tested.
+ * @param {string} resourceType The type of the resource.
+ * @param {string} resourceId The id of the resource.
+ * @param {Object} nestedProps The attributes of the resource.
+ */
 
 const testSingleResource = (serializedResource, resourceType, resourceId, nestedProps) => {
   expect(serializedResource).to.deep.equal(resourceSchema(resourceType,
@@ -55,6 +84,13 @@ const testSingleResource = (serializedResource, resourceType, resourceId, nested
     nestedProps));
 };
 
+/**
+ *
+ * @param {Object} serializedResources serialized resource to be tested.
+ * @param {Object} rawResources Raw resources to be used in test.
+ * @param {*} resourceType The type of the resource.
+ * @param {*} resourceKey The id of the resource.
+ */
 const testMultipleResources = (serializedResources, rawResources, resourceType, resourceKey) => {
   expect(serializedResources).to.have.all.keys('data', 'links');
   expect(serializedResources.data).to.be.an('array');
