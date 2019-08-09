@@ -32,8 +32,8 @@ const singleMemberConverter = (rawMember) => {
  * @summary Serialize memberResources to JSON API
  * @function
  * @param {[Object]} rawMembers Raw data rows from data source
- * @param {Object} query Query parameters
- * @returns {Object} Serialized memberResources object
+ * @param {object} query Query parameters
+ * @returns {object} Serialized memberResources object
  */
 const serializeMembers = (rawMembers, query) => {
   _.forEach(rawMembers, (member) => {
@@ -59,8 +59,8 @@ const serializeMembers = (rawMembers, query) => {
 /**
  * @summary Serialize memberResource to JSON API
  * @function
- * @param {Object} rawMember Raw data row from data source
- * @returns {Object} Serialized memberResource object
+ * @param {object} rawMember Raw data row from data source
+ * @returns {object} Serialized memberResource object
  */
 const serializeMember = (rawMember, isPost = false) => {
   singleMemberConverter(rawMember);

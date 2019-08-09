@@ -103,7 +103,7 @@ const validateMembers = async (memberIds) => {
 /**
  * @summary Post a new member into the system.
  * @function
- * @param {Object} body The post body from request object.
+ * @param {object} body The post body from request object.
  * @returns {Promise<Object>} The JSON resource of the new member created.
  */
 const postMember = async (body) => {

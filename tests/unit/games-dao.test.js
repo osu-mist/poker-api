@@ -127,11 +127,11 @@ describe('Test games-dao', () => {
   });
 
 
-  it('', () => {
+  describe('Testing COUNT(1) related functions.', () => {
     const countOneFunctions = [
-      gamesDao.validateGame,
-      gamesDao.getGamesByMemberId,
-      gamesDao.isMemberInGame,
+      'validateGame',
+      'getGamesByMemberId',
+      'isMemberInGame',
     ];
     _.forEach(countOneFunctions, (fun) => {
       describe(`Test ${fun.name}`, () => {
@@ -140,7 +140,7 @@ describe('Test games-dao', () => {
           const error = 'Cannot read property \'COUNT(1)\' of undefined';
 
           createConnStub(testCase);
-          const result = fun(fakeId);
+          const result = gamesDao[fun](fakeId);
           sinon.restore();
           return result.should.eventually.be.rejectedWith(TypeError, error);
         });

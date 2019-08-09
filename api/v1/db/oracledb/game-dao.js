@@ -22,7 +22,7 @@ const sqlQuery = `
 /**
  * @summary Return a list of games
  * @function
- * @param {Object} query query object that contains useful information to process.
+ * @param {object} query query object that contains useful information to process.
  * @returns {Promise<Object[]>} Promise object represents a list of games
  */
 const getGames = async (query) => {
