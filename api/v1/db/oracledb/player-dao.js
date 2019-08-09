@@ -216,7 +216,6 @@ const patchPlayer = async (playerId, attributes) => {
   try {
     const { playerCards } = attributes;
     delete attributes.playerCards;
-
     //  Get the status ID of the playerStatus in request body.
     if (attributes.playerStatus) {
       const statusSqlQuery = `

@@ -4,6 +4,7 @@ const chaiAsPromised = require('chai-as-promised');
 const chaiExclude = require('chai-exclude');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const _ = require('lodash');
 const config = require('config');
 
 const { createConnStub } = require('./test-util');
@@ -24,7 +25,8 @@ describe('Test players-dao', () => {
     testCases,
     testResult,
     fakePlayerPostBody,
-
+    fakePlayerPatchBody,
+    fakePlayerCardOnlyBody,
   } = testData;
 
   const {
@@ -37,6 +39,8 @@ describe('Test players-dao', () => {
     onePlayerInOneGameResult,
     singleResult,
     singleResultWithOutId,
+    rowEffectZeroResult,
+    rowEffectedOneResult,
   } = testCases;
 
   beforeEach(() => {
@@ -120,6 +124,59 @@ describe('Test players-dao', () => {
       createConnStub(singleResultWithOutId);
 
       const result = playersDao.postPlayerByGameId(fakePlayerPostBody);
+      return result.should
+        .eventually.be.fulfilled
+        .and.deep.equal(expectedResult);
+    });
+  });
+
+  describe('Test PatchPlayer', () => {
+    const validFalseTestCases = [
+      singleResult,
+      emptyResult,
+      rowEffectZeroResult,
+    ];
+
+    it('Empty body should be fulfilled while the execute method is not called', () => {
+      const connStub = createConnStub();
+
+      const result = playersDao.patchPlayer(fakeId, {});
+      return result.should
+        .eventually.be.fulfilled
+        .and.equal(true)
+        .then(() => {
+          sinon.assert.notCalled(connStub.executeStub);
+        });
+    });
+
+    it('Body with empty tableCards attribute should be fulfilled while the execute is called once', () => {
+      const connStub = createConnStub(rowEffectZeroResult);
+      const result = playersDao.patchPlayer(fakeId, fakePlayerCardOnlyBody);
+      return result.should
+        .eventually.be.fulfilled
+        .and.equal(true)
+        .then(() => {
+          sinon.assert.calledOnce(connStub.executeStub);
+        });
+    });
+
+    _.forEach(validFalseTestCases, (testCase) => {
+      it(`should be fulfilled with ${testCase.description} and return false`, () => {
+        createConnStub(testCase);
+
+        const expectedResult = false;
+        const result = playersDao.patchPlayer(fakeId, fakePlayerPatchBody);
+        return result.should
+          .eventually.be.fulfilled
+          .and.deep.equal(expectedResult);
+      });
+    });
+
+    it('should be fulfilled with one row effected result and return true', () => {
+      createConnStub(rowEffectedOneResult);
+
+      const expectedResult = true;
+      const result = playersDao.patchPlayer(fakeId, fakePlayerPatchBody);
       return result.should
         .eventually.be.fulfilled
         .and.deep.equal(expectedResult);

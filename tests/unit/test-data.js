@@ -451,6 +451,11 @@ const fakePlayerPostBody = {
     },
   },
 };
+const fakePlayerCardOnlyBody = {
+  playerCards: [
+
+  ],
+};
 const nonDuplicateArray = [1, 4, 2, 3, 7, 6, 200];
 const duplicateArray = [3, 5, 3, 2, 4, 6];
 module.exports = {
@@ -477,4 +482,5 @@ module.exports = {
   testResult,
   fakePlayerPatchBody,
   fakePlayerPostBody,
+  fakePlayerCardOnlyBody,
 };

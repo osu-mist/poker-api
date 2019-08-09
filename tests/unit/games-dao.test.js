@@ -197,7 +197,7 @@ describe('Test games-dao', () => {
       });
     });
 
-    it('patchMember should be fulfilled with one row effected result and return true', () => {
+    it('should be fulfilled with one row effected result and return true', () => {
       createConnStub(rowEffectedOneResult);
 
       const expectedResult = true;
