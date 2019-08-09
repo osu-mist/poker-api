@@ -7,10 +7,10 @@ const config = require('config');
 
 const { fakeBaseUrl } = require('./test-data');
 
+sinon.stub(config, 'get').returns({ oracledb: {} });
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 const { openapi } = appRoot.require('utils/load-openapi');
 
-sinon.stub(config, 'get').returns({ oracledb: {} });
 /**
  * @summary Create the stub for connection object that is useful for controlled testing environment.
  * @function

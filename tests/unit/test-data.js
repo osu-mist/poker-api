@@ -63,6 +63,64 @@ const testCases = {
       }],
     },
   },
+  playersInOneGameResult: {
+    data: {
+      rows: [{
+        PLAYER_ID: 1,
+        GAME_ID: 1,
+      }, {
+        PLAYER_ID: 2,
+        GAME_ID: 1,
+      }],
+    },
+    description: 'multiple players in one game result.',
+  },
+  onePlayerInOneGameResult: {
+    data: {
+      rows: [{
+        PLAYER_ID: 1,
+        GAME_ID: 1,
+      }],
+    },
+    description: 'one player in one game result.',
+  },
+  onePlayerInMultiGameResult: {
+    data: {
+      rows: [{
+        PLAYER_ID: 1,
+        GAME_ID: 1,
+      },
+      {
+        PLAYER_ID: 1,
+        GAME_ID: 2,
+      }],
+    },
+    description: 'one player in multiple game result.',
+  },
+  playersInMultiGameResult: {
+    data: {
+      rows: [{
+        PLAYER_ID: 1,
+        GAME_ID: 1,
+      }, {
+        PLAYER_ID: 2,
+        GAME_ID: 1,
+      },
+      {
+        PLAYER_ID: 1,
+        GAME_ID: 2,
+      },
+      {
+        PLAYER_ID: 3,
+        GAME_ID: 3,
+      },
+      {
+        PLAYER_ID: 4,
+        GAME_ID: 3,
+      },
+      ],
+    },
+  },
   emptyResult: {
     data: {
       rows: [],
@@ -351,6 +409,48 @@ const truthyList = [
   {},
   () => {},
 ];
+
+const testResult = {
+  onePlayerTestResult:
+    [
+      {
+        PLAYER_ID: 1,
+        GAME_ID: 1,
+      },
+    ],
+};
+const fakePlayerPatchBody = {
+  data: {
+    id: 'g1m1',
+    type: 'player',
+    attributes: {
+      playerBet: 0,
+      playerStatus: 'folded',
+      playerCards: [
+        {
+          cardNumber: 'A',
+          cardSuit: 'diamonds',
+        },
+      ],
+    },
+  },
+};
+const fakePlayerPostBody = {
+  data: {
+    type: 'player',
+    attributes: {
+      memberId: 101,
+      playerBet: 0,
+      playerStatus: 'folded',
+      playerCards: [
+        {
+          cardNumber: 'A',
+          cardSuit: 'diamonds',
+        },
+      ],
+    },
+  },
+};
 const nonDuplicateArray = [1, 4, 2, 3, 7, 6, 200];
 const duplicateArray = [3, 5, 3, 2, 4, 6];
 module.exports = {
@@ -374,4 +474,7 @@ module.exports = {
   falseyList,
   nonDuplicateArray,
   duplicateArray,
+  testResult,
+  fakePlayerPatchBody,
+  fakePlayerPostBody,
 };
