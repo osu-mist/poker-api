@@ -134,7 +134,7 @@ describe('Test games-dao', () => {
       'isMemberInGame',
     ];
     _.forEach(countOneFunctions, (fun) => {
-      describe(`Test ${fun.name}`, () => {
+      describe(`Test ${fun}`, () => {
         it('The function should be rejected when the database response does not contain COUNT(1) field', () => {
           const testCase = emptyResult;
           const error = 'Cannot read property \'COUNT(1)\' of undefined';
