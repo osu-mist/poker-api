@@ -5,7 +5,6 @@ const oracledb = require('oracledb');
 const decamelize = require('decamelize');
 
 const { serializeGames, serializeGame } = require('../../serializers/games-serializer');
-const playerDao = require('./player-dao');
 
 const conn = appRoot.require('api/v1/db/oracledb/connection');
 
@@ -218,11 +217,26 @@ const insertCardsByGameId = async (gameId, tableCards, connection) => {
   await connection.execute(insertSqlQuery, sqlParams);
 };
 
+const deletePlayersByGameId = async (gameId, connection) => {
+  const sqlParams = [gameId];
+  const playerSqlQuery = `
+  SELECT PLAYER_ID FROM PLAYERS P
+  WHERE GAME_ID = :gameId
+  `;
+  const deletePlayerCardSqlQuery = `
+  DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${playerSqlQuery})`;
+  await connection.execute(deletePlayerCardSqlQuery, sqlParams);
+
+  const deletePlayersSqlQuery = `
+  DELETE FROM PLAYERS WHERE PLAYER_ID IN (${playerSqlQuery})`;
+  await connection.execute(deletePlayersSqlQuery, sqlParams);
+};
+
 const deleteGameByGameId = async (gameId) => {
   const connection = await conn.getConnection();
   try {
     const cleanTableProm = cleanTableCardsByGameId(gameId, connection);
-    const delPlayerProm = playerDao.deletePlayersByGameId(gameId, connection);
+    const delPlayerProm = deletePlayersByGameId(gameId, connection);
     await Promise.all([cleanTableProm, delPlayerProm]);
     const sqlParams = [gameId];
     const deleteSqlQuery = `
@@ -234,6 +248,7 @@ const deleteGameByGameId = async (gameId) => {
     connection.close();
   }
 };
+
 
 const databaseName = (string) => {
   if (string === 'round') {

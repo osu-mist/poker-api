@@ -225,6 +225,107 @@ const rawMembers = [{
   MEMBER_LEVEL: '2',
   MEMBER_EXP_OVER_LEVEL: '0',
 }];
+const rawPlayer = [{
+  PLAYER_ID: '1',
+  MEMBER_ID: '1',
+  MEMBER_NICKNAME: 'J',
+  MEMBER_LEVEL: '20',
+  MEMBER_EXP_OVER_LEVEL: '0',
+  PLAYER_BET: '123',
+  PLAYER_STATUS: 'checked',
+  CARD_NUMBER: 'A',
+  SUIT: 'spades',
+},
+{
+  PLAYER_ID: '1',
+  MEMBER_ID: '1',
+  MEMBER_NICKNAME: 'J',
+  MEMBER_LEVEL: '20',
+  MEMBER_EXP_OVER_LEVEL: '0',
+  PLAYER_BET: '123',
+  PLAYER_STATUS: 'checked',
+  CARD_NUMBER: '8',
+  SUIT: 'hearts',
+}];
+const rawPlayers = [{
+  PLAYER_ID: '1',
+  MEMBER_ID: '1',
+  MEMBER_NICKNAME: 'J',
+  MEMBER_LEVEL: '20',
+  MEMBER_EXP_OVER_LEVEL: '0',
+  PLAYER_BET: '123',
+  PLAYER_STATUS: 'checked',
+  CARD_NUMBER: 'A',
+  SUIT: 'spades',
+},
+{
+  PLAYER_ID: '1',
+  MEMBER_ID: '1',
+  MEMBER_NICKNAME: 'J',
+  MEMBER_LEVEL: '20',
+  MEMBER_EXP_OVER_LEVEL: '0',
+  PLAYER_BET: '123',
+  PLAYER_STATUS: 'checked',
+  CARD_NUMBER: '8',
+  SUIT: 'hearts',
+},
+{
+  PLAYER_ID: '2',
+  MEMBER_ID: '2',
+  MEMBER_NICKNAME: 'John Wick',
+  MEMBER_LEVEL: '200',
+  MEMBER_EXP_OVER_LEVEL: '114514',
+  PLAYER_BET: '300',
+  PLAYER_STATUS: 'raised',
+  CARD_NUMBER: '8',
+  SUIT: 'spades',
+},
+{
+  PLAYER_ID: '2',
+  MEMBER_ID: '2',
+  MEMBER_NICKNAME: 'John Wick',
+  MEMBER_LEVEL: '200',
+  MEMBER_EXP_OVER_LEVEL: '114514',
+  PLAYER_BET: '300',
+  PLAYER_STATUS: 'raised',
+  CARD_NUMBER: '9',
+  SUIT: 'spades',
+},
+{
+  PLAYER_ID: '3',
+  MEMBER_ID: '3',
+  MEMBER_NICKNAME: 'patchedNickname',
+  MEMBER_LEVEL: '2',
+  MEMBER_EXP_OVER_LEVEL: '0',
+  PLAYER_BET: '300',
+  PLAYER_STATUS: 'called',
+  CARD_NUMBER: '10',
+  SUIT: 'spades',
+},
+{
+  PLAYER_ID: '3',
+  MEMBER_ID: '3',
+  MEMBER_NICKNAME: 'patchedNickname',
+  MEMBER_LEVEL: '2',
+  MEMBER_EXP_OVER_LEVEL: '0',
+  PLAYER_BET: '300',
+  PLAYER_STATUS: 'called',
+  CARD_NUMBER: 'J',
+  SUIT: 'spades',
+}];
+const mergedRawPlayer = [{
+  PLAYER_ID: '1',
+  MEMBER_ID: '1',
+  MEMBER_NICKNAME: 'J',
+  MEMBER_LEVEL: '20',
+  MEMBER_EXP_OVER_LEVEL: '0',
+  PLAYER_BET: '123',
+  PLAYER_STATUS: 'checked',
+  CARD_NUMBER: 'A',
+  SUIT: 'spades',
+  playerCards: [{ cardNumber: 'A', cardSuit: 'spades' },
+    { cardNumber: '8', cardSuit: 'hearts' }],
+}];
 const rawGames = [{
   CARD_NUMBER: '2',
   SUIT: 'spades',
@@ -324,6 +425,84 @@ const mergedRawGames = [{
   BET_POOL: '1040000',
   tableCards: [],
 }];
+
+const serializedPlayer = {
+  links: { self: '/v1/games/1/players/1' },
+  data:
+ {
+   type: 'player',
+   id: '1',
+   links: { self: '/v1/games/1/players/1' },
+   attributes:
+    {
+      memberNickname: 'J',
+      memberId: '1',
+      memberLevel: 20,
+      memberExpOverLevel: 0,
+      playerBet: 123,
+      playerStatus: 'checked',
+      playerCards:
+       [{ cardNumber: 'A', cardSuit: 'spades' },
+         { cardNumber: '8', cardSuit: 'hearts' }],
+    },
+ },
+};
+
+const serializedPlayers = {
+  links: { self: '/v1/games/1/players' },
+  data:
+ [{
+   type: 'player',
+   id: '1',
+   links: { self: '/v1/games/1/players/1' },
+   attributes:
+      {
+        memberNickname: 'J',
+        memberId: '1',
+        memberLevel: 20,
+        memberExpOverLevel: 0,
+        playerBet: 123,
+        playerStatus: 'checked',
+        playerCards:
+         [{ cardNumber: 'A', cardSuit: 'spades' },
+           { cardNumber: '8', cardSuit: 'hearts' }],
+      },
+ },
+ {
+   type: 'player',
+   id: '2',
+   links: { self: '/v1/games/1/players/2' },
+   attributes:
+      {
+        memberNickname: 'John Wick',
+        memberId: '2',
+        memberLevel: 200,
+        memberExpOverLevel: 114514,
+        playerBet: 300,
+        playerStatus: 'raised',
+        playerCards:
+         [{ cardNumber: '8', cardSuit: 'spades' },
+           { cardNumber: '9', cardSuit: 'spades' }],
+      },
+ },
+ {
+   type: 'player',
+   id: '3',
+   links: { self: '/v1/games/1/players/3' },
+   attributes:
+      {
+        memberNickname: 'patchedNickname',
+        memberId: '3',
+        memberLevel: 2,
+        memberExpOverLevel: 0,
+        playerBet: 300,
+        playerStatus: 'called',
+        playerCards:
+         [{ cardNumber: '10', cardSuit: 'spades' },
+           { cardNumber: 'J', cardSuit: 'spades' }],
+      },
+ }],
+};
 
 const serializedGames = {
   links: { self: '/v1/games' },
@@ -456,6 +635,7 @@ const fakePlayerCardOnlyBody = {
 
   ],
 };
+const testGameId = 1;
 const nonDuplicateArray = [1, 4, 2, 3, 7, 6, 200];
 const duplicateArray = [3, 5, 3, 2, 4, 6];
 module.exports = {
@@ -483,4 +663,10 @@ module.exports = {
   fakePlayerPatchBody,
   fakePlayerPostBody,
   fakePlayerCardOnlyBody,
+  rawPlayer,
+  mergedRawPlayer,
+  rawPlayers,
+  serializedPlayers,
+  testGameId,
+  serializedPlayer,
 };
