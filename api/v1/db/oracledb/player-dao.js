@@ -103,20 +103,6 @@ const deletePlayerByPlayerId = async (playerId, passedConnection) => {
   }
 };
 
-const deletePlayersByGameId = async (gameId, connection) => {
-  const sqlParams = [gameId];
-  const playerSqlQuery = `
-  SELECT PLAYER_ID FROM PLAYERS P
-  WHERE GAME_ID = :gameId
-  `;
-  const deletePlayerCardSqlQuery = `
-  DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${playerSqlQuery})`;
-  await connection.execute(deletePlayerCardSqlQuery, sqlParams);
-
-  const deletePlayersSqlQuery = `
-  DELETE FROM PLAYERS WHERE PLAYER_ID IN (${playerSqlQuery})`;
-  await connection.execute(deletePlayersSqlQuery, sqlParams);
-};
 
 const deletePlayersByMemberId = async (memberId, connection) => {
   const sqlParams = [memberId];
@@ -271,7 +257,6 @@ module.exports = {
   getPlayerByGameIdAndPlayerId,
   cleanPlayerCardsByPlayerId,
   deletePlayerByPlayerId,
-  deletePlayersByGameId,
   postPlayerByGameId,
   deletePlayersByMemberId,
   patchPlayer,
