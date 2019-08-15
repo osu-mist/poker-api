@@ -19,8 +19,6 @@ describe('Test players-serializer', () => {
     serializedPlayers,
     testGameId,
     serializedPlayer,
-    // serializedGames,
-    // serializedGame,
   } = testData;
   const query = {};
   describe('Test mergeRawPlayers', () => {
