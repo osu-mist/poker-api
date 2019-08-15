@@ -27,11 +27,11 @@ const getMembers = async (query) => {
       sqlParams.memberEmail = memberEmail;
     }
     const sqlQuery = `
-    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS
-    WHERE 1 = 1
-    ${memberNickname ? 'AND MEMBER_NICKNAME = :memberNickname ' : ''}
-    ${memberEmail ? 'AND MEMBER_EMAIL = :memberEmail' : ''}
-    `;
+      SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL FROM MEMBERS
+      WHERE 1 = 1
+      ${memberNickname ? 'AND MEMBER_NICKNAME = :memberNickname ' : ''}
+      ${memberEmail ? 'AND MEMBER_EMAIL = :memberEmail' : ''}
+      `;
     const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
     const rawMembers = rawMembersResponse.rows;
     const serializedMembers = serializeMembers(rawMembers, query);
@@ -54,9 +54,9 @@ const getMemberById = async (id, isPost = false) => {
   const connection = await conn.getConnection();
   try {
     const sqlQuery = `
-    SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL
-    FROM MEMBERS WHERE MEMBER_ID = :id
-    `;
+      SELECT MEMBER_ID, MEMBER_NICKNAME, MEMBER_EMAIL, MEMBER_LEVEL, MEMBER_EXP_OVER_LEVEL
+      FROM MEMBERS WHERE MEMBER_ID = :id
+      `;
     const sqlParams = [id];
     const rawMembersResponse = await connection.execute(sqlQuery, sqlParams);
     const rawMembers = rawMembersResponse.rows;
@@ -140,10 +140,10 @@ const isMemberAlreadyRegistered = async (nickname, email) => {
   try {
     const sqlParams = [nickname, email];
     const checkSqlQuery = `
-    SELECT COUNT(1) FROM MEMBERS M
-    WHERE M.MEMBER_NICKNAME = :nickname
-    OR M.MEMBER_EMAIL = :email
-    `;
+      SELECT COUNT(1) FROM MEMBERS M
+      WHERE M.MEMBER_NICKNAME = :nickname
+      OR M.MEMBER_EMAIL = :email
+      `;
     const rawMemberResponse = await connection.execute(checkSqlQuery, sqlParams);
     const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
     return memberCount > 0;
@@ -157,8 +157,8 @@ const deleteMember = async (memberId) => {
   try {
     await playerDao.deletePlayersByMemberId(memberId, connection);
     const delSqlQuery = `
-    DELETE FROM MEMBERS WHERE MEMBER_ID = :id
-    `;
+      DELETE FROM MEMBERS WHERE MEMBER_ID = :id
+      `;
     const sqlParams = {
       id: memberId,
     };
@@ -184,10 +184,10 @@ const patchMember = async (memberId, attributes) => {
       (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const sqlQuery = `
-    UPDATE MEMBERS
-    SET ${joinedString}
-    WHERE MEMBER_ID = :id
-    `;
+      UPDATE MEMBERS
+      SET ${joinedString}
+      WHERE MEMBER_ID = :id
+      `;
     filteredAttributes.id = memberId;
     const response = await connection.execute(sqlQuery, filteredAttributes, { autoCommit: true });
     return response.rowsAffected > 0;
