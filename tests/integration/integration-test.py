@@ -58,6 +58,22 @@ class integration_tests(unittest.TestCase):
                     returned_nickname = row['attributes']['memberNickname']
                     self.assertEqual(member_name, returned_nickname)
                 self.assert_data_returned(current_test_case, response_data)
+        current_test_case = 'member_emails'
+        for member_email in self.test_cases[current_test_case]:
+            with self.subTest('Test email query parameter',
+                member_email=member_email):
+                params = {'memberEmail' : member_email}
+                response = utils.test_endpoint(self,
+                                                f'/members',
+                                                resource,
+                                                200,
+                                                query_params=params)
+                response_data = response.json()['data']
+                for row in response_data:
+                    returned_email = row['attributes']['memberEmail']
+                    self.assertEqual(member_email, returned_email)
+                self.assert_data_returned(current_test_case, response_data)
+
 
     #   Test case: GET /members/{id}
 
@@ -130,10 +146,70 @@ class integration_tests(unittest.TestCase):
         path = '/games'
         resource = 'GameResource'
         current_test_case = "round_names"
-        for round_name in self.test_cases[current_test_case]:
+        for game_round in self.test_cases[current_test_case]:
+            with self.subTest('Test Valid game rounds',
+                game_round=game_round):
+                params = {'round' : game_round}
+                response = utils.test_endpoint(self,
+                                                f'/games',
+                                                resource,
+                                                200,
+                                                query_params=params)
+                response_data = response.json()['data']
+                for row in response_data:
+                    returned_round = row['attributes']['round']
+                    self.assertEqual(game_round, returned_round)
+                self.assert_data_returned(current_test_case, response_data)
 
+        current_test_case = "invalid_round_names"
+        for game_round in self.test_cases[current_test_case]:
+            with self.subTest('Test Invalid game rounds',
+                game_round=game_round):
+                params = {'round' : game_round}
+                response = utils.test_endpoint(self,
+                                                f'/games',
+                                                'ErrorObject',
+                                                400,
+                                                query_params=params)
 
+    #   Test case: GET /games/{gameId}/players/{playerId}
 
+    def test_get_player_by_id(self):
+        resource = 'PlayerResource'
+        current_test_case = 'valid_player_game_combination'
+        for combination in self.test_cases[current_test_case]:
+            with self.subTest('Test Valid game player combinations',
+                game_id=combination[0], player_id=combination[1]):
+                game_id = combination[0]
+                player_id = combination[1]
+                response = utils.test_endpoint(self,
+                                                f'/games/{game_id}/players/{player_id}',
+                                                resource,
+                                                200)
+                response_data = response.json()['data']
+                returned_player_id = response_data['id']
+                self.assertEqual(returned_player_id, player_id)
+
+        current_test_case = 'nonexistent_player_game_combination'
+        for combination in self.test_cases[current_test_case]:
+            with self.subTest('Test valid but nonexistent player and game Id combinations',
+                game_id=combination[0], player_id=combination[1]):
+                game_id = combination[0]
+                player_id = combination[1]
+                utils.test_endpoint(self,
+                                    f'/games/{game_id}/players/{player_id}',
+                                    'ErrorObject',
+                                    404)
+        current_test_case = 'invalid_player_game_combination'
+        for combination in self.test_cases[current_test_case]:
+            with self.subTest('Test invalid player and game combination',
+                game_id=combination[0], player_id=combination[1]):
+                game_id = combination[0]
+                player_id = combination[1]
+                utils.test_endpoint(self,
+                                    f'/games/{game_id}/players/{player_id}',
+                                    'ErrorObject',
+                                    400)
 if __name__ == '__main__':
     arguments, argv = utils.parse_arguments()
 
