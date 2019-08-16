@@ -81,4 +81,4 @@ const serializeMember = (rawMember, isPost = false) => {
 };
 
 
-module.exports = { serializeMembers, serializeMember };
+module.exports = { serializeMembers, serializeMember, singleMemberConverter };

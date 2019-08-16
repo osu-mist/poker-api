@@ -88,4 +88,6 @@ const serializePlayer = (rawPlayers, gameId, isPost = false) => {
   ).serialize(rawPlayer);
 };
 
-module.exports = { serializePlayers, serializePlayer, mergeRawPlayers };
+module.exports = {
+  serializePlayers, serializePlayer, mergeRawPlayers, playerConverter,
+};
