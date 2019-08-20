@@ -210,6 +210,63 @@ class integration_tests(unittest.TestCase):
                                     f'/games/{game_id}/players/{player_id}',
                                     'ErrorObject',
                                     400)
+    #   Test Case: GET /games/{gameId}/players
+    def test_get_players_in_game_by_game_id(self):
+        resource = 'PlayerResource'
+        current_test_case = 'valid_game_ids'
+        for game_id in self.test_cases[current_test_case]:
+            with self.subTest('Test Valid game Ids',
+                game_id=game_id):
+                utils.test_endpoint(self,
+                                    f'/games/{game_id}/players',
+                                    resource,
+                                    200)
+        current_test_case = 'nonexistent_game_ids'
+        for game_id in self.test_cases[current_test_case]:
+            with self.subTest('Test nonexistent game rounds',
+                game_id=game_id):
+                response = utils.test_endpoint(self,
+                                                f'/games/{game_id}/players',
+                                                'ErrorObject',
+                                                404)
+        current_test_case = 'invalid_game_ids'
+        for game_id in self.test_cases[current_test_case]:
+            with self.subTest('Test Invalid game rounds',
+                game_id=game_id):
+                response = utils.test_endpoint(self,
+                                                f'/games/{game_id}/players',
+                                                'ErrorObject',
+                                                400)
+
+    #   Test case: GET /members/{memberId}/games
+    def test_get_games_with_member_by_member_id(self):
+        resource = 'GameResource'
+        current_test_case = 'valid_member_ids'
+        for member_id in self.test_cases[current_test_case]:
+            with self.subTest('Test Valid member Ids',
+                member_id=member_id):
+                utils.test_endpoint(self,
+                                    f'/members/{member_id}/games',
+                                    resource,
+                                    200)
+        current_test_case = 'nonexistent_member_ids'
+        for member_id in self.test_cases[current_test_case]:
+            with self.subTest('Test Valid member Ids',
+                member_id=member_id):
+                utils.test_endpoint(self,
+                                    f'/members/{member_id}/games',
+                                    'ErrorObject',
+                                    404)
+        current_test_case = 'invalid_member_ids'
+        for member_id in self.test_cases[current_test_case]:
+            with self.subTest('Test Valid member Ids',
+                member_id=member_id):
+                utils.test_endpoint(self,
+                                    f'/members/{member_id}/games',
+                                    'ErrorObject',
+                                    400)
+
+
 if __name__ == '__main__':
     arguments, argv = utils.parse_arguments()
 

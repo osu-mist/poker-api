@@ -12,6 +12,7 @@ const gameResourceType = gameResourceProp.type.enum[0];
 const gameResourceKeys = _.keys(gameResourceProp.attributes.properties);
 const gameResourcePath = 'games';
 const gameResourceUrl = resourcePathLink(apiBaseUrl, gameResourcePath);
+const gameFromMemberResourcePath = memberId => `members/${memberId}/games`;
 
 /**
  * The column name getting from database is usually UPPER_CASE.
@@ -52,13 +53,17 @@ const mergeRawGames = (rawGames) => {
 };
 
 
-const serializeGames = (rawGames, query) => {
+const serializeGames = (rawGames, query, memberId) => {
   rawGames = mergeRawGames(rawGames);
   _.forEach(rawGames, (game) => {
     individualGameConverter(game);
   });
+  const gameResourcePathInstance = memberId ? gameFromMemberResourcePath(memberId)
+    : gameResourcePath;
+  console.log(gameResourcePathInstance);
+  const gameResourceUrlShadow = resourcePathLink(apiBaseUrl, gameResourcePathInstance);
+  const topLevelSelfLink = paramsLink(gameResourceUrlShadow, query);
 
-  const topLevelSelfLink = paramsLink(gameResourceUrl, query);
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
