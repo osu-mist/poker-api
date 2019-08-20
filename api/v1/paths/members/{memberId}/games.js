@@ -3,7 +3,6 @@ const appRoot = require('app-root-path');
 const gameDao = require('../../../db/oracledb/game-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
-const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
  * @summary Get games a specific member is now playing
