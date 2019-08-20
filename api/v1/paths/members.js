@@ -7,6 +7,9 @@ const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
  * @summary Get members
+ * @param {object} req The request object sent from client.
+ * @param {object} res The response object sent to client.
+ * @returns {object} Response or error.
  */
 const get = async (req, res) => {
   try {
@@ -19,6 +22,8 @@ const get = async (req, res) => {
 
 /**
  * @summary Post member
+ * @param {object} req The request object sent from client.
+ * @param {object} res The response object sent to client.
  */
 const post = async (req, res) => {
   try {

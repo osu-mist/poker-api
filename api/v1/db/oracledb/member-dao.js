@@ -12,7 +12,7 @@ const conn = appRoot.require('api/v1/db/oracledb/connection');
 /**
  * @summary Return a list of members
  * @function
- * @returns {Promise<Object[]>} Promise object represents a list of members
+ * @returns {Promise<object[]>} Promise object represents a list of members
  */
 const getMembers = async (query) => {
   const connection = await conn.getConnection();
@@ -46,7 +46,7 @@ const getMembers = async (query) => {
  * @summary Return a specific member by unique ID
  * @function
  * @param {string} id Unique member ID
- * @returns {Promise<Object>} Promise object represents a specific member
+ * @returns {Promise<object>} Promise object represents a specific member
  *                            or return undefined if term
  *                            is not found
  */
@@ -103,8 +103,8 @@ const validateMembers = async (memberIds) => {
 /**
  * @summary Post a new member into the system.
  * @function
- * @param {Object} body The post body from request object.
- * @returns {Promise<Object>} The JSON resource of the new member created.
+ * @param {object} body The post body from request object.
+ * @returns {Promise<object>} The JSON resource of the new member created.
  */
 const postMember = async (body) => {
   const connection = await conn.getConnection();

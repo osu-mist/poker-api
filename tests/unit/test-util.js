@@ -14,9 +14,9 @@ const { openapi } = appRoot.require('utils/load-openapi');
 /**
  * @summary Create the stub for connection object that is useful for controlled testing environment.
  * @function
- * @param {Object} testCase The testcase that becomes the return value of connection.execute
+ * @param {object} testCase The testcase that becomes the return value of connection.execute
  * in the stub.
- * @returns {Object} An object of all the interal function stub created for this stub.
+ * @returns {object} An object of all the interal function stub created for this stub.
  */
 const createConnStub = (testCase) => {
   const executeStub = sinon.stub().returns(testCase ? testCase.data : null);
@@ -35,8 +35,8 @@ const createConnStub = (testCase) => {
  * @function
  * @param {string} resourceType The type of resource.
  * @param {string} resourceId The id of resource.
- * @param {Object} resourceAttributes The attribute of the resource.
- * @returns {Object} Expected serialized rawData.
+ * @param {object} resourceAttributes The attribute of the resource.
+ * @returns {object} Expected serialized rawData.
  */
 const resourceSchema = (resourceType, resourceId, resourceAttributes) => {
   const fakeUrl = `/${fakeBaseUrl}/${resourceType}s/${resourceId}`;
@@ -64,7 +64,7 @@ const resourceSchema = (resourceType, resourceId, resourceAttributes) => {
  * @summary Get the schema of a type of resource.
  * @function
  * @param {string} def The type of the resource.
- * @returns {Object} The schema of the resource to look up.
+ * @returns {object} The schema of the resource to look up.
  */
 const getDefinition = (def) => {
   const result = openapi.definitions[def].properties.data.properties;
@@ -73,12 +73,11 @@ const getDefinition = (def) => {
 
 /**
  * @summary Test if a single resource matches the schema in the specification.
- * @param {Object} serializedResource serialized resource to be tested.
+ * @param {object} serializedResource serialized resource to be tested.
  * @param {string} resourceType The type of the resource.
  * @param {string} resourceId The id of the resource.
- * @param {Object} nestedProps The attributes of the resource.
+ * @param {object} nestedProps The attributes of the resource.
  */
-
 const testSingleResource = (serializedResource, resourceType, resourceId, nestedProps) => {
   expect(serializedResource).to.deep.equal(resourceSchema(resourceType,
     resourceId,
@@ -87,8 +86,8 @@ const testSingleResource = (serializedResource, resourceType, resourceId, nested
 
 /**
  *
- * @param {Object} serializedResources serialized resource to be tested.
- * @param {Object} rawResources Raw resources to be used in test.
+ * @param {object} serializedResources serialized resource to be tested.
+ * @param {object} rawResources Raw resources to be used in test.
  * @param {*} resourceType The type of the resource.
  * @param {*} resourceKey The id of the resource.
  */

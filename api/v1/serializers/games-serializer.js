@@ -36,8 +36,8 @@ const individualGameConverter = (rawGame) => {
  * and put them into a field called 'tableCards' in the individual merged game object, while other
  * properties in the object remained in the first layer.
  * @function
- * @param {Object[]} rawGames An array of raw game data returned from SQL database.
- * @returns {Object[]} Game objects merged.
+ * @param {object[]} rawGames An array of raw game data returned from SQL database.
+ * @returns {object[]} Game objects merged.
  */
 const mergeRawGames = (rawGames) => {
   const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
@@ -52,7 +52,14 @@ const mergeRawGames = (rawGames) => {
   return mergedRawGames;
 };
 
-
+/**
+ * Serialize gameResources to JSON API
+ *
+ * @param {object[]} rawGames Raw data rows from data source
+ * @param {object} query Query parameters
+ * @param {string} memberId Id of the member, optional
+ * @returns {object} Serialized gameResources object
+ */
 const serializeGames = (rawGames, query, memberId) => {
   rawGames = mergeRawGames(rawGames);
   _.forEach(rawGames, (game) => {
@@ -60,7 +67,6 @@ const serializeGames = (rawGames, query, memberId) => {
   });
   const gameResourcePathInstance = memberId ? gameFromMemberResourcePath(memberId)
     : gameResourcePath;
-  console.log(gameResourcePathInstance);
   const gameResourceUrlShadow = resourcePathLink(apiBaseUrl, gameResourcePathInstance);
   const topLevelSelfLink = paramsLink(gameResourceUrlShadow, query);
 
@@ -78,7 +84,14 @@ const serializeGames = (rawGames, query, memberId) => {
   ).serialize(rawGames);
 };
 
-
+/**
+ * Serialize gameResources to JSON API
+ *
+ * @param {object[]} rawGames Raw data rows from data source
+ * @param {boolean} isPost Whether client is posting
+ * @param {object} query Query parameters
+ * @returns {object} Serialized gameResources object
+ */
 const serializeGame = (rawGames, isPost, query) => {
   const [rawGame] = mergeRawGames(rawGames);
   individualGameConverter(rawGame);

@@ -43,6 +43,14 @@ const mergeRawPlayers = (rawPlayers) => {
   return mergedRawPlayers;
 };
 
+/**
+ * Serialize playerResources to JSON API
+ *
+ * @param {object[]} rawPlayers Raw data rows from data source
+ * @param {object} query Query parameters
+ * @param {string} gameId Id of the game, optional
+ * @returns {object} Serialized playerResources object
+ */
 const serializePlayers = (rawPlayers, query, gameId) => {
   rawPlayers = mergeRawPlayers(rawPlayers);
   _.forEach(rawPlayers, (player) => {
@@ -65,7 +73,14 @@ const serializePlayers = (rawPlayers, query, gameId) => {
   ).serialize(rawPlayers);
 };
 
-
+/**
+ * @summary Serialize playerResource to JSON API
+ * @function
+ * @param {object} rawPlayers Raw data row from data source
+ * @param {string} gameId Id of the game, optional
+ * @param {boolean} isPost Whether the client is posting
+ * @returns {object} Serialized playerResource object
+ */
 const serializePlayer = (rawPlayers, gameId, isPost = false) => {
   const [rawPlayer] = mergeRawPlayers(rawPlayers);
   playerConverter(rawPlayer);

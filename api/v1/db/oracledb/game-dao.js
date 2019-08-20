@@ -21,8 +21,8 @@ const sqlQuery = `
 /**
  * @summary Return a list of games
  * @function
- * @param {Object} query query object that contains useful information to process.
- * @returns {Promise<Object[]>} Promise object represents a list of games
+ * @param {object} query query object that contains useful information to process.
+ * @returns {Promise<object[]>} Promise object represents a list of games
  */
 const getGames = async (query) => {
   const connection = await conn.getConnection();
@@ -43,7 +43,12 @@ const getGames = async (query) => {
   }
 };
 
-
+/**
+ * @function
+ * @param {string} id Id of the game to get
+ * @param {boolean} isPost Whether the client is posting
+ * @returns {Promise<object[]>} Promise object represents a game object
+ */
 const getGameById = async (id, isPost = false) => {
   const connection = await conn.getConnection();
   try {
