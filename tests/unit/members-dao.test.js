@@ -5,6 +5,7 @@ const chaiExclude = require('chai-exclude');
 const _ = require('lodash');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
+const config = require('config');
 
 const { createConnStub } = require('./test-util');
 const {
@@ -31,6 +32,7 @@ const { assert } = chai;
 describe('Test members-dao', () => {
   let membersDao;
 
+  beforeEach(() => sinon.stub(config, 'get').returns({ oracledb: {} }));
 
   afterEach(() => sinon.restore());
 

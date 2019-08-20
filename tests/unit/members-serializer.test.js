@@ -19,11 +19,17 @@ chai.use(chaiAsPromised);
 chai.use(chaiSubset);
 
 describe('Test memberSerializer', () => {
-  const { rawMembers } = testData;
+  const {
+    rawMembers,
+    rawMemberToConvert,
+    rawMemberConverted,
+  } = testData;
   const resourceType = 'member';
   const memberId = 'MEMBER_ID';
 
   afterEach(() => sinon.restore());
+
+
   describe('Test memberSerializer', () => {
     it('Should return a valid JSON object that follow the OpenAPI specification', () => {
       sinon.replace(config, 'get', () => ({ oracledb: {} }));
@@ -33,6 +39,14 @@ describe('Test memberSerializer', () => {
         resourceType,
         rawMembers[0][memberId],
         _.omit(rawMembers[0], memberId));
+    });
+  });
+
+  describe('Test singleMemberConverter', () => {
+    it('Should convert with all valid fields', () => {
+      const { singleMemberConverter } = memberSerializer;
+      singleMemberConverter(rawMemberToConvert);
+      chai.expect(rawMemberToConvert).to.deep.equal(rawMemberConverted);
     });
   });
 
