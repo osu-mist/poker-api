@@ -105,7 +105,7 @@ class integration_tests(unittest.TestCase):
                 utils.test_endpoint(self,
                                     f'/members/{member_id}',
                                     'ErrorObject',
-                                    400)
+                                    404)
 
     #   Test case: GET /games/{gameId}
 
@@ -138,7 +138,7 @@ class integration_tests(unittest.TestCase):
                 utils.test_endpoint(self,
                                     f'/games/{game_id}',
                                     'ErrorObject',
-                                    400)
+                                    404)
 
     #   Test case: GET /games
 
@@ -209,7 +209,7 @@ class integration_tests(unittest.TestCase):
                 utils.test_endpoint(self,
                                     f'/games/{game_id}/players/{player_id}',
                                     'ErrorObject',
-                                    400)
+                                    404)
     #   Test Case: GET /games/{gameId}/players
     def test_get_players_in_game_by_game_id(self):
         resource = 'PlayerResource'
@@ -236,7 +236,7 @@ class integration_tests(unittest.TestCase):
                 response = utils.test_endpoint(self,
                                                 f'/games/{game_id}/players',
                                                 'ErrorObject',
-                                                400)
+                                                404)
 
     #   Test case: GET /members/{memberId}/games
     def test_get_games_with_member_by_member_id(self):
@@ -264,7 +264,7 @@ class integration_tests(unittest.TestCase):
                 utils.test_endpoint(self,
                                     f'/members/{member_id}/games',
                                     'ErrorObject',
-                                    400)
+                                    404)
 
 
 if __name__ == '__main__':

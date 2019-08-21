@@ -30,6 +30,11 @@ const playerConverter = (player) => {
   player.PLAYER_BET = parseInt(player.PLAYER_BET, 10);
 };
 
+/**
+ *
+ * @param {object} rawPlayers Raw player data from data source.
+ * @returns {object} Player data being properly merged.
+ */
 const mergeRawPlayers = (rawPlayers) => {
   const groupedRawPlayers = _.groupBy(rawPlayers, 'PLAYER_ID');
   const mergedRawPlayers = _.map(groupedRawPlayers, (playerMetaDataArray) => {
@@ -103,4 +108,4 @@ const serializePlayer = (rawPlayers, gameId, isPost = false) => {
   ).serialize(rawPlayer);
 };
 
-module.exports = { serializePlayers, serializePlayer };
+module.exports = { serializePlayers, serializePlayer, mergeRawPlayers };

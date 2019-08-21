@@ -29,6 +29,12 @@ const sqlQuery = `
   LEFT OUTER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
   `;
 
+/**
+ *
+ * @param {number} id Id of the game.
+ * @param {object} query Query object sent from the client.
+ * @returns {Promise<object>} The promise object of the data returned from data source.
+ */
 const getPlayersByGameId = async (id, query) => {
   const connection = await conn.getConnection();
   try {
@@ -49,7 +55,13 @@ const getPlayersByGameId = async (id, query) => {
   }
 };
 
-
+/**
+ *
+ * @param {number} id The id of the game.
+ * @param {number} pid The id of the player.
+ * @param {boolean} isPost Whether this function is being used by a post operation function.
+ * @returns {Promise<object>} The promise object of data returned from data source.
+ */
 const getPlayerByGameIdAndPlayerId = async (id, pid, isPost = false) => {
   const connection = await conn.getConnection();
   try {
@@ -75,6 +87,12 @@ const getPlayerByGameIdAndPlayerId = async (id, pid, isPost = false) => {
   }
 };
 
+/**
+ *
+ * @param {number} playerId Id of the player.
+ * @param {object} connection Connection object passed from another function.
+ * @returns {Promise<object>} Promise object of the result object from data source.
+ */
 const cleanPlayerCardsByPlayerId = async (playerId, connection) => {
   const sqlParams = [playerId];
   const deleteSqlQuery = `
@@ -84,6 +102,12 @@ const cleanPlayerCardsByPlayerId = async (playerId, connection) => {
   return result;
 };
 
+/**
+ *
+ * @param {number} playerId Id of the player
+ * @param {object} passedConnection Connection object passed from another function.
+ * @returns {Promise<object>} Promise object of the result object from data source.
+ */
 const deletePlayerByPlayerId = async (playerId, passedConnection) => {
   const isPassedConnection = Boolean(passedConnection);
   const connection = isPassedConnection ? passedConnection : await conn.getConnection();
@@ -103,7 +127,11 @@ const deletePlayerByPlayerId = async (playerId, passedConnection) => {
   }
 };
 
-
+/**
+ *
+ * @param {number} memberId Id of the member.
+ * @param {object} connection Connection object passed from another function.
+ */
 const deletePlayersByMemberId = async (memberId, connection) => {
   const sqlParams = [memberId];
   const playerSqlQuery = `
@@ -119,6 +147,12 @@ const deletePlayersByMemberId = async (memberId, connection) => {
   await connection.execute(deletePlayersSqlQuery, sqlParams);
 };
 
+/**
+ *
+ * @param {object} body body object passed from client.
+ * @param {number} gameId Id of the game.
+ * @returns {Promise<object>} The promise object of data returned from data source.
+ */
 const postPlayerByGameId = async (body, gameId) => {
   const connection = await conn.getConnection();
   try {
@@ -197,6 +231,12 @@ const databaseName = string => (decamelize(string).toUpperCase());
 
 const isTruthyOrZero = val => (val || val === 0);
 
+/**
+ *
+ * @param {number} playerId Id of the player.
+ * @param {object} attributes The attribute object from client's body sent.
+ * @returns {Promise<object>} Promise object of data returned from data source.
+ */
 const patchPlayer = async (playerId, attributes) => {
   const connection = await conn.getConnection();
   try {

@@ -3,7 +3,6 @@ const appRoot = require('app-root-path');
 const membersDao = require('../db/oracledb/member-dao');
 
 const { errorHandler, errorBuilder } = appRoot.require('errors/errors');
-const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
  * @summary Get members
@@ -39,7 +38,5 @@ const post = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/members'].get;
-post.apiDoc = paths['/members'].post;
 
 module.exports = { get, post };

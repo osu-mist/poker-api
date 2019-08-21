@@ -71,6 +71,11 @@ const getGameById = async (id, isPost = false) => {
   }
 };
 
+/**
+ *
+ * @param {object} body Body object sent from client.
+ * @returns {Promise<object>} Promise object that represents a game object
+ */
 const postGame = async (body) => {
   const connection = await conn.getConnection();
   try {
@@ -128,6 +133,12 @@ const validateGame = async (id) => {
   }
 };
 
+/**
+ *
+ * @param {number} id Id of the member
+ * @param {object} query Query object
+ * @returns {Promise<object[]>} Promise object that represents an array of game object
+ */
 const getGamesByMemberId = async (id, query) => {
   const connection = await conn.getConnection();
   try {
@@ -156,8 +167,8 @@ const getGamesByMemberId = async (id, query) => {
 /**
  * @summary Check if a certain member is already in the game by memberId and gameId parameters.
  * @function
- * @param {number} memberId
- * @param {number} gameId
+ * @param {number} memberId Id of the member
+ * @param {number} gameId Id of the game
  * @returns {Promise<boolean>} If the member is already in the game.
  */
 const isMemberInGame = async (memberId, gameId) => {
@@ -237,6 +248,11 @@ const deletePlayersByGameId = async (gameId, connection) => {
   await connection.execute(deletePlayersSqlQuery, sqlParams);
 };
 
+/**
+ *
+ * @param {number} gameId Id of the game
+ * @returns {Promise<object>} The result object from data source.
+ */
 const deleteGameByGameId = async (gameId) => {
   const connection = await conn.getConnection();
   try {
@@ -254,7 +270,11 @@ const deleteGameByGameId = async (gameId) => {
   }
 };
 
-
+/**
+ *
+ * @param {string} string The name to be converted.
+ * @returns {string} The name converted.
+ */
 const databaseName = (string) => {
   if (string === 'round') {
     return 'ROUND_ID';
@@ -264,6 +284,12 @@ const databaseName = (string) => {
 
 const isTruthyOrZero = val => (val || val === 0);
 
+/**
+ *
+ * @param {number} gameId The id of the game.
+ * @param {*} attributes The attribute from the body object.
+ * @returns {object} Promise<boolean> Promise of whether the operation is successful.
+ */
 const patchGame = async (gameId, attributes) => {
   const connection = await conn.getConnection();
   try {
