@@ -60,7 +60,6 @@ const serializeGames = (rawGames, query, memberId) => {
   });
   const gameResourcePathInstance = memberId ? gameFromMemberResourcePath(memberId)
     : gameResourcePath;
-  console.log(gameResourcePathInstance);
   const gameResourceUrlShadow = resourcePathLink(apiBaseUrl, gameResourcePathInstance);
   const topLevelSelfLink = paramsLink(gameResourceUrlShadow, query);
 
