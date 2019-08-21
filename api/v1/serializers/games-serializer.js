@@ -110,4 +110,6 @@ const serializeGame = (rawGames, isPost, query) => {
   ).serialize(rawGame);
 };
 
-module.exports = { serializeGames, serializeGame, mergeRawGames };
+module.exports = {
+  serializeGames, serializeGame, mergeRawGames, individualGameConverter,
+};

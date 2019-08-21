@@ -122,9 +122,9 @@ const validateGame = async (id) => {
   try {
     const sqlParams = [id];
     const validateSqlQuery = `
-    SELECT COUNT(1) FROM GAMES G
-    WHERE G.GAME_ID = :id
-    `;
+      SELECT COUNT(1) FROM GAMES G
+      WHERE G.GAME_ID = :id
+      `;
     const rawGamesResponse = await connection.execute(validateSqlQuery, sqlParams);
     const gameCount = parseInt(rawGamesResponse.rows[0]['COUNT(1)'], 10);
     return !(gameCount < 1);
@@ -144,17 +144,17 @@ const getGamesByMemberId = async (id, query) => {
   try {
     const sqlParams = [id];
     const getMemberSqlQuery = `SELECT COUNT(1) FROM MEMBERS M
-    WHERE M.MEMBER_ID = :id
-    `;
+      WHERE M.MEMBER_ID = :id
+      `;
     const rawMemberResponse = await connection.execute(getMemberSqlQuery, sqlParams);
     const memberCount = parseInt(rawMemberResponse.rows[0]['COUNT(1)'], 10);
     if (memberCount < 1) {
       return undefined;
     }
     const getSqlQuery = `${sqlQuery}
-    LEFT OUTER JOIN PLAYERS P ON P.GAME_ID = G.GAME_ID
-    WHERE P.MEMBER_ID = :id
-    `;
+      LEFT OUTER JOIN PLAYERS P ON P.GAME_ID = G.GAME_ID
+      WHERE P.MEMBER_ID = :id
+      `;
     const rawGamesResponse = await connection.execute(getSqlQuery, sqlParams);
     const rawGames = rawGamesResponse.rows;
     const serializedGames = serializeGames(rawGames, query, id);
@@ -176,8 +176,8 @@ const isMemberInGame = async (memberId, gameId) => {
   try {
     const sqlParams = [memberId, gameId];
     const getPlayerSqlQuery = `SELECT COUNT(1) FROM PLAYERS P
-    WHERE P.MEMBER_ID = :memberId AND P.GAME_ID = :gameId
-    `;
+      WHERE P.MEMBER_ID = :memberId AND P.GAME_ID = :gameId
+      `;
     const rawPlayerResponse = await connection.execute(getPlayerSqlQuery, sqlParams);
     const playerCount = parseInt(rawPlayerResponse.rows[0]['COUNT(1)'], 10);
     return playerCount > 0;
@@ -189,8 +189,8 @@ const isMemberInGame = async (memberId, gameId) => {
 const cleanTableCardsByGameId = async (gameId, connection) => {
   const sqlParams = [gameId];
   const cleanCardSqlQuery = `
-  DELETE FROM TABLE_CARDS WHERE GAME_ID = :gameID
-  `;
+    DELETE FROM TABLE_CARDS WHERE GAME_ID = :gameID
+    `;
   await connection.execute(cleanCardSqlQuery, sqlParams);
 };
 
@@ -212,20 +212,20 @@ const insertCardsByGameId = async (gameId, tableCards, connection) => {
   }
   const selectBindString = _.join(individualSelection, ',');
   const getIdSqlQuery = `
-  SELECT C.CARD_ID FROM CARDS C
-  INNER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
-  INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
-  WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`;
+    SELECT C.CARD_ID FROM CARDS C
+    INNER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
+    INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
+    WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`;
   const cardIdResult = await connection.execute(getIdSqlQuery, flattenedArray);
   const cardIds = _.map(cardIdResult.rows, card => card.CARD_ID);
 
   const insertBindString = _.map(cardIds,
     (name, index) => `INTO TABLE_CARDS (GAME_ID, CARD_ID) VALUES (:gameId, :${index})`).join('\n');
   const insertSqlQuery = `
-  INSERT ALL
-    ${insertBindString}
-  SELECT 1 FROM DUAL
-  `;
+    INSERT ALL
+      ${insertBindString}
+    SELECT 1 FROM DUAL
+    `;
   const sqlParams = {
     ...cardIds,
     gameId,
@@ -236,15 +236,15 @@ const insertCardsByGameId = async (gameId, tableCards, connection) => {
 const deletePlayersByGameId = async (gameId, connection) => {
   const sqlParams = [gameId];
   const playerSqlQuery = `
-  SELECT PLAYER_ID FROM PLAYERS P
-  WHERE GAME_ID = :gameId
-  `;
+    SELECT PLAYER_ID FROM PLAYERS P
+    WHERE GAME_ID = :gameId
+    `;
   const deletePlayerCardSqlQuery = `
-  DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${playerSqlQuery})`;
+    DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${playerSqlQuery})`;
   await connection.execute(deletePlayerCardSqlQuery, sqlParams);
 
   const deletePlayersSqlQuery = `
-  DELETE FROM PLAYERS WHERE PLAYER_ID IN (${playerSqlQuery})`;
+    DELETE FROM PLAYERS WHERE PLAYER_ID IN (${playerSqlQuery})`;
   await connection.execute(deletePlayersSqlQuery, sqlParams);
 };
 
@@ -261,7 +261,7 @@ const deleteGameByGameId = async (gameId) => {
     await Promise.all([cleanTableProm, delPlayerProm]);
     const sqlParams = [gameId];
     const deleteSqlQuery = `
-    DELETE FROM GAMES WHERE GAME_ID = :gameId
+      DELETE FROM GAMES WHERE GAME_ID = :gameId
     `;
     const result = await connection.execute(deleteSqlQuery, sqlParams, { autoCommit: true });
     return result;
@@ -311,10 +311,10 @@ const patchGame = async (gameId, attributes) => {
       (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const patchSqlQuery = `
-    UPDATE GAMES
-    SET ${joinedString}
-    WHERE GAME_ID = :id
-    `;
+      UPDATE GAMES
+      SET ${joinedString}
+      WHERE GAME_ID = :id
+      `;
     filteredAttributes.id = gameId;
     const response = await connection.execute(patchSqlQuery,
       filteredAttributes,

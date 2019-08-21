@@ -31,8 +31,7 @@ const createConnStub = (testCase) => {
 };
 
 /**
- * @summary Transoform the rawData into serializedData.
- * @function
+ * Transoform the rawData into serializedData.
  * @param {string} resourceType The type of resource.
  * @param {string} resourceId The id of resource.
  * @param {object} resourceAttributes The attribute of the resource.
@@ -61,8 +60,8 @@ const resourceSchema = (resourceType, resourceId, resourceAttributes) => {
 };
 
 /**
- * @summary Get the schema of a type of resource.
- * @function
+ * Get the schema of a type of resource.
+ *
  * @param {string} def The type of the resource.
  * @returns {object} The schema of the resource to look up.
  */
@@ -85,6 +84,7 @@ const testSingleResource = (serializedResource, resourceType, resourceId, nested
 };
 
 /**
+ * Validate multiple serialized resources.
  *
  * @param {object} serializedResources serialized resource to be tested.
  * @param {object} rawResources Raw resources to be used in test.
