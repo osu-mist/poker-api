@@ -76,4 +76,4 @@ const patch = async (req, res) => {
   }
 };
 
-module.exports = { get, del, patch };
+module.exports = { get, delete: del, patch };
