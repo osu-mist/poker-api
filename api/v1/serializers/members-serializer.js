@@ -23,6 +23,10 @@ _.forEach(memberResourceKeys, (key, index) => {
   memberResourceKeys[index] = decamelize(key).toUpperCase();
 });
 
+/**
+ *
+ * @param {object} rawMember The raw member object
+ */
 const singleMemberConverter = (rawMember) => {
   rawMember.MEMBER_LEVEL = parseInt(rawMember.MEMBER_LEVEL, 10);
   rawMember.MEMBER_EXP_OVER_LEVEL = parseInt(rawMember.MEMBER_EXP_OVER_LEVEL, 10);

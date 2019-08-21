@@ -24,6 +24,10 @@ _.forEach(playerResourceKeys, (key, index) => {
 });
 playerResourceKeys.push('playerCards');
 
+/**
+ *
+ * @param {object} player Raw player object
+ */
 const playerConverter = (player) => {
   player.MEMBER_LEVEL = parseInt(player.MEMBER_LEVEL, 10);
   player.MEMBER_EXP_OVER_LEVEL = parseInt(player.MEMBER_EXP_OVER_LEVEL, 10);
@@ -108,4 +112,9 @@ const serializePlayer = (rawPlayers, gameId, isPost = false) => {
   ).serialize(rawPlayer);
 };
 
-module.exports = { serializePlayers, serializePlayer, mergeRawPlayers };
+module.exports = {
+  serializePlayers,
+  serializePlayer,
+  mergeRawPlayers,
+  playerConverter,
+};

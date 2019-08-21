@@ -31,7 +31,7 @@ const createConnStub = (testCase) => {
 };
 
 /**
- * Transoform the rawData into serializedData.
+ * @summary Transoform the rawData into serializedData.
  * @param {string} resourceType The type of resource.
  * @param {string} resourceId The id of resource.
  * @param {object} resourceAttributes The attribute of the resource.

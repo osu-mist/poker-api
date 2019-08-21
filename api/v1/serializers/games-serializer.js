@@ -25,6 +25,10 @@ _.forEach(gameResourceKeys, (key, index) => {
 });
 gameResourceKeys.push('tableCards');
 
+/**
+ *
+ * @param {object} rawGame The raw game object
+ */
 const individualGameConverter = (rawGame) => {
   rawGame.MINIMUM_BET = parseInt(rawGame.MINIMUM_BET, 10);
   rawGame.MAXIMUM_BET = parseInt(rawGame.MAXIMUM_BET, 10);
