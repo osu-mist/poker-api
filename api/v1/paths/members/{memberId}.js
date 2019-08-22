@@ -3,10 +3,11 @@ const appRoot = require('app-root-path');
 const membersDao = require('../../db/oracledb/member-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
-const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
  * @summary Get member by unique ID
+ * @param {object} req Request object
+ * @param {object} res Response object
  */
 const get = async (req, res) => {
   try {
@@ -24,6 +25,8 @@ const get = async (req, res) => {
 
 /**
  * @summary Delete member by unique ID.
+ * @param {object} req Request object
+ * @param {object} res Response object
  */
 const del = async (req, res) => {
   try {
@@ -41,6 +44,8 @@ const del = async (req, res) => {
 
 /**
  * @summary Patch member by unique id
+ * @param {object} req Request object
+ * @param {object} res Response object
  */
 const patch = async (req, res) => {
   try {
@@ -61,8 +66,5 @@ const patch = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/members/{memberId}'].get;
-del.apiDoc = paths['/members/{memberId}'].del;
-patch.apiDoc = paths['/members/{memberId}'].patch;
 
-module.exports = { get, del, patch };
+module.exports = { get, delete: del, patch };

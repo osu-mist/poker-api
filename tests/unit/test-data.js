@@ -638,6 +638,38 @@ const fakePlayerCardOnlyBody = {
 const testGameId = 1;
 const nonDuplicateArray = [1, 4, 2, 3, 7, 6, 200];
 const duplicateArray = [3, 5, 3, 2, 4, 6];
+
+const rawGameToConvert = {
+  MINIMUM_BET: '1',
+  MAXIMUM_BET: '2',
+  BET_POOL: '100',
+};
+const rawGameConverted = {
+  MINIMUM_BET: 1,
+  MAXIMUM_BET: 2,
+  BET_POOL: 100,
+};
+const rawMemberToConvert = {
+  MEMBER_LEVEL: '1',
+  MEMBER_EXP_OVER_LEVEL: '100',
+};
+
+const rawMemberConverted = {
+  MEMBER_LEVEL: 1,
+  MEMBER_EXP_OVER_LEVEL: 100,
+};
+
+const rawPlayerToConvert = {
+  MEMBER_LEVEL: '1',
+  MEMBER_EXP_OVER_LEVEL: '100',
+  PLAYER_BET: '123',
+};
+
+const rawPlayerConverted = {
+  MEMBER_LEVEL: 1,
+  MEMBER_EXP_OVER_LEVEL: 100,
+  PLAYER_BET: 123,
+};
 module.exports = {
   fakeId,
   fakeMemberPostBody,
@@ -669,4 +701,10 @@ module.exports = {
   serializedPlayers,
   testGameId,
   serializedPlayer,
+  rawGameToConvert,
+  rawGameConverted,
+  rawMemberConverted,
+  rawMemberToConvert,
+  rawPlayerToConvert,
+  rawPlayerConverted,
 };

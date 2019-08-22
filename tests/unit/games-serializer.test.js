@@ -17,7 +17,16 @@ describe('Test games-serializer', () => {
     mergedRawGames,
     serializedGames,
     serializedGame,
+    rawGameToConvert,
+    rawGameConverted,
   } = testData;
+
+  describe('Test individualGameConverter', () => {
+    it('Should convert with all valid fields', () => {
+      gameSerializer.individualGameConverter(rawGameToConvert);
+      chai.expect(rawGameToConvert).to.deep.equal(rawGameConverted);
+    });
+  });
 
   describe('Test mergeRawGames', () => {
     it('Should merge rawgames properly', () => {

@@ -29,6 +29,12 @@ const sqlQuery = `
   LEFT OUTER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
   `;
 
+/**
+ *
+ * @param {number} id Id of the game.
+ * @param {object} query Query object sent from the client.
+ * @returns {Promise<object>} The promise object of the data returned from data source.
+ */
 const getPlayersByGameId = async (id, query) => {
   const connection = await conn.getConnection();
   try {
@@ -37,9 +43,9 @@ const getPlayersByGameId = async (id, query) => {
       return undefined;
     }
     const getSqlQuery = `
-    ${sqlQuery}
-    WHERE G.GAME_ID = :id
-    `;
+      ${sqlQuery}
+      WHERE G.GAME_ID = :id
+      `;
     const rawPlayersResponse = await connection.execute(getSqlQuery, sqlParams);
     const rawPlayers = rawPlayersResponse.rows;
     const serializedPlayers = serializePlayers(rawPlayers, query, id);
@@ -49,15 +55,21 @@ const getPlayersByGameId = async (id, query) => {
   }
 };
 
-
+/**
+ *
+ * @param {number} id The id of the game.
+ * @param {number} pid The id of the player.
+ * @param {boolean} isPost Whether this function is being used by a post operation function.
+ * @returns {Promise<object>} The promise object of data returned from data source.
+ */
 const getPlayerByGameIdAndPlayerId = async (id, pid, isPost = false) => {
   const connection = await conn.getConnection();
   try {
     const sqlParams = [id, pid];
     const getSqlQuery = `${sqlQuery}
-    WHERE G.GAME_ID = :id
-    AND P.PLAYER_ID = :pid
-    `;
+      WHERE G.GAME_ID = :id
+      AND P.PLAYER_ID = :pid
+      `;
     const rawPlayersResponse = await connection.execute(getSqlQuery, sqlParams);
     const rawPlayers = rawPlayersResponse.rows;
     const groupedRawPlayers = _.groupBy(rawPlayers, 'GAME_ID');
@@ -75,15 +87,27 @@ const getPlayerByGameIdAndPlayerId = async (id, pid, isPost = false) => {
   }
 };
 
+/**
+ *
+ * @param {number} playerId Id of the player.
+ * @param {object} connection Connection object passed from another function.
+ * @returns {Promise<object>} Promise object of the result object from data source.
+ */
 const cleanPlayerCardsByPlayerId = async (playerId, connection) => {
   const sqlParams = [playerId];
   const deleteSqlQuery = `
-  DELETE FROM PLAYER_CARDS WHERE PLAYER_ID = :playerId
+    DELETE FROM PLAYER_CARDS WHERE PLAYER_ID = :playerId
   `;
   const result = await connection.execute(deleteSqlQuery, sqlParams);
   return result;
 };
 
+/**
+ *
+ * @param {number} playerId Id of the player
+ * @param {object} passedConnection Connection object passed from another function.
+ * @returns {Promise<object>} Promise object of the result object from data source.
+ */
 const deletePlayerByPlayerId = async (playerId, passedConnection) => {
   const isPassedConnection = Boolean(passedConnection);
   const connection = isPassedConnection ? passedConnection : await conn.getConnection();
@@ -91,7 +115,7 @@ const deletePlayerByPlayerId = async (playerId, passedConnection) => {
     await cleanPlayerCardsByPlayerId(playerId, connection);
     const sqlParams = [playerId];
     const deleteSqlQuery = `
-    DELETE FROM PLAYERS WHERE PLAYER_ID = :playerId
+      DELETE FROM PLAYERS WHERE PLAYER_ID = :playerId
     `;
     const result = await connection.execute(deleteSqlQuery, sqlParams,
       { autoCommit: !isPassedConnection });
@@ -103,22 +127,32 @@ const deletePlayerByPlayerId = async (playerId, passedConnection) => {
   }
 };
 
-
+/**
+ *
+ * @param {number} memberId Id of the member.
+ * @param {object} connection Connection object passed from another function.
+ */
 const deletePlayersByMemberId = async (memberId, connection) => {
   const sqlParams = [memberId];
   const playerSqlQuery = `
-  SELECT PLAYER_ID FROM PLAYERS P
-  WHERE MEMBER_ID = :memberId
-  `;
+    SELECT PLAYER_ID FROM PLAYERS P
+    WHERE MEMBER_ID = :memberId
+    `;
   const deletePlayerCardSqlQuery = `
-  DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${playerSqlQuery})`;
+    DELETE FROM PLAYER_CARDS WHERE PLAYER_ID IN (${playerSqlQuery})`;
   await connection.execute(deletePlayerCardSqlQuery, sqlParams);
 
   const deletePlayersSqlQuery = `
-  DELETE FROM PLAYERS WHERE PLAYER_ID IN (${playerSqlQuery})`;
+    DELETE FROM PLAYERS WHERE PLAYER_ID IN (${playerSqlQuery})`;
   await connection.execute(deletePlayersSqlQuery, sqlParams);
 };
 
+/**
+ *
+ * @param {object} body body object passed from client.
+ * @param {number} gameId Id of the game.
+ * @returns {Promise<object>} The promise object of data returned from data source.
+ */
 const postPlayerByGameId = async (body, gameId) => {
   const connection = await conn.getConnection();
   try {
@@ -130,13 +164,13 @@ const postPlayerByGameId = async (body, gameId) => {
     const { playerCards } = body;
     delete body.playerCards;
     const postSqlQuery = `
-    INSERT INTO PLAYERS (MEMBER_ID, GAME_ID, PLAYER_BET, STATUS_ID)
-    VALUES (:memberId,
-           ${gameId},
-           :playerBet,
-           (SELECT STATUS_ID FROM STATUSES WHERE STATUS = :playerStatus))
-    RETURNING PLAYER_ID INTO :outId
-    `;
+      INSERT INTO PLAYERS (MEMBER_ID, GAME_ID, PLAYER_BET, STATUS_ID)
+      VALUES (:memberId,
+            ${gameId},
+            :playerBet,
+            (SELECT STATUS_ID FROM STATUSES WHERE STATUS = :playerStatus))
+      RETURNING PLAYER_ID INTO :outId
+      `;
     const rawPlayer = await connection.execute(postSqlQuery, body, { autoCommit: true });
     const playerId = rawPlayer.outBinds.outId[0];
     const cardSqlQuery = `INSERT INTO PLAYER_CARDS (PLAYER_ID, CARD_ID) VALUES
@@ -172,20 +206,20 @@ const insertCardsByPlayerId = async (playerId, playerCards, connection) => {
   }
   const selectBindString = _.join(individualSelection, ',');
   const getIdSqlQuery = `
-  SELECT C.CARD_ID FROM CARDS C
-  INNER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
-  INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
-  WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`;
+    SELECT C.CARD_ID FROM CARDS C
+    INNER JOIN CARD_SUITS CS ON C.CARD_SUIT_ID = CS.SUIT_ID
+    INNER JOIN CARD_NUMBERS CN ON C.CARD_NUMBER_ID = CN.CARD_NUMBER_ID
+    WHERE (CN.CARD_NUMBER, CS.SUIT) IN (${selectBindString})`;
   const cardIdResult = await connection.execute(getIdSqlQuery, flattenedArray);
   const cardIds = _.map(cardIdResult.rows, card => card.CARD_ID);
 
   const insertBindString = cardIds.map((name, index) => `INTO PLAYER_CARDS (PLAYER_ID, CARD_ID)
   VALUES (:playerId, :${index})`).join('\n');
   const insertSqlQuery = `
-  INSERT ALL
-    ${insertBindString}
-  SELECT 1 FROM DUAL
-  `;
+    INSERT ALL
+      ${insertBindString}
+    SELECT 1 FROM DUAL
+    `;
   const sqlParams = {
     ...cardIds,
     playerId,
@@ -197,6 +231,12 @@ const databaseName = string => (decamelize(string).toUpperCase());
 
 const isTruthyOrZero = val => (val || val === 0);
 
+/**
+ *
+ * @param {number} playerId Id of the player.
+ * @param {object} attributes The attribute object from client's body sent.
+ * @returns {Promise<object>} Promise object of data returned from data source.
+ */
 const patchPlayer = async (playerId, attributes) => {
   const connection = await conn.getConnection();
   try {
@@ -205,9 +245,9 @@ const patchPlayer = async (playerId, attributes) => {
     //  Get the status ID of the playerStatus in request body.
     if (attributes.playerStatus) {
       const statusSqlQuery = `
-      SELECT S.STATUS_ID FROM STATUSES S
-      WHERE S.STATUS = :playerStatus
-      `;
+        SELECT S.STATUS_ID FROM STATUSES S
+        WHERE S.STATUS = :playerStatus
+        `;
       const statusParam = [attributes.playerStatus];
       const statusResponse = await connection.execute(statusSqlQuery, statusParam);
       attributes.statusId = statusResponse.rows[0].STATUS_ID;
@@ -238,10 +278,10 @@ const patchPlayer = async (playerId, attributes) => {
       (value, key) => (`${isTruthyOrZero(value) ? `${databaseName(key)} = :${key}` : ''}`));
     const joinedString = _(joinedStringArray).compact().join(', ');
     const patchSqlQuery = `
-    UPDATE PLAYERS
-    SET ${joinedString}
-    WHERE PLAYER_ID = :id
-    `;
+      UPDATE PLAYERS
+      SET ${joinedString}
+      WHERE PLAYER_ID = :id
+      `;
     filteredAttributes.id = playerId;
     const response = await connection.execute(patchSqlQuery,
       filteredAttributes,

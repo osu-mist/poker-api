@@ -19,14 +19,21 @@ describe('Test players-serializer', () => {
     serializedPlayers,
     testGameId,
     serializedPlayer,
-    // serializedGames,
-    // serializedGame,
+    rawPlayerToConvert,
+    rawPlayerConverted,
   } = testData;
   const query = {};
   describe('Test mergeRawPlayers', () => {
     it('Should merge rawPlayer properly', () => {
       const result = playerSerializer.mergeRawPlayers(rawPlayer);
       chai.expect(result).to.deep.equal(mergedRawPlayer);
+    });
+  });
+
+  describe('Test playerConverter', () => {
+    it('Should convert with all valid fields', () => {
+      playerSerializer.playerConverter(rawPlayerToConvert);
+      chai.expect(rawPlayerToConvert).to.deep.equal(rawPlayerConverted);
     });
   });
 

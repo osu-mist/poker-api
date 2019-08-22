@@ -6,6 +6,8 @@ const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
 
 /**
  * @summary Get games a specific member is now playing
+ * @param {object} req Request object
+ * @param {object} res Response object
  */
 const get = async (req, res) => {
   try {
@@ -21,6 +23,5 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/members/{memberId}/games'].get;
 
 module.exports = { get };

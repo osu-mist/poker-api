@@ -4,10 +4,11 @@ const playerDao = require('../../../../db/oracledb/player-dao');
 const gameDao = require('../../../../db/oracledb/game-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
-const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
  * @summary Get the information of a player inside the game with the gameId and playerId.
+ * @param {object} req Request object
+ * @param {object} res Response object
  */
 const get = async (req, res) => {
   try {
@@ -30,6 +31,8 @@ const get = async (req, res) => {
 
 /**
  * @summary Delete player by unique ID.
+ * @param {object} req Request object
+ * @param {object} res Response object
  */
 const del = async (req, res) => {
   try {
@@ -50,6 +53,10 @@ const del = async (req, res) => {
   }
 };
 
+/**
+ * @param {object} req Request object
+ * @param {object} res Response object
+ */
 const patch = async (req, res) => {
   try {
     const { gameId, playerId } = req.params;
@@ -69,9 +76,4 @@ const patch = async (req, res) => {
   }
 };
 
-
-get.apiDoc = paths['/games/{gameId}/players/{playerId}'].get;
-del.apiDoc = paths['/games/{gameId}/players/{playerId}'].del;
-patch.apiDoc = paths['/games/{gameId}/players/{playerId}'].patch;
-
-module.exports = { get, del, patch };
+module.exports = { get, delete: del, patch };

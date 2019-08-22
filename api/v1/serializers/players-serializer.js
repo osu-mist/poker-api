@@ -24,12 +24,21 @@ _.forEach(playerResourceKeys, (key, index) => {
 });
 playerResourceKeys.push('playerCards');
 
+/**
+ *
+ * @param {object} player Raw player object
+ */
 const playerConverter = (player) => {
   player.MEMBER_LEVEL = parseInt(player.MEMBER_LEVEL, 10);
   player.MEMBER_EXP_OVER_LEVEL = parseInt(player.MEMBER_EXP_OVER_LEVEL, 10);
   player.PLAYER_BET = parseInt(player.PLAYER_BET, 10);
 };
 
+/**
+ *
+ * @param {object} rawPlayers Raw player data from data source.
+ * @returns {object} Player data being properly merged.
+ */
 const mergeRawPlayers = (rawPlayers) => {
   const groupedRawPlayers = _.groupBy(rawPlayers, 'PLAYER_ID');
   const mergedRawPlayers = _.map(groupedRawPlayers, (playerMetaDataArray) => {
@@ -43,6 +52,14 @@ const mergeRawPlayers = (rawPlayers) => {
   return mergedRawPlayers;
 };
 
+/**
+ * Serialize playerResources to JSON API
+ *
+ * @param {object[]} rawPlayers Raw data rows from data source
+ * @param {object} query Query parameters
+ * @param {string} gameId Id of the game, optional
+ * @returns {object} Serialized playerResources object
+ */
 const serializePlayers = (rawPlayers, query, gameId) => {
   rawPlayers = mergeRawPlayers(rawPlayers);
   _.forEach(rawPlayers, (player) => {
@@ -65,7 +82,14 @@ const serializePlayers = (rawPlayers, query, gameId) => {
   ).serialize(rawPlayers);
 };
 
-
+/**
+ * @summary Serialize playerResource to JSON API
+ * @function
+ * @param {object} rawPlayers Raw data row from data source
+ * @param {string} gameId Id of the game, optional
+ * @param {boolean} isPost Whether the client is posting
+ * @returns {object} Serialized playerResource object
+ */
 const serializePlayer = (rawPlayers, gameId, isPost = false) => {
   const [rawPlayer] = mergeRawPlayers(rawPlayers);
   playerConverter(rawPlayer);
@@ -88,4 +112,9 @@ const serializePlayer = (rawPlayers, gameId, isPost = false) => {
   ).serialize(rawPlayer);
 };
 
-module.exports = { serializePlayers, serializePlayer };
+module.exports = {
+  serializePlayers,
+  serializePlayer,
+  mergeRawPlayers,
+  playerConverter,
+};
