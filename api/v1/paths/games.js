@@ -4,10 +4,12 @@ const gamesDao = require('../db/oracledb/game-dao');
 const memberDao = require('../db/oracledb/member-dao');
 
 const { errorHandler, errorBuilder } = appRoot.require('errors/errors');
-const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
  * @summary Get games
+ * @param {object} req The request object sent from client.
+ * @param {object} res The response object sent to client.
+ * @returns {object} Response or error.
  */
 const get = async (req, res) => {
   try {
@@ -20,6 +22,8 @@ const get = async (req, res) => {
 
 /**
  * @summary Post game
+ * @param {object} req The request object sent from client.
+ * @param {object} res The response object sent to client.
  */
 const post = async (req, res) => {
   try {
@@ -37,7 +41,5 @@ const post = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/games'].get;
-post.apiDoc = paths['/games'].post;
 
 module.exports = { get, post };

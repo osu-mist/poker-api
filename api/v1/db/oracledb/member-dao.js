@@ -12,7 +12,8 @@ const conn = appRoot.require('api/v1/db/oracledb/connection');
 /**
  * @summary Return a list of members
  * @function
- * @returns {Promise<Object[]>} Promise object represents a list of members
+ * @param {object} query Query object from client.
+ * @returns {Promise<object[]>} Promise object represents a list of members
  */
 const getMembers = async (query) => {
   const connection = await conn.getConnection();
@@ -46,7 +47,8 @@ const getMembers = async (query) => {
  * @summary Return a specific member by unique ID
  * @function
  * @param {string} id Unique member ID
- * @returns {Promise<Object>} Promise object represents a specific member
+ * @param {boolean} isPost Whether this function is used by a post operation function.
+ * @returns {Promise<object>} Promise object represents a specific member
  *                            or return undefined if term
  *                            is not found
  */
@@ -78,7 +80,7 @@ const getMemberById = async (id, isPost = false) => {
  * @summary Check through each memberId in the memberIds attribute and make sure all of them exist
  * in the database.
  * @function
- * @param {Array[number]} memberIds Request body from client
+ * @param {Array.<number>} memberIds Request body from client
  * @returns {Promise<boolean>} If all of the memberId in memberIds exist or not.
  */
 const validateMembers = async (memberIds) => {
@@ -104,7 +106,7 @@ const validateMembers = async (memberIds) => {
  * @summary Post a new member into the system.
  * @function
  * @param {object} body The post body from request object.
- * @returns {Promise<Object>} The JSON resource of the new member created.
+ * @returns {Promise<object>} The JSON resource of the new member created.
  */
 const postMember = async (body) => {
   const connection = await conn.getConnection();
@@ -133,8 +135,19 @@ const postMember = async (body) => {
   }
 };
 
+/**
+ *
+ * @param {Array.<number>} memberIds Array of member Ids
+ * @returns {boolean} If there exists duplicate member Ids.
+ */
 const hasDuplicateMemberId = memberIds => (!(_.size(_.uniq(memberIds)) === _.size(memberIds)));
 
+/**
+ *
+ * @param {string} nickname Nickname of the member
+ * @param {string} email Email of the member
+ * @returns {Promise} Whether the member with certain nickname or email is already registered.
+ */
 const isMemberAlreadyRegistered = async (nickname, email) => {
   const connection = await conn.getConnection();
   try {
@@ -152,6 +165,11 @@ const isMemberAlreadyRegistered = async (nickname, email) => {
   }
 };
 
+/**
+ *
+ * @param {number} memberId Id of the member.
+ * @returns {Promise<object>} Promise object of result object returned from data source.
+ */
 const deleteMember = async (memberId) => {
   const connection = await conn.getConnection();
   try {
@@ -169,10 +187,26 @@ const deleteMember = async (memberId) => {
   }
 };
 
+/**
+ *
+ * @param {string} string The name to be converted.
+ * @returns {string} The name converted.
+ */
 const databaseName = string => (decamelize(string).toUpperCase());
 
+/**
+ *
+ * @param {*} val The varaible to be tested.
+ * @returns {boolean} Whether the variable is truthy or zero.
+ */
 const isTruthyOrZero = val => (val || val === 0);
 
+/**
+ *
+ * @param {number} memberId The id of the member.
+ * @param {object} attributes The attribute from the body sent by client.
+ * @returns {Promise} Promise object of whether the operation is successful.
+ */
 const patchMember = async (memberId, attributes) => {
   const connection = await conn.getConnection();
   try {

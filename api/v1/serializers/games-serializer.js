@@ -12,6 +12,7 @@ const gameResourceType = gameResourceProp.type.enum[0];
 const gameResourceKeys = _.keys(gameResourceProp.attributes.properties);
 const gameResourcePath = 'games';
 const gameResourceUrl = resourcePathLink(apiBaseUrl, gameResourcePath);
+const gameFromMemberResourcePath = memberId => `members/${memberId}/games`;
 
 /**
  * The column name getting from database is usually UPPER_CASE.
@@ -24,6 +25,10 @@ _.forEach(gameResourceKeys, (key, index) => {
 });
 gameResourceKeys.push('tableCards');
 
+/**
+ *
+ * @param {object} rawGame The raw game object
+ */
 const individualGameConverter = (rawGame) => {
   rawGame.MINIMUM_BET = parseInt(rawGame.MINIMUM_BET, 10);
   rawGame.MAXIMUM_BET = parseInt(rawGame.MAXIMUM_BET, 10);
@@ -35,8 +40,8 @@ const individualGameConverter = (rawGame) => {
  * and put them into a field called 'tableCards' in the individual merged game object, while other
  * properties in the object remained in the first layer.
  * @function
- * @param {Object[]} rawGames An array of raw game data returned from SQL database.
- * @returns {Object[]} Game objects merged.
+ * @param {object[]} rawGames An array of raw game data returned from SQL database.
+ * @returns {object[]} Game objects merged.
  */
 const mergeRawGames = (rawGames) => {
   const groupedRawGames = _.groupBy(rawGames, 'GAME_ID');
@@ -51,14 +56,24 @@ const mergeRawGames = (rawGames) => {
   return mergedRawGames;
 };
 
-
-const serializeGames = (rawGames, query) => {
+/**
+ * Serialize gameResources to JSON API
+ *
+ * @param {object[]} rawGames Raw data rows from data source
+ * @param {object} query Query parameters
+ * @param {string} memberId Id of the member, optional
+ * @returns {object} Serialized gameResources object
+ */
+const serializeGames = (rawGames, query, memberId) => {
   rawGames = mergeRawGames(rawGames);
   _.forEach(rawGames, (game) => {
     individualGameConverter(game);
   });
+  const gameResourcePathInstance = memberId ? gameFromMemberResourcePath(memberId)
+    : gameResourcePath;
+  const gameResourceUrlShadow = resourcePathLink(apiBaseUrl, gameResourcePathInstance);
+  const topLevelSelfLink = paramsLink(gameResourceUrlShadow, query);
 
-  const topLevelSelfLink = paramsLink(gameResourceUrl, query);
   const serializerArgs = {
     identifierField: 'GAME_ID',
     resourceKeys: gameResourceKeys,
@@ -73,7 +88,14 @@ const serializeGames = (rawGames, query) => {
   ).serialize(rawGames);
 };
 
-
+/**
+ * Serialize gameResources to JSON API
+ *
+ * @param {object[]} rawGames Raw data rows from data source
+ * @param {boolean} isPost Whether client is posting
+ * @param {object} query Query parameters
+ * @returns {object} Serialized gameResources object
+ */
 const serializeGame = (rawGames, isPost, query) => {
   const [rawGame] = mergeRawGames(rawGames);
   individualGameConverter(rawGame);

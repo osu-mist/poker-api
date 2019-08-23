@@ -6,8 +6,8 @@
   },
   "auth": {
     "basic_auth": {
-      "username": "username",
-      "password": "password"
+      "username": "abc",
+      "password": "def"
     },
     "oauth2": {
       "token_api_url": "https://api.oregonstate.edu/oauth2/token",
@@ -16,7 +16,18 @@
     }
   },
   "test_cases": {
-    "valid_pet_ids": ["1", "2", "3"],
-    "invalid_pet_ids": ["999", "-1", "invalid_id"]
+    "valid_member_ids": ["1", "2", "3"],
+    "nonexistent_member_ids": ["0", "999","114514"],
+    "invalid_member_ids": ["***", "-1", "invalid_id"],
+    "member_nicknames": ["J", "John Wick", "patchedNickname"],
+    "member_emails": ["abc@efg.com", "wickj@oregonstate.edu", "patchedEmail@gmail.com"],
+    "valid_game_ids": ["1", "2", "3"],
+    "nonexistent_game_ids": ["0", "999","114514"],
+    "invalid_game_ids": ["***", "-1", "invalid_id"],
+    "round_names": ["blind", "river"],
+    "invalid_round_names": ["374", "sndhsdaof", "(*&(*^((^SGDY*&(*&"],
+    "valid_player_game_combination": [["1", "1"], ["1", "2"], ["1", "3"], ["2", "4"]],
+    "nonexistent_player_game_combination": [["2", "1"],["4", "2"], ["123", "45"]],
+    "invalid_player_game_combination": [["2rrr", "1"],["4", "dfdf"], ["fsdf@#", "fdf@@##"]]
   }
 }

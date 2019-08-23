@@ -23,6 +23,10 @@ _.forEach(memberResourceKeys, (key, index) => {
   memberResourceKeys[index] = decamelize(key).toUpperCase();
 });
 
+/**
+ *
+ * @param {object} rawMember The raw member object
+ */
 const singleMemberConverter = (rawMember) => {
   rawMember.MEMBER_LEVEL = parseInt(rawMember.MEMBER_LEVEL, 10);
   rawMember.MEMBER_EXP_OVER_LEVEL = parseInt(rawMember.MEMBER_EXP_OVER_LEVEL, 10);
@@ -31,7 +35,7 @@ const singleMemberConverter = (rawMember) => {
 /**
  * @summary Serialize memberResources to JSON API
  * @function
- * @param {[Object]} rawMembers Raw data rows from data source
+ * @param {[object]} rawMembers Raw data rows from data source
  * @param {object} query Query parameters
  * @returns {object} Serialized memberResources object
  */
@@ -60,6 +64,7 @@ const serializeMembers = (rawMembers, query) => {
  * @summary Serialize memberResource to JSON API
  * @function
  * @param {object} rawMember Raw data row from data source
+ * @param {boolean} isPost Whether the client is posting
  * @returns {object} Serialized memberResource object
  */
 const serializeMember = (rawMember, isPost = false) => {

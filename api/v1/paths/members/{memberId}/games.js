@@ -3,10 +3,11 @@ const appRoot = require('app-root-path');
 const gameDao = require('../../../db/oracledb/game-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
-const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
  * @summary Get games a specific member is now playing
+ * @param {object} req Request object
+ * @param {object} res Response object
  */
 const get = async (req, res) => {
   try {
@@ -22,6 +23,5 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/members/{memberId}/games'].get;
 
 module.exports = { get };

@@ -12,8 +12,8 @@ const conn = appRoot.require('api/v1/db/oracledb/connection');
 const { openapi } = appRoot.require('utils/load-openapi');
 
 /**
- * Create the stub for connection object that is useful for controlled testing environment.
- *
+ * @summary Create the stub for connection object that is useful for controlled testing environment.
+ * @function
  * @param {object} testCase The testcase that becomes the return value of connection.execute
  * in the stub.
  * @returns {object} An object of all the interal function stub created for this stub.
@@ -31,7 +31,7 @@ const createConnStub = (testCase) => {
 };
 
 /**
- * Transoform the rawData into serializedData.
+ * @summary Transoform the rawData into serializedData.
  * @param {string} resourceType The type of resource.
  * @param {string} resourceId The id of resource.
  * @param {object} resourceAttributes The attribute of the resource.
@@ -71,13 +71,12 @@ const getDefinition = (def) => {
 };
 
 /**
- * Test if a single resource matches the schema in the specification.
+ * @summary Test if a single resource matches the schema in the specification.
  * @param {object} serializedResource serialized resource to be tested.
  * @param {string} resourceType The type of the resource.
  * @param {string} resourceId The id of the resource.
  * @param {object} nestedProps The attributes of the resource.
  */
-
 const testSingleResource = (serializedResource, resourceType, resourceId, nestedProps) => {
   expect(serializedResource).to.deep.equal(resourceSchema(resourceType,
     resourceId,
